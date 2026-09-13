@@ -34,6 +34,7 @@ interface SavePlanToDriveViewProps {
   currentCalculation: CalculationResult;
   accessToken: string | null;
   onLogin: () => void;
+  onRequestDriveAccess: () => Promise<void>;
   onLogout: () => void;
   isLoggingIn: boolean;
   onNavigate: (tab: PageTab) => void;
@@ -43,6 +44,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
   currentCalculation,
   accessToken,
   onLogin,
+  onRequestDriveAccess,
   onLogout,
   isLoggingIn,
   onNavigate,
@@ -101,6 +103,9 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     );
   };
 
+  const [hasDriveAccess, setHasDriveAccess] = useState<boolean>(false);
+  const [isRequestingDrive, setIsRequestingDrive] = useState<boolean>(false);
+
   // Load existing plans from Drive if connected
   const fetchExistingPlans = async () => {
     if (!accessToken) return;
@@ -109,9 +114,15 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     try {
       const files = await listSavedPlansFromDrive(accessToken);
       setExistingPlans(files);
+      setHasDriveAccess(true);
     } catch (err: any) {
       console.error('Failed to load drive files:', err);
-      setExistingError(err.message || 'Could not load existing plans');
+      const errMsg = err.message || '';
+      if (errMsg.includes('403') || errMsg.includes('insufficient permissions')) {
+        setHasDriveAccess(false);
+      } else {
+        setExistingError(err.message || 'Could not load existing plans');
+      }
     } finally {
       setIsLoadingExisting(false);
     }
@@ -128,6 +139,19 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     if (!accessToken) {
       onLogin();
       return;
+    }
+
+    if (!hasDriveAccess) {
+      setIsRequestingDrive(true);
+      try {
+        await onRequestDriveAccess();
+        setHasDriveAccess(true);
+      } catch (err: any) {
+        setSaveError(err.message || 'Drive access was not granted.');
+        setIsRequestingDrive(false);
+        return;
+      }
+      setIsRequestingDrive(false);
     }
 
     setIsSaving(true);
@@ -524,13 +548,13 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
               <button
                 id="save-plan-to-drive-btn"
                 onClick={handleSaveToDrive}
-                disabled={isSaving || selectedStrategies.length === 0}
+                disabled={isSaving || isRequestingDrive || selectedStrategies.length === 0}
                 className="w-full py-3.5 px-6 bg-[#1D2B17] dark:bg-[#4A6741] hover:bg-[#2E4726] dark:hover:bg-[#3B5334] text-white font-bold text-sm rounded-2xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                {isSaving ? (
+                {isSaving || isRequestingDrive ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Uploading Plan to Google Drive...</span>
+                    <span>{isRequestingDrive ? 'Requesting Drive Access...' : 'Uploading Plan to Google Drive...'}</span>
                   </>
                 ) : (
                   <>
@@ -607,14 +631,34 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
               <div className="p-4 bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] rounded-2xl text-center space-y-2">
                 <Cloud className="w-6 h-6 text-[#737C70] mx-auto opacity-50" />
                 <p className="text-xs text-[#5C6658] dark:text-[#9DB099]">
-                  Connect your Google account to view and access previously saved Climate Action Plans from Google Drive.
+                  Log in to your Google account to create and manage Climate Action Plans.
                 </p>
                 <button
                   onClick={onLogin}
                   disabled={isLoggingIn}
                   className="px-4 py-1.5 bg-[#4A6741] text-white text-xs font-bold rounded-full hover:bg-[#3B5334] transition-colors"
                 >
-                  Connect Drive
+                  Log In
+                </button>
+              </div>
+            ) : !hasDriveAccess && !isLoadingExisting ? (
+              <div className="p-4 bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] rounded-2xl text-center space-y-2">
+                <Cloud className="w-6 h-6 text-[#737C70] mx-auto opacity-50" />
+                <p className="text-xs text-[#5C6658] dark:text-[#9DB099]">
+                  Grant Google Drive access to view and manage previously saved Climate Action Plans.
+                </p>
+                <button
+                  onClick={async () => {
+                    try {
+                      await onRequestDriveAccess();
+                      fetchExistingPlans();
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  className="px-4 py-1.5 bg-[#4A6741] text-white text-xs font-bold rounded-full hover:bg-[#3B5334] transition-colors"
+                >
+                  Grant Drive Access
                 </button>
               </div>
             ) : isLoadingExisting ? (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PageTab } from '../types';
-import { User } from 'firebase/auth';
+import { AuthUserProfile } from '../lib/firebase';
 import { ambientSound } from '../utils/ambientAudio';
 import { ThemeToggle } from './reactbits';
 import {
@@ -25,7 +25,7 @@ import {
 interface NavbarProps {
   currentTab: PageTab;
   setCurrentTab: (tab: PageTab) => void;
-  user: User | null;
+  user: AuthUserProfile | null;
   onLogin: () => void;
   onLogout: () => void;
   isLoggingIn: boolean;

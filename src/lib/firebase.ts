@@ -19,9 +19,9 @@ export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 export const OAUTH_CLIENT_ID = firebaseConfig.oAuthClientId;
 
 const provider = new GoogleAuthProvider();
-provider.addScope(DRIVE_FILE_SCOPE);
+// Remove DRIVE_FILE_SCOPE from basic sign-in
 provider.setCustomParameters({
-  prompt: 'consent select_account',
+  prompt: 'select_account',
 });
 
 export interface AuthUserProfile {
@@ -37,8 +37,9 @@ let cachedAccessToken: string | null = null;
 let cachedUserProfile: AuthUserProfile | null = null;
 
 // Global listener callbacks
-type AuthCallback = (user: AuthUserProfile, token: string) => void;
+type AuthCallback = (user: AuthUserProfile, token: string | null) => void;
 type FailureCallback = () => void;
+
 const successListeners: Set<AuthCallback> = new Set();
 const failureListeners: Set<FailureCallback> = new Set();
 
@@ -63,7 +64,7 @@ async function fetchGoogleUserProfile(token: string): Promise<AuthUserProfile> {
     console.warn('Could not fetch userinfo from Google endpoint:', e);
   }
   return {
-    displayName: 'Google Drive User',
+    displayName: 'Google User',
     email: null,
     photoURL: null,
     uid: `user_${Date.now()}`,
@@ -74,32 +75,31 @@ async function fetchGoogleUserProfile(token: string): Promise<AuthUserProfile> {
  * Initialize auth state listener. Call this on app load.
  */
 export const initAuth = (
-  onAuthSuccess?: (user: AuthUserProfile, token: string) => void,
+  onAuthSuccess?: (user: AuthUserProfile, token: string | null) => void,
   onAuthFailure?: () => void
 ) => {
   if (onAuthSuccess) successListeners.add(onAuthSuccess);
   if (onAuthFailure) failureListeners.add(onAuthFailure);
 
   // If already authenticated in session memory
-  if (cachedAccessToken && cachedUserProfile) {
+  if (cachedUserProfile) {
     if (onAuthSuccess) onAuthSuccess(cachedUserProfile, cachedAccessToken);
   }
 
   // Also listen to Firebase Auth changes
   const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
     if (firebaseUser) {
-      if (cachedAccessToken) {
-        const profile: AuthUserProfile = {
-          displayName: firebaseUser.displayName,
-          email: firebaseUser.email,
-          photoURL: firebaseUser.photoURL,
-          uid: firebaseUser.uid,
-        };
-        cachedUserProfile = profile;
-        successListeners.forEach((cb) => cb(profile, cachedAccessToken!));
-      }
-    } else if (!cachedAccessToken && !isSigningIn) {
+      const profile: AuthUserProfile = {
+        displayName: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photoURL: firebaseUser.photoURL,
+        uid: firebaseUser.uid,
+      };
+      cachedUserProfile = profile;
+      successListeners.forEach((cb) => cb(profile, cachedAccessToken));
+    } else if (!isSigningIn) {
       cachedUserProfile = null;
+      cachedAccessToken = null;
       failureListeners.forEach((cb) => cb());
     }
   });
@@ -112,8 +112,7 @@ export const initAuth = (
 };
 
 /**
- * Perform sign in using Google Identity Services (GIS token client).
- * This works natively on mobile Safari, Android Chrome, and all devices without third-party cookie restrictions.
+ * Perform basic sign in using Google Identity Services (GIS token client) without Drive scopes.
  */
 function signInWithGIS(): Promise<{ user: AuthUserProfile; accessToken: string }> {
   return new Promise((resolve, reject) => {
@@ -126,7 +125,7 @@ function signInWithGIS(): Promise<{ user: AuthUserProfile; accessToken: string }
     try {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: OAUTH_CLIENT_ID,
-        scope: `${DRIVE_FILE_SCOPE} https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email`,
+        scope: `https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email`,
         prompt: 'select_account',
         callback: async (response: { access_token?: string; error?: string; error_description?: string }) => {
           if (response.error) {
@@ -136,7 +135,6 @@ function signInWithGIS(): Promise<{ user: AuthUserProfile; accessToken: string }
           if (!response.access_token) {
             return reject(new Error('No access token received from Google Identity Services.'));
           }
-
           const token = response.access_token;
           const profile = await fetchGoogleUserProfile(token);
           cachedAccessToken = token;
@@ -149,8 +147,6 @@ function signInWithGIS(): Promise<{ user: AuthUserProfile; accessToken: string }
           reject(err);
         },
       });
-
-      // Request token with popup dialog
       client.requestAccessToken();
     } catch (err) {
       reject(err);
@@ -159,11 +155,53 @@ function signInWithGIS(): Promise<{ user: AuthUserProfile; accessToken: string }
 }
 
 /**
- * Trigger Google Sign In with Drive access scope.
- * Tries Google Identity Services (GIS) first (ideal for mobile and modern browsers),
- * and seamlessly falls back to Firebase Auth popup.
+ * Incremental Authorization: Request Drive access specifically.
+ * Used only when the user intends to save something to Drive.
  */
-export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessToken: string } | null> => {
+export const requestDriveAccess = (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const google = (window as unknown as { google?: { accounts?: { oauth2?: { initTokenClient: Function } } } })?.google;
+    
+    if (!google?.accounts?.oauth2?.initTokenClient || !OAUTH_CLIENT_ID) {
+      return reject(new Error('Google Identity Services not available. Please try again.'));
+    }
+
+    try {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: OAUTH_CLIENT_ID,
+        scope: DRIVE_FILE_SCOPE,
+        include_granted_scopes: true,
+        callback: async (response: { access_token?: string; error?: string; error_description?: string }) => {
+          if (response.error) {
+            console.error('Drive OAuth Error:', response.error, response.error_description);
+            return reject(new Error(response.error_description || response.error));
+          }
+          if (!response.access_token) {
+            return reject(new Error('No access token received.'));
+          }
+          const token = response.access_token;
+          cachedAccessToken = token;
+          if (cachedUserProfile) {
+            successListeners.forEach((cb) => cb(cachedUserProfile!, token));
+          }
+          resolve(token);
+        },
+        error_callback: (err: unknown) => {
+          reject(err);
+        },
+      });
+      // Request incremental token
+      client.requestAccessToken();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+/**
+ * Trigger Google Sign In for basic authentication.
+ */
+export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessToken: string | null } | null> => {
   if (isSigningIn) {
     console.warn('Sign-in already in progress');
     return null;
@@ -187,11 +225,9 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
     // 2. Fallback: Firebase Auth signInWithPopup
     const result = await signInWithPopup(auth, provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    if (!credential?.accessToken) {
-      throw new Error('Failed to obtain Google access token from credentials');
-    }
+    // Access token is optional for basic sign-in
+    cachedAccessToken = credential?.accessToken || null;
 
-    cachedAccessToken = credential.accessToken;
     const profile: AuthUserProfile = {
       displayName: result.user.displayName,
       email: result.user.email,
@@ -199,7 +235,7 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
       uid: result.user.uid,
     };
     cachedUserProfile = profile;
-    successListeners.forEach((cb) => cb(profile, cachedAccessToken!));
+    successListeners.forEach((cb) => cb(profile, cachedAccessToken));
     return { user: profile, accessToken: cachedAccessToken };
   } catch (error: unknown) {
     console.error('Google Sign-in Error:', error);

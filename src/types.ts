@@ -74,6 +74,7 @@ export interface DriveFileItem {
   webViewLink?: string;
   size?: string;
   modifiedTime?: string;
+  createdTime?: string;
   iconLink?: string;
   thumbnailLink?: string;
   owners?: { displayName: string; emailAddress: string }[];

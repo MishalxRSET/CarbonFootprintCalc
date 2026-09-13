@@ -2,7 +2,7 @@ import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 import React, { useEffect, useRef } from 'react';
 import './Iridescence.css';
 
-interface IridescenceProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IridescenceProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'color'> {
   color?: [number, number, number];
   speed?: number;
   amplitude?: number;
