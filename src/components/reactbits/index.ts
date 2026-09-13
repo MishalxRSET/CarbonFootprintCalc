@@ -5,3 +5,8 @@ export { DecryptedText } from './DecryptedText';
 export { Magnet } from './Magnet';
 export { TiltedCard } from './TiltedCard';
 export { ThemeToggle, ThemeRippleOverlay } from './ThemeToggle';
+export { FluidGlassButton } from './FluidGlass';
+export { Iridescence } from './Iridescence';
+export { FluidGlass } from './FluidGlassScene';
+export { BorderGlow } from './BorderGlow';
+export { ChromaGrid } from './ChromaGrid';

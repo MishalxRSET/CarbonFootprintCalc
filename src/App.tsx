@@ -19,9 +19,11 @@ import { DesignDocModal } from './components/DesignDocModal';
 import { CommandPalette } from './components/CommandPalette';
 import { GuidedTourModal } from './components/GuidedTourModal';
 import { Chatbot } from './components/Chatbot';
-import { ThemeRippleOverlay } from './components/reactbits';
+import { ThemeRippleOverlay, FluidGlassButton, Iridescence } from './components/reactbits';
 import { ThemeProvider } from './context/ThemeContext';
 import { FileCode, Cloud, Leaf, Sparkles, HelpCircle, Instagram } from 'lucide-react';
+
+import { IntroLoader } from './components/IntroLoader';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<PageTab>('overview');
@@ -31,6 +33,7 @@ export function AppContent() {
   const [isDesignDocOpen, setIsDesignDocOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGuidedTourOpen, setIsGuidedTourOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   // Maintain the active carbon footprint calculation state
   const [currentCalculation, setCurrentCalculation] = useState<CalculationResult>(() =>
@@ -99,7 +102,16 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1]">
+    <div className={`min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1] ${showIntro ? 'h-screen overflow-hidden' : ''}`}>
+      {/* Global Iridescence Background */}
+      <div className="fixed inset-0 z-0 opacity-20 dark:opacity-40 pointer-events-none">
+        <Iridescence color={[0.1, 0.5, 0.3]} mouseReact={true} speed={0.8} amplitude={0.15} />
+      </div>
+
+      <AnimatePresence>
+        {showIntro && <IntroLoader key="introLoader" onComplete={() => setShowIntro(false)} />}
+      </AnimatePresence>
+
       {/* React Bits Circular Theme Ripple Overlay */}
       <ThemeRippleOverlay />
 
@@ -118,7 +130,7 @@ export function AppContent() {
       />
 
       {/* Main View Container with Subtle Framer Motion Transitions */}
-      <main className="flex-1 overflow-hidden">
+      <main className="relative z-10 flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           {currentTab === 'overview' && (
             <motion.div
@@ -225,20 +237,21 @@ export function AppContent() {
 
       {/* Floating Quick Tour & Help Button */}
       <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom)+1rem)] sm:bottom-6 right-[5.5rem] sm:right-24 z-30">
-        <button
+        <FluidGlassButton
           id="floating-quick-tour-btn"
           type="button"
           onClick={() => setIsGuidedTourOpen(true)}
-          className="flex items-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-[#1D2B17] dark:bg-[#2E4726] text-white hover:bg-[#2F472A] dark:hover:bg-[#3E5C34] shadow-xl hover:shadow-2xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer text-[11px] sm:text-xs font-bold group"
+          className="flex items-center gap-2 px-4 py-3 sm:py-2.5 text-white transition-transform group"
+          containerClassName="hover:scale-105 active:scale-95 text-[11px] sm:text-xs font-bold"
           title="Start interactive guided tour"
         >
           <Sparkles className="w-4 h-4 text-[#78B169] group-hover:rotate-12 transition-transform" />
           <span className="hidden sm:inline">Guided Tour</span>
-        </button>
+        </FluidGlassButton>
       </div>
 
       {/* Global Project Footer */}
-      <footer className="bg-[#081E11] dark:bg-[#06120A] text-[#c7d8ca] border-t border-[#193822] dark:border-[#14281A] mt-20 py-12">
+      <footer className="relative z-10 bg-[#081E11] dark:bg-[#06120A] text-[#c7d8ca] border-t border-[#193822] dark:border-[#14281A] mt-20 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#65e66d] text-[#081E11] flex items-center justify-center font-bold shadow-xs">
