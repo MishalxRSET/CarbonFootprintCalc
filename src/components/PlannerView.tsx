@@ -3,6 +3,7 @@ import { ReductionStrategy, CalculationResult, PageTab } from '../types';
 import { REDUCTION_STRATEGIES } from '../data/carbonData';
 import { formatINR } from '../utils/currency';
 import { SpotlightCard, CountUp, ShinyText, Magnet } from './reactbits';
+import { SmartReductionTipsSidebar } from './SmartReductionTipsSidebar';
 import {
   Target,
   CheckCircle2,
@@ -196,127 +197,146 @@ export const PlannerView: React.FC<PlannerViewProps> = ({ currentCalculation, on
         </div>
       </div>
 
-      {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-        <span className="text-[#5C6658] font-medium flex items-center gap-1 pr-1">
-          <Filter className="w-3.5 h-3.5 text-[#8C7851]" /> Category:
-        </span>
-        {['All', 'Energy', 'Transport', 'Diet & Agriculture', 'Waste & Circularity'].map((cat) => (
-          <button
-            key={cat}
-            id={`filter-${cat.toLowerCase().replace(/[^a-z]/g, '-')}-btn`}
-            onClick={() => setCategoryFilter(cat)}
-            className={`px-4 py-2 rounded-full font-semibold whitespace-nowrap transition-colors ${
-              categoryFilter === cat
-                ? 'bg-[#4A6741] text-white shadow-xs'
-                : 'bg-white border border-[#E0E7DE] text-[#5C6658] hover:text-[#1D2B17] hover:bg-[#F1EFEC]'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+      {/* Main Content Area: Left Strategies & Right AI Smart Reduction Tips Sidebar */}
+      <div className="flex flex-col lg:flex-row items-start gap-8">
+        {/* Left Column: Strategy Filter & Cards */}
+        <div className="flex-1 w-full space-y-6">
+          {/* Filter Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <span className="text-[#5C6658] font-medium flex items-center gap-1 pr-1">
+              <Filter className="w-3.5 h-3.5 text-[#8C7851]" /> Category:
+            </span>
+            {['All', 'Energy', 'Transport', 'Diet & Agriculture', 'Waste & Circularity'].map((cat) => (
+              <button
+                key={cat}
+                id={`filter-${cat.toLowerCase().replace(/[^a-z]/g, '-')}-btn`}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-4 py-2 rounded-full font-semibold whitespace-nowrap transition-colors ${
+                  categoryFilter === cat
+                    ? 'bg-[#4A6741] text-white shadow-xs'
+                    : 'bg-white border border-[#E0E7DE] text-[#5C6658] hover:text-[#1D2B17] hover:bg-[#F1EFEC]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
 
-      {/* Strategies List with Granular "PROS" Breakdown */}
-      <div className="space-y-4">
-        {filteredStrategies.map((strategy) => {
-          const isSelected = selectedStrategyIds.includes(strategy.id);
-          const isExpanded = expandedStrategyId === strategy.id;
+          {/* Strategies List with Granular "PROS" Breakdown */}
+          <div className="space-y-4">
+            {filteredStrategies.map((strategy) => {
+              const isSelected = selectedStrategyIds.includes(strategy.id);
+              const isExpanded = expandedStrategyId === strategy.id;
 
-          return (
-            <div
-              key={strategy.id}
-              className={`bg-white rounded-[24px] border transition-all shadow-xs ${
-                isSelected ? 'border-[#4A6741] ring-1 ring-[#4A6741]/30' : 'border-[#E0E7DE] hover:border-[#CCD9C3]'
-              }`}
-            >
-              <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-4 flex-1">
-                  <button
-                    id={`toggle-strategy-${strategy.id}-btn`}
-                    onClick={() => toggleStrategy(strategy.id)}
-                    className={`mt-0.5 rounded-full p-2 transition-colors ${
-                      isSelected
-                        ? 'bg-[#4A6741] text-white shadow-xs'
-                        : 'bg-[#F1EFEC] text-[#737C70] hover:text-[#4A6741] hover:bg-[#D9E4D1]/40'
-                    }`}
-                  >
-                    {isSelected ? <Check className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
-                  </button>
+              return (
+                <div
+                  key={strategy.id}
+                  className={`bg-white rounded-[24px] border transition-all shadow-xs ${
+                    isSelected ? 'border-[#4A6741] ring-1 ring-[#4A6741]/30' : 'border-[#E0E7DE] hover:border-[#CCD9C3]'
+                  }`}
+                >
+                  <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1">
+                      <button
+                        id={`toggle-strategy-${strategy.id}-btn`}
+                        onClick={() => toggleStrategy(strategy.id)}
+                        className={`mt-0.5 rounded-full p-2 transition-colors ${
+                          isSelected
+                            ? 'bg-[#4A6741] text-white shadow-xs'
+                            : 'bg-[#F1EFEC] text-[#737C70] hover:text-[#4A6741] hover:bg-[#D9E4D1]/40'
+                        }`}
+                      >
+                        {isSelected ? <Check className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
+                      </button>
 
-                  <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] font-semibold px-3 py-0.5 rounded-full bg-[#F1EFEC] text-[#5C6658] border border-[#E8E4DF]">
-                        {strategy.category}
-                      </span>
-                      <h2 className="text-base font-bold text-[#1D2B17]">{strategy.title}</h2>
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[11px] font-semibold px-3 py-0.5 rounded-full bg-[#F1EFEC] text-[#5C6658] border border-[#E8E4DF]">
+                            {strategy.category}
+                          </span>
+                          <h2 className="text-base font-bold text-[#1D2B17]">{strategy.title}</h2>
+                        </div>
+                        <p className="text-xs text-[#5C6658] leading-relaxed max-w-3xl">
+                          {strategy.description}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs text-[#5C6658] leading-relaxed max-w-3xl">
-                      {strategy.description}
-                    </p>
+
+                    <div className="flex items-center gap-4 sm:pl-5 sm:border-l border-[#E0E7DE] shrink-0">
+                      <div className="text-right">
+                        <span className="text-xs font-bold text-[#4A6741] block">
+                          -{(strategy.potentialReductionKgCO2e / 1000).toFixed(2)} t CO₂e
+                        </span>
+                        <p className="text-[11px] text-[#737C70]">Payback: {strategy.paybackPeriod}</p>
+                      </div>
+
+                      <button
+                        id={`expand-strategy-${strategy.id}-btn`}
+                        onClick={() => setExpandedStrategyId(isExpanded ? null : strategy.id)}
+                        className="px-4 py-2 text-xs font-semibold rounded-full bg-[#F1EFEC] hover:bg-[#E8E4DF] text-[#1D2B17] border border-[#E8E4DF] transition-colors"
+                      >
+                        {isExpanded ? 'Hide Pros' : 'Inspect Pros'}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Expanded "PROS & ADVANTAGES" Panel (Directly addressing user prompt) */}
+                  {isExpanded && (
+                    <div className="px-6 pb-6 pt-3 border-t border-[#E0E7DE] bg-[#F7F9F6] rounded-b-[24px]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <ShieldCheck className="w-4 h-4 text-[#4A6741]" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#1D2B17]">
+                          Evaluated Pros & Engineering Advantages (From Drive Research Deck)
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                        <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
+                          <span className="font-bold text-[#4A6741] block">1. Environmental Pro</span>
+                          <p className="text-[#5C6658] leading-relaxed">{strategy.pros.environmental}</p>
+                        </div>
+
+                        <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
+                          <span className="font-bold text-[#8C7851] block">2. Economic / ROI Pro</span>
+                          <p className="text-[#5C6658] leading-relaxed">{strategy.pros.economic}</p>
+                        </div>
+
+                        <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
+                          <span className="font-bold text-[#4A6741] block">3. Health & Social Pro</span>
+                          <p className="text-[#5C6658] leading-relaxed">{strategy.pros.healthOrSocial}</p>
+                        </div>
+
+                        <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
+                          <span className="font-bold text-[#8C7851] block">4. Efficiency & Tech Pro</span>
+                          <p className="text-[#5C6658] leading-relaxed">{strategy.pros.efficiency}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+              );
+            })}
+          </div>
+        </div>
 
-                <div className="flex items-center gap-4 sm:pl-5 sm:border-l border-[#E0E7DE] shrink-0">
-                  <div className="text-right">
-                    <span className="text-xs font-bold text-[#4A6741] block">
-                      -{(strategy.potentialReductionKgCO2e / 1000).toFixed(2)} t CO₂e
-                    </span>
-                    <p className="text-[11px] text-[#737C70]">Payback: {strategy.paybackPeriod}</p>
-                  </div>
-
-                  <button
-                    id={`expand-strategy-${strategy.id}-btn`}
-                    onClick={() => setExpandedStrategyId(isExpanded ? null : strategy.id)}
-                    className="px-4 py-2 text-xs font-semibold rounded-full bg-[#F1EFEC] hover:bg-[#E8E4DF] text-[#1D2B17] border border-[#E8E4DF] transition-colors"
-                  >
-                    {isExpanded ? 'Hide Pros' : 'Inspect Pros'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Expanded "PROS & ADVANTAGES" Panel (Directly addressing user prompt) */}
-              {isExpanded && (
-                <div className="px-6 pb-6 pt-3 border-t border-[#E0E7DE] bg-[#F7F9F6] rounded-b-[24px]">
-                  <div className="flex items-center gap-2 mb-3">
-                    <ShieldCheck className="w-4 h-4 text-[#4A6741]" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#1D2B17]">
-                      Evaluated Pros & Engineering Advantages (From Drive Research Deck)
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
-                    <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
-                      <span className="font-bold text-[#4A6741] block">1. Environmental Pro</span>
-                      <p className="text-[#5C6658] leading-relaxed">{strategy.pros.environmental}</p>
-                    </div>
-
-                    <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
-                      <span className="font-bold text-[#8C7851] block">2. Economic / ROI Pro</span>
-                      <p className="text-[#5C6658] leading-relaxed">{strategy.pros.economic}</p>
-                    </div>
-
-                    <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
-                      <span className="font-bold text-[#4A6741] block">3. Health & Social Pro</span>
-                      <p className="text-[#5C6658] leading-relaxed">{strategy.pros.healthOrSocial}</p>
-                    </div>
-
-                    <div className="p-4 bg-white border border-[#E0E7DE] rounded-2xl space-y-1 shadow-2xs">
-                      <span className="font-bold text-[#8C7851] block">4. Efficiency & Tech Pro</span>
-                      <p className="text-[#5C6658] leading-relaxed">{strategy.pros.efficiency}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {/* Right Column: Smart Reduction Tips AI-Generated Sidebar */}
+        <SmartReductionTipsSidebar
+          calculation={currentCalculation}
+          onApplyStrategy={(category) => {
+            // Map tip categories to strategy filter categories
+            if (category.includes('Transport')) setCategoryFilter('Transport');
+            else if (category.includes('Energy')) setCategoryFilter('Energy');
+            else if (category.includes('Diet')) setCategoryFilter('Diet & Agriculture');
+            else if (category.includes('Waste')) setCategoryFilter('Waste & Circularity');
+            else setCategoryFilter('All');
+          }}
+        />
       </div>
 
       {/* Phased Roadmap Timeline Card */}
       <div className="bg-white border border-[#E0E7DE] rounded-[32px] p-8 shadow-xs space-y-6">
         <h3 className="text-2xl font-serif text-[#1D2B17]">
-          3-Phase Sustainable Engineering Roadmap (CO900G Framework)
+          3-Phase Strategic Decarbonization Roadmap
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">

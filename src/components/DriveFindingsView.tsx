@@ -366,7 +366,7 @@ export const DriveFindingsView: React.FC<DriveFindingsViewProps> = ({
             </h2>
           </div>
           <span className="text-xs font-semibold text-[#1D2B17] bg-[#D9E4D1] px-3 py-1 rounded-full border border-[#CCD9C3]">
-            CO900G Verification
+            Carbon Knowledge Check
           </span>
         </div>
 

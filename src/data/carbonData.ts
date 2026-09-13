@@ -266,7 +266,7 @@ export const PRESENTATION_FINDINGS_DATA: PresentationSlideSummary[] = [
   {
     slideNumber: 1,
     title: 'Executive Overview & Problem Statement',
-    subtitle: 'CO900G Modules 3 & 4: Atmospheric CO2 Trends & Anthropogenic Drivers',
+    subtitle: 'Atmospheric CO2 Trends, Anthropogenic Drivers & Decarbonization Targets',
     keyPoints: [
       'Atmospheric CO2 concentration surpassed 424 ppm in 2024, driving global temperature anomalies above +1.45°C.',
       'Scope 1 direct fossil fuel burning and Scope 2 thermal electricity generation constitute over 70% of organizational and domestic carbon footprints.',
@@ -389,9 +389,9 @@ export const PRESENTATION_FINDINGS_DATA: PresentationSlideSummary[] = [
         metrics: 'Achieves verified 50% carbon reduction in 3 years',
       },
       {
-        category: 'Educational Value',
-        benefit: 'Engages engineering students directly in hands-on sustainability data science, sensor telemetry, and environmental stewardship.',
-        metrics: 'Directly fulfills CO900G Course Outcomes CO3 & CO4',
+        category: 'Actionable Impact',
+        benefit: 'Engages participants directly in hands-on sustainability data tracking, emission audits, and carbon reduction stewardship.',
+        metrics: 'Provides clear path to net-zero carbon reduction',
       },
     ],
   },

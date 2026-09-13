@@ -146,7 +146,7 @@ class AmbientSoundEngine {
     }
   }
 
-  // Persepolis-style ancient resonant bronze chime / singing bowl on waypoint transitions
+  // Resonant singing bowl chime on transitions
   public playBellStrike(frequency: number = 432): void {
     try {
       const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
