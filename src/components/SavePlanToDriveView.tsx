@@ -34,7 +34,7 @@ interface SavePlanToDriveViewProps {
   currentCalculation: CalculationResult;
   accessToken: string | null;
   onLogin: () => void;
-  onRequestDriveAccess: () => Promise<void>;
+  onRequestDriveAccess: () => Promise<string>;
   onLogout: () => void;
   isLoggingIn: boolean;
   onNavigate: (tab: PageTab) => void;
@@ -107,12 +107,13 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
   const [isRequestingDrive, setIsRequestingDrive] = useState<boolean>(false);
 
   // Load existing plans from Drive if connected
-  const fetchExistingPlans = async () => {
-    if (!accessToken) return;
+  const fetchExistingPlans = async (overrideToken?: string) => {
+    const tokenToUse = overrideToken || accessToken;
+    if (!tokenToUse) return;
     setIsLoadingExisting(true);
     setExistingError(null);
     try {
-      const files = await listSavedPlansFromDrive(accessToken);
+      const files = await listSavedPlansFromDrive(tokenToUse);
       setExistingPlans(files);
       setHasDriveAccess(true);
     } catch (err: any) {
@@ -141,10 +142,12 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
       return;
     }
 
+    let activeToken = accessToken;
+
     if (!hasDriveAccess) {
       setIsRequestingDrive(true);
       try {
-        await onRequestDriveAccess();
+        activeToken = await onRequestDriveAccess();
         setHasDriveAccess(true);
       } catch (err: any) {
         setSaveError(err.message || 'Drive access was not granted.');
@@ -170,11 +173,11 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     };
 
     try {
-      const savedFile = await savePlanToGoogleDrive(accessToken, payload, format);
+      const savedFile = await savePlanToGoogleDrive(activeToken, payload, format);
       setSaveSuccessFile(savedFile);
       fireCelebrationConfetti();
       // Refresh list of plans
-      fetchExistingPlans();
+      fetchExistingPlans(activeToken);
     } catch (err: any) {
       console.error('Error saving plan to Google Drive:', err);
       if (err.message === 'UNAUTHORIZED_EXPIRED_TOKEN') {
@@ -617,7 +620,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
               {accessToken && (
                 <button
                   type="button"
-                  onClick={fetchExistingPlans}
+                  onClick={() => fetchExistingPlans()}
                   disabled={isLoadingExisting}
                   className="text-xs text-[#5C6658] dark:text-[#9DB099] hover:text-[#1D2B17] flex items-center gap-1"
                 >
@@ -650,8 +653,8 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
                 <button
                   onClick={async () => {
                     try {
-                      await onRequestDriveAccess();
-                      fetchExistingPlans();
+                      const newToken = await onRequestDriveAccess();
+                      fetchExistingPlans(newToken);
                     } catch (e) {
                       console.error(e);
                     }
