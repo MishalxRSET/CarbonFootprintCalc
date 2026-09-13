@@ -10,30 +10,30 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#2D332B]/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6">
-      <div className="bg-white rounded-[32px] max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-[#E0E7DE] overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-6 landscape-compact-py">
+      <div className="bg-white dark:bg-[#0C170E] rounded-2xl sm:rounded-[32px] max-w-4xl w-full max-h-[94vh] flex flex-col shadow-2xl border border-[#E0E7DE] dark:border-[#1E3021] overflow-hidden modal-landscape-viewport">
         {/* Modal Header */}
-        <div className="p-6 border-b border-[#E0E7DE] flex items-center justify-between bg-[#F7F9F6] rounded-t-[32px]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#4A6741] text-white flex items-center justify-center shadow-xs">
-              <FileText className="w-5 h-5" />
+        <div className="p-4 sm:p-6 border-b border-[#E0E7DE] dark:border-[#1E3021] flex items-center justify-between bg-[#F7F9F6] dark:bg-[#111F13] rounded-t-2xl sm:rounded-t-[32px]">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#4A6741] text-white flex items-center justify-center shadow-xs shrink-0">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-serif font-bold text-[#1D2B17]">
+              <h2 className="text-sm sm:text-lg font-serif font-bold text-[#1D2B17] dark:text-[#E4EDE2]">
                 Decarbonization Project Design Document (1–2 Pages)
               </h2>
-              <p className="text-xs text-[#5C6658]">
+              <p className="text-[11px] sm:text-xs text-[#5C6658] dark:text-[#8EA689]">
                 Carbon Footprint Reduction & Technical Architecture Specification
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               id="print-designdoc-btn"
               onClick={() => window.print()}
               title="Print Document"
-              className="p-2.5 text-[#5C6658] hover:text-[#1D2B17] hover:bg-[#E8E4DF] rounded-full transition-colors"
+              className="p-1.5 sm:p-2 text-[#5C6658] dark:text-[#96A893] hover:text-[#1D2B17] dark:hover:text-white hover:bg-[#E8E4DF] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
             >
               <Printer className="w-4 h-4" />
             </button>
@@ -41,7 +41,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
               id="close-designdoc-btn"
               onClick={onClose}
               title="Close Document"
-              className="p-2.5 text-[#5C6658] hover:text-[#1D2B17] hover:bg-[#E8E4DF] rounded-full transition-colors"
+              className="p-1.5 sm:p-2 text-[#5C6658] dark:text-[#96A893] hover:text-[#1D2B17] dark:hover:text-white hover:bg-[#E8E4DF] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -49,28 +49,28 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* Modal Body / Formatted Academic Document */}
-        <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs sm:text-sm text-[#2D332B] leading-relaxed font-serif print:text-black">
+        <div className="p-4 sm:p-8 overflow-y-auto space-y-5 sm:space-y-6 text-xs sm:text-sm text-[#2D332B] dark:text-[#CBD8C9] leading-relaxed font-serif print:text-black">
           {/* Document Title Header */}
-          <div className="border-b border-[#E0E7DE] pb-5 text-center space-y-1.5 font-sans">
-            <span className="text-xs uppercase font-bold tracking-[0.2em] text-[#8C7851]">
+          <div className="border-b border-[#E0E7DE] dark:border-[#1E3021] pb-4 sm:pb-5 text-center space-y-1.5 font-sans">
+            <span className="text-[11px] sm:text-xs uppercase font-bold tracking-[0.2em] text-[#8C7851] dark:text-[#D1B880]">
               Technical Solution Specification & Evaluation Brief
             </span>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1D2B17]">
+            <h1 className="text-xl sm:text-3xl font-serif font-bold text-[#1D2B17] dark:text-white">
               Decarbonization Engine: Carbon Footprint Calculator & Reduction Planner
             </h1>
-            <p className="text-xs text-[#737C70]">
+            <p className="text-[11px] sm:text-xs text-[#737C70] dark:text-[#8EA689]">
               Energy & Atmosphere Decarbonization • Sustainable Systems & Climate Mitigations
             </p>
           </div>
 
           {/* Section 1: Problem Domain */}
           <section className="space-y-2">
-            <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
+            <h2 className="text-xs sm:text-base font-bold text-[#1D2B17] dark:text-white font-serif border-b border-[#E0E7DE] dark:border-[#1E3021] pb-1.5 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">1</span>
               Assigned Problem Domain: Carbon Footprint Reduction
             </h2>
-            <p className="text-[#2D332B]">
-              Atmospheric carbon dioxide concentrations reached 424 ppm in 2024, driving unprecedented mean surface temperature
+            <p>
+              Atmospheric carbon dioxide concentrations reached 426 ppm in 2024, driving unprecedented mean surface temperature
               increases (&gt;1.45°C above pre-industrial baselines). Anthropogenic climate change is predominantly driven by fossil fuel
               combustion across electricity generation (Scope 2), direct thermal heating and vehicular transit (Scope 1), and value chain
               consumption (Scope 3). Under the IPCC 1.5°C carbon budget, individual annual footprints must converge toward 2.0 tonnes CO₂e,
@@ -81,15 +81,15 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
 
           {/* Section 2: Website Solution */}
           <section className="space-y-2">
-            <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
+            <h2 className="text-xs sm:text-base font-bold text-[#1D2B17] dark:text-white font-serif border-b border-[#E0E7DE] dark:border-[#1E3021] pb-1.5 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">2</span>
               Proposed Engineering / IT Solution
             </h2>
-            <p className="text-[#2D332B]">
+            <p>
               The <strong>CarbonZero Decarbonization Platform</strong> is a responsive, web-based decision support system composed of four
               interconnected functional tiers:
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-[#2D332B]">
+            <ul className="list-disc pl-5 space-y-1">
               <li>
                 <strong>Granular GHG Calculation Engine:</strong> Evaluates Scope 1, 2, and 3 emissions using Central Electricity Authority (CEA India: 0.716 kg CO₂/kWh),
                 thermodynamic combustion calculations (LPG cylinders & petrol/diesel), and dietary trophic layer indices.
@@ -110,33 +110,33 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
 
           {/* Section 3: Technologies Used */}
           <section className="space-y-2">
-            <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
+            <h2 className="text-xs sm:text-base font-bold text-[#1D2B17] dark:text-white font-serif border-b border-[#E0E7DE] dark:border-[#1E3021] pb-1.5 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">3</span>
               Technologies & Standards Employed
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
-              <div className="p-4 bg-[#F7F9F6] border border-[#E0E7DE] rounded-2xl">
-                <strong className="text-[#1D2B17]">Frontend Architecture:</strong> React 19, TypeScript, Tailwind CSS, Lucide icons, Motion layout animations.
+              <div className="p-3.5 sm:p-4 bg-[#F7F9F6] dark:bg-[#111F13] border border-[#E0E7DE] dark:border-[#1E3021] rounded-2xl">
+                <strong className="text-[#1D2B17] dark:text-white">Frontend Architecture:</strong> React 19, TypeScript, Tailwind CSS, Lucide icons, Motion layout animations.
               </div>
-              <div className="p-4 bg-[#F7F9F6] border border-[#E0E7DE] rounded-2xl">
-                <strong className="text-[#1D2B17]">Cloud Integration:</strong> Google Drive REST API v3, Firebase Client SDK (OAuth 2.0 with drive.readonly scope).
+              <div className="p-3.5 sm:p-4 bg-[#F7F9F6] dark:bg-[#111F13] border border-[#E0E7DE] dark:border-[#1E3021] rounded-2xl">
+                <strong className="text-[#1D2B17] dark:text-white">Cloud Integration:</strong> Google Drive REST API v3, Firebase Client SDK (OAuth 2.0 with drive.readonly scope).
               </div>
-              <div className="p-4 bg-[#F7F9F6] border border-[#E0E7DE] rounded-2xl">
-                <strong className="text-[#1D2B17]">Emission Protocols:</strong> Greenhouse Gas Protocol (Corporate & Scope 3 Standards), Central Electricity Authority (CEA India) CO₂ Baseline, BEE India.
+              <div className="p-3.5 sm:p-4 bg-[#F7F9F6] dark:bg-[#111F13] border border-[#E0E7DE] dark:border-[#1E3021] rounded-2xl">
+                <strong className="text-[#1D2B17] dark:text-white">Emission Protocols:</strong> Greenhouse Gas Protocol (Corporate & Scope 3 Standards), Central Electricity Authority (CEA India) CO₂ Baseline, BEE India.
               </div>
-              <div className="p-4 bg-[#F7F9F6] border border-[#E0E7DE] rounded-2xl">
-                <strong className="text-[#1D2B17]">Hosting & Deployment:</strong> Cloud Run Container ingress on port 3000, Vite static asset optimization.
+              <div className="p-3.5 sm:p-4 bg-[#F7F9F6] dark:bg-[#111F13] border border-[#E0E7DE] dark:border-[#1E3021] rounded-2xl">
+                <strong className="text-[#1D2B17] dark:text-white">Hosting & Deployment:</strong> Cloud Run Container ingress on port 3000, Vite static asset optimization.
               </div>
             </div>
           </section>
 
           {/* Section 4: Expected Sustainability Impact */}
           <section className="space-y-2">
-            <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
+            <h2 className="text-xs sm:text-base font-bold text-[#1D2B17] dark:text-white font-serif border-b border-[#E0E7DE] dark:border-[#1E3021] pb-1.5 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">4</span>
               Expected Sustainability Impact
             </h2>
-            <p className="text-[#2D332B]">
+            <p>
               By translating complex climate science into personalized, financially viable actions, the platform drives measurable behavior
               change. Initial model simulations project an average household or campus dormitory reduction of <strong>4.5 to 7.8 tCO₂e/year</strong>
               per participating unit (a 35–55% abatement). Furthermore, the platform bridges the gap between individual actions and institutional
@@ -145,9 +145,9 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
           </section>
 
           {/* Section 5: References */}
-          <section className="space-y-1.5 pt-3 border-t border-[#E0E7DE] text-xs">
-            <h3 className="font-bold text-[#1D2B17] font-sans">External References</h3>
-            <ol className="list-decimal pl-5 space-y-1 text-[#5C6658]">
+          <section className="space-y-1.5 pt-3 border-t border-[#E0E7DE] dark:border-[#1E3021] text-xs">
+            <h3 className="font-bold text-[#1D2B17] dark:text-white font-sans">External References</h3>
+            <ol className="list-decimal pl-5 space-y-1 text-[#5C6658] dark:text-[#8EA689]">
               <li>IPCC (2023). Climate Change 2023: Synthesis Report. Contribution of Working Groups I, II and III. Geneva, Switzerland.</li>
               <li>WRI & WBCSD (2015). The Greenhouse Gas Protocol: A Corporate Accounting and Reporting Standard.</li>
               <li>Central Electricity Authority (CEA, 2024). CO₂ Baseline Database for the Indian Power Sector, Ministry of Power, New Delhi.</li>
@@ -158,13 +158,13 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* Modal Footer */}
-        <div className="p-5 border-t border-[#E0E7DE] bg-[#F7F9F6] flex items-center justify-between rounded-b-[32px]">
-          <span className="text-xs text-[#5C6658] font-sans">
+        <div className="p-3.5 sm:p-5 border-t border-[#E0E7DE] dark:border-[#1E3021] bg-[#F7F9F6] dark:bg-[#111F13] flex items-center justify-between rounded-b-2xl sm:rounded-b-[32px]">
+          <span className="text-[11px] sm:text-xs text-[#5C6658] dark:text-[#8EA689] font-sans">
             Technical Specification & Decarbonization Framework
           </span>
           <button
             onClick={onClose}
-            className="px-5 py-2.5 bg-[#4A6741] hover:bg-[#3E5637] text-white rounded-full text-xs font-bold transition-colors font-sans shadow-xs"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 bg-[#4A6741] hover:bg-[#3E5637] text-white rounded-full text-xs font-bold transition-colors font-sans shadow-xs cursor-pointer"
           >
             Close Document
           </button>
