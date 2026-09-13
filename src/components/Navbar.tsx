@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { PageTab } from '../types';
 import { User } from 'firebase/auth';
 import { ambientSound } from '../utils/ambientAudio';
+import { ThemeToggle } from './reactbits';
 import {
   Leaf,
   Calculator,
   Compass,
   FileText,
-  HardDrive,
+  Cloud,
   LogIn,
   LogOut,
   CheckCircle2,
@@ -31,6 +32,7 @@ interface NavbarProps {
   driveConnected: boolean;
   onOpenDesignDoc: () => void;
   onOpenCommandPalette: () => void;
+  onOpenGuidedTour?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -43,6 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   driveConnected,
   onOpenDesignDoc,
   onOpenCommandPalette,
+  onOpenGuidedTour,
 }) => {
   const [isPlayingSound, setIsPlayingSound] = useState(ambientSound.getIsPlaying());
 
@@ -55,54 +58,53 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-[#E0E7DE] shadow-xs">
+    <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#09140C]/90 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-[#1A2C1D] shadow-xs transition-colors">
       {/* Top Atmospheric Telemetry Ribbon */}
-      <div className="bg-[#0F190D] text-white py-1.5 px-4 text-[10px] sm:text-[11px] font-mono border-b border-[#263820] overflow-x-auto select-none">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 shrink-0">
-            <span className="flex items-center gap-1.5 text-[#9CB395]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#78B169] animate-pulse" />
-              <span>MAUNA LOA CO₂:</span>
-              <strong className="text-white font-bold">426.8 ppm</strong>
-              <span className="text-[#8C7851] text-[10px]">(+2.4 ppm/yr)</span>
+      <div className="bg-[#08150B] dark:bg-[#040C07] text-[#9CB395] py-1.5 px-4 text-[11px] font-mono border-b border-[#1A2C1D] overflow-x-auto select-none">
+        <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-6">
+          <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+            <span className="flex items-center gap-1.5 text-[#B6CCB0]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#52e35b] animate-pulse" />
+              <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">Mauna Loa CO₂</span>
+              <strong className="text-white font-semibold">426.8 ppm</strong>
+              <span className="text-[#8C7851] text-[10px] hidden sm:inline">(+2.4/yr)</span>
             </span>
 
-            <span className="hidden md:inline text-[#2B3E24]">|</span>
+            <span className="text-[#203422]">|</span>
 
-            <span className="hidden md:flex items-center gap-1.5 text-[#9CB395]">
-              <span>GLOBAL TEMP ANOMALY:</span>
-              <strong className="text-[#FFB5A7] font-bold">+1.48°C</strong>
-              <span className="text-[#737C70] text-[10px]">(vs Pre-Industrial)</span>
+            <span className="flex items-center gap-1.5 text-[#B6CCB0]">
+              <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">Temp Anomaly</span>
+              <strong className="text-[#FFAAA0] font-semibold">+1.48°C</strong>
             </span>
 
-            <span className="hidden lg:inline text-[#2B3E24]">|</span>
+            <span className="hidden md:inline text-[#203422]">|</span>
 
-            <span className="hidden lg:flex items-center gap-1.5 text-[#9CB395]">
-              <span>1.5°C BUDGET:</span>
-              <strong className="text-[#D9E4D1] font-bold">215 GtCO₂e</strong>
+            <span className="hidden md:flex items-center gap-1.5 text-[#B6CCB0]">
+              <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">1.5°C Budget</span>
+              <strong className="text-white font-semibold">215 GtCO₂e</strong>
             </span>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* Ambient Soundscape Button */}
             <button
               onClick={toggleSound}
-              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#182414] hover:bg-[#263820] border border-[#2B3E24] text-[#D9E4D1] transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#D4E3D1] transition-all cursor-pointer"
               title={isPlayingSound ? 'Mute biospheric soundscape' : 'Listen to generative ambient soundscape'}
             >
               {isPlayingSound ? (
                 <>
                   <div className="flex items-center gap-0.5 h-3">
-                    <span className="w-0.5 h-2 bg-[#78B169] animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-0.5 h-3 bg-[#78B169] animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-0.5 h-1.5 bg-[#78B169] animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="w-0.5 h-2 bg-[#52e35b] animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-0.5 h-3 bg-[#52e35b] animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-0.5 h-1.5 bg-[#52e35b] animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-[10px] font-semibold text-[#78B169]">SOUND ON</span>
+                  <span className="text-[10px] font-semibold text-[#52e35b] tracking-wider">SOUND ON</span>
                 </>
               ) : (
                 <>
-                  <VolumeX className="w-3 h-3 text-[#737C70]" />
-                  <span className="text-[10px] text-[#9CB395]">AMBIENT DRONE</span>
+                  <VolumeX className="w-3 h-3 text-[#6A7F66]" />
+                  <span className="text-[10px] text-[#8EA689] tracking-wider">SOUND</span>
                 </>
               )}
             </button>
@@ -110,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Quick Cmd+K Pill */}
             <button
               onClick={onOpenCommandPalette}
-              className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded bg-[#182414] hover:bg-[#263820] border border-[#2B3E24] text-[#9CB395] hover:text-white transition-colors"
+              className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#8EA689] hover:text-white transition-colors cursor-pointer text-[10px]"
               title="Open Command HUD (Cmd+K)"
             >
               <Command className="w-2.5 h-2.5" />
@@ -121,157 +123,173 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18">
+      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-18 gap-4">
           {/* Brand Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               id="nav-logo-btn"
               onClick={() => setCurrentTab('overview')}
-              className="flex items-center gap-3 text-left group focus:outline-none"
+              className="flex items-center gap-2.5 text-left group focus:outline-none cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-2xl bg-[#1D2B17] text-white flex items-center justify-center shadow-xs group-hover:bg-[#2D4428] transition-colors border border-[#4A6741]/30">
-                <Leaf className="w-5 h-5 text-[#78B169]" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-700/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform border border-emerald-500/30">
+                <Leaf className="w-4.5 h-4.5 text-emerald-600 dark:text-[#52e35b]" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-serif font-bold text-[#1D2B17] text-2xl tracking-tight">
-                    CarbonZero
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#737C70] hidden sm:block font-medium">
-                  Carbon Footprint Calculator & Reduction Planner
-                </p>
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-[#142314] dark:text-white text-xl tracking-tight">
+                  Carbon<span className="text-emerald-600 dark:text-[#52e35b]">Zero</span>
+                </span>
+                <span className="hidden xl:inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                  Platform
+                </span>
               </div>
             </button>
           </div>
 
-          {/* Desktop Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-[#F1EFEC]/80 p-1.5 rounded-full border border-[#E0E7DE]">
+          {/* Desktop Navigation Tabs - Airy, Single-line, No Wrapping */}
+          <nav className="hidden lg:flex items-center gap-1 bg-[#F4F6F2]/90 dark:bg-[#111C13]/90 p-1.5 rounded-full border border-[#DFE6DC] dark:border-[#1E3021] shadow-2xs backdrop-blur-md">
             <button
               id="tab-btn-overview"
               onClick={() => setCurrentTab('overview')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 currentTab === 'overview'
-                  ? 'bg-white text-[#1D2B17] shadow-xs font-bold border border-[#E0E7DE]'
-                  : 'text-[#5C6658] hover:text-[#1D2B17] hover:bg-white/60'
+                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
+                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <FileText className="w-3.5 h-3.5 text-[#8C7851]" />
-              Overview & Brief
+              <FileText className="w-3.5 h-3.5 text-[#8C7851] dark:text-[#E2C792]" />
+              <span>Overview</span>
             </button>
 
             <button
               id="tab-btn-solutions"
               onClick={() => setCurrentTab('solutions')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 currentTab === 'solutions'
-                  ? 'bg-white text-[#1D2B17] shadow-xs font-bold border border-[#E0E7DE]'
-                  : 'text-[#5C6658] hover:text-[#1D2B17] hover:bg-white/60'
+                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
+                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#4A6741]" />
-              Solutions Hub (12)
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b]" />
+              <span>Solutions</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold">
+                16
+              </span>
             </button>
 
             <button
               id="tab-btn-calculator"
               onClick={() => setCurrentTab('calculator')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 currentTab === 'calculator'
-                  ? 'bg-white text-[#1D2B17] shadow-xs font-bold border border-[#E0E7DE]'
-                  : 'text-[#5C6658] hover:text-[#1D2B17] hover:bg-white/60'
+                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
+                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <Calculator className="w-3.5 h-3.5 text-[#4A6741]" />
-              Calculator
+              <Calculator className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b]" />
+              <span>Calculator</span>
             </button>
 
             <button
               id="tab-btn-planner"
               onClick={() => setCurrentTab('planner')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 currentTab === 'planner'
-                  ? 'bg-white text-[#1D2B17] shadow-xs font-bold border border-[#E0E7DE]'
-                  : 'text-[#5C6658] hover:text-[#1D2B17] hover:bg-white/60'
+                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
+                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <Compass className="w-3.5 h-3.5 text-[#8C7851]" />
-              Roadmap Planner
+              <Compass className="w-3.5 h-3.5 text-[#8C7851] dark:text-[#E2C792]" />
+              <span>Planner</span>
             </button>
 
             <button
               id="tab-btn-drive"
-              onClick={() => setCurrentTab('drive_findings')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all relative ${
-                currentTab === 'drive_findings'
-                  ? 'bg-[#1D2B17] text-white shadow-xs font-bold'
-                  : 'text-[#5C6658] hover:text-[#1D2B17] hover:bg-white/60'
+              onClick={() => setCurrentTab('drive_save')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer relative ${
+                currentTab === 'drive_save'
+                  ? 'bg-[#142314] dark:bg-[#52e35b] text-white dark:text-[#061408] shadow-xs font-bold'
+                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <HardDrive className="w-3.5 h-3.5" />
-              <span>Drive Findings</span>
+              <Cloud className="w-3.5 h-3.5" />
+              <span>Drive Sync</span>
               {driveConnected ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#78B169]"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#52e35b] dark:bg-[#061408]" />
               ) : (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8C7851]"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#8C7851] dark:bg-[#E2C792]" />
               )}
             </button>
           </nav>
 
-          {/* Right Action: Search HUD, Design Doc & Google Drive Sign-in */}
-          <div className="flex items-center gap-2">
+          {/* Right Actions: Compact, Spacious, No Text-Wrapping */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Quick Tour Button */}
+            {onOpenGuidedTour && (
+              <button
+                id="btn-nav-guided-tour"
+                type="button"
+                onClick={onOpenGuidedTour}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-700/50 transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
+                title="Open Interactive Guided Tour"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b] animate-pulse" />
+                <span className="text-emerald-800 dark:text-emerald-300 font-bold">Tour</span>
+              </button>
+            )}
+
+            {/* React Bits Theme Toggle with Magnetic Physics & Circular Ripple Transition */}
+            <ThemeToggle variant="compact" magnetic={true} />
+
+            {/* Search HUD Button */}
             <button
               id="btn-search-hud"
               onClick={onOpenCommandPalette}
               title="Search and Jump (Cmd+K)"
-              className="p-2 text-[#5C6658] hover:text-[#1D2B17] hover:bg-[#F1EFEC] rounded-full transition-colors border border-[#E0E7DE] bg-white shadow-2xs"
+              className="p-2 text-[#556252] dark:text-[#96A893] hover:text-[#142314] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3320] rounded-full transition-colors border border-[#DFE6DC] dark:border-[#223926] bg-white dark:bg-[#132216] shadow-2xs cursor-pointer"
             >
               <Search className="w-4 h-4" />
             </button>
 
+            {/* Design Document Pill Button */}
             <button
               id="btn-open-designdoc"
               onClick={onOpenDesignDoc}
               title="View 1-2 Page Assessment Design Document"
-              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#1D2B17] bg-[#F1EFEC] border border-[#E0E7DE] rounded-full hover:bg-[#E8E4DF] transition-colors"
+              className="hidden xl:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#142314] dark:text-[#EEF5ED] bg-[#F4F6F2] dark:bg-[#162719] border border-[#DFE6DC] dark:border-[#263D2B] rounded-full hover:bg-[#EAEFE8] dark:hover:bg-[#203623] transition-colors cursor-pointer whitespace-nowrap"
             >
               <FileCode className="w-3.5 h-3.5 text-[#8C7851]" />
-              <span>Design Document</span>
+              <span>Design Doc</span>
             </button>
 
+            {/* Google Drive Status / Connect Button */}
             {user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-[#E0E7DE]">
+              <div className="flex items-center gap-2 pl-2 border-l border-[#DFE6DC] dark:border-[#223926]">
                 <div className="flex items-center gap-2">
                   {user.photoURL ? (
                     <img
                       src={user.photoURL}
                       alt={user.displayName || 'User'}
                       referrerPolicy="no-referrer"
-                      className="w-8 h-8 rounded-full border border-[#CCD9C3]"
+                      className="w-7 h-7 rounded-full border border-emerald-500/30"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#D9E4D1] text-[#1D2B17] font-bold text-xs flex items-center justify-center border border-[#CCD9C3]">
+                    <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/30">
                       {user.displayName?.charAt(0) || 'U'}
                     </div>
                   )}
-                  <div className="hidden xl:block text-left text-xs">
-                    <p className="font-semibold text-[#1D2B17] leading-tight truncate max-w-[100px]">
-                      {user.displayName || 'Connected'}
-                    </p>
-                    <p className="text-[10px] text-[#4A6741] flex items-center gap-1 font-medium font-mono">
-                      <CheckCircle2 className="w-2.5 h-2.5" /> Drive Ready
-                    </p>
-                  </div>
+                  <span className="hidden 2xl:block text-xs font-semibold text-[#142314] dark:text-white truncate max-w-[90px] whitespace-nowrap">
+                    {user.displayName || 'Drive Ready'}
+                  </span>
                 </div>
 
                 <button
                   id="btn-user-logout"
                   onClick={onLogout}
                   title="Sign out of Google"
-                  className="p-2 text-[#737C70] hover:text-[#1D2B17] hover:bg-[#F1EFEC] rounded-full transition-colors"
+                  className="p-1.5 text-[#6B7868] dark:text-[#96A893] hover:text-[#142314] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
@@ -279,9 +297,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 id="btn-google-signin"
                 onClick={onLogin}
                 disabled={isLoggingIn}
-                className="flex items-center gap-2 px-3.5 py-2 bg-white border border-[#E0E7DE] hover:border-[#CCD9C3] text-[#1D2B17] hover:bg-[#F1EFEC] rounded-full text-xs font-semibold shadow-2xs transition-colors"
+                className="flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-[#132216] border border-[#DFE6DC] dark:border-[#263D2B] hover:border-emerald-500/40 text-[#142314] dark:text-white hover:bg-[#F4F6F2] dark:hover:bg-[#1A2E1C] rounded-full text-xs font-semibold shadow-2xs transition-colors whitespace-nowrap cursor-pointer"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -305,47 +323,58 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Mobile Navigation Row */}
-        <div className="flex md:hidden items-center justify-around py-2 border-t border-[#E0E7DE] overflow-x-auto gap-1 text-[11px]">
+        {/* Mobile Navigation Row (under lg screens) */}
+        <div className="flex lg:hidden items-center justify-around py-2.5 border-t border-[#DFE6DC] dark:border-[#1E3021] overflow-x-auto gap-1 text-[11px] select-none">
           <button
             onClick={() => setCurrentTab('overview')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors ${
-              currentTab === 'overview' ? 'bg-[#D9E4D1] text-[#1D2B17] font-bold' : 'text-[#5C6658]'
+            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              currentTab === 'overview'
+                ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
+                : 'text-[#475544] dark:text-[#CBD8C9]'
             }`}
           >
             Overview
           </button>
           <button
             onClick={() => setCurrentTab('solutions')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors ${
-              currentTab === 'solutions' ? 'bg-[#D9E4D1] text-[#1D2B17] font-bold' : 'text-[#5C6658]'
+            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              currentTab === 'solutions'
+                ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
+                : 'text-[#475544] dark:text-[#CBD8C9]'
             }`}
           >
-            Solutions (12)
+            Solutions (16)
           </button>
           <button
             onClick={() => setCurrentTab('calculator')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors ${
-              currentTab === 'calculator' ? 'bg-[#D9E4D1] text-[#1D2B17] font-bold' : 'text-[#5C6658]'
+            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              currentTab === 'calculator'
+                ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
+                : 'text-[#475544] dark:text-[#CBD8C9]'
             }`}
           >
             Calculator
           </button>
           <button
             onClick={() => setCurrentTab('planner')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors ${
-              currentTab === 'planner' ? 'bg-[#D9E4D1] text-[#1D2B17] font-bold' : 'text-[#5C6658]'
+            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              currentTab === 'planner'
+                ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
+                : 'text-[#475544] dark:text-[#CBD8C9]'
             }`}
           >
             Planner
           </button>
           <button
-            onClick={() => setCurrentTab('drive_findings')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1 transition-colors ${
-              currentTab === 'drive_findings' ? 'bg-[#1D2B17] text-white font-bold' : 'text-[#4A6741] font-semibold'
+            onClick={() => setCurrentTab('drive_save')}
+            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1 transition-colors cursor-pointer ${
+              currentTab === 'drive_save'
+                ? 'bg-[#142314] dark:bg-[#52e35b] text-white dark:text-[#061408] font-bold'
+                : 'text-emerald-700 dark:text-emerald-400 font-semibold'
             }`}
           >
-            Drive PPTX
+            <Cloud className="w-3 h-3" />
+            Drive Sync
           </button>
         </div>
       </div>

@@ -1,52 +1,56 @@
 import { EmissionInputs, CalculationResult, ReductionStrategy, PresentationSlideSummary } from '../types';
 
 export const DEFAULT_EMISSION_INPUTS: EmissionInputs = {
-  // Energy
-  electricityKwhPerMonth: 450,
-  naturalGasThermPerMonth: 25,
-  cleanEnergyPercentage: 15,
+  // Energy (Indian Household Baseline - Bureau of Energy Efficiency / CEA)
+  electricityKwhPerMonth: 200, // Typical Indian urban household (~150-250 kWh/mo)
+  naturalGasThermPerMonth: 1, // 1 domestic 14.2 kg LPG cylinder per month
+  cleanEnergyPercentage: 10,
 
-  // Transport
-  gasolineCarMilesPerWeek: 120,
-  carFuelEfficiencyMpg: 28,
-  publicTransitMilesPerWeek: 25,
-  shortHaulFlightsPerYear: 2,
-  longHaulFlightsPerYear: 1,
+  // Transport (Metric - km / week and km/L)
+  gasolineCarMilesPerWeek: 75, // 75 km/week weekly commute
+  carFuelEfficiencyMpg: 16, // 16 km/L fuel mileage (standard petrol car)
+  publicTransitMilesPerWeek: 40, // 40 km/week on Metro, Indian Railways, or City Bus
+  shortHaulFlightsPerYear: 1, // Domestic flight within India (< 2.5 hrs, e.g. Delhi-Mumbai)
+  longHaulFlightsPerYear: 0, // International flight (> 3 hrs)
 
-  // Lifestyle & Consumption
-  dietType: 'medium_meat',
-  foodWastePercentage: 20,
-  clothingAndGoodsSpendPerMonth: 6500,
-  recycleRatePercentage: 40,
+  // Lifestyle & Consumption (Indian Urban Context)
+  dietType: 'vegetarian', // Common Indian lacto-vegetarian baseline
+  foodWastePercentage: 15,
+  clothingAndGoodsSpendPerMonth: 6000, // ₹6,000 INR / month
+  recycleRatePercentage: 45,
 
   // Digital
-  cloudStreamingHoursPerDay: 3.5,
+  cloudStreamingHoursPerDay: 2.5,
 };
 
 /**
- * Calculate annual emissions based on EPA & GHG Protocol emission factors
+ * Calculate annual emissions based on Central Electricity Authority (CEA India),
+ * Bureau of Energy Efficiency (BEE), and GHG Protocol standards.
  */
 export function calculateEmissions(inputs: EmissionInputs): CalculationResult {
   // --- Scope 2 & Scope 1: Home Energy ---
-  // US grid average factor: ~0.386 kg CO2e per kWh (EPA eGRID)
+  // India National Grid Average Factor: ~0.716 kg CO2e per kWh (Central Electricity Authority - CEA User Guide)
   const dirtyElectricityFraction = Math.max(0, 1 - inputs.cleanEnergyPercentage / 100);
-  const annualElectricityKg = inputs.electricityKwhPerMonth * 12 * 0.386 * dirtyElectricityFraction;
+  const annualElectricityKg = inputs.electricityKwhPerMonth * 12 * 0.716 * dirtyElectricityFraction;
 
-  // Natural gas: ~5.3 kg CO2e per therm (EPA Greenhouse Gas Inventory)
-  const annualGasKg = inputs.naturalGasThermPerMonth * 12 * 5.3;
+  // Domestic Cooking Gas in India: 1 domestic 14.2 kg LPG cylinder = ~42.4 kg CO2e (or PNG at ~1.9 kg CO2/SCM)
+  // Input represents LPG Cylinders/month
+  const annualGasKg = inputs.naturalGasThermPerMonth * 12 * 42.4;
   const totalEnergyKg = annualElectricityKg + annualGasKg;
 
-  // --- Transport (Scope 1 direct vehicle + Scope 3 air & transit) ---
-  // Gasoline: ~8.887 kg CO2 per gallon (EPA). Gallons = miles / MPG.
-  const gallonsPerWeek = inputs.carFuelEfficiencyMpg > 0 ? inputs.gasolineCarMilesPerWeek / inputs.carFuelEfficiencyMpg : 0;
-  const annualCarDirectKg = gallonsPerWeek * 52 * 8.887;
+  // --- Transport (Scope 1 direct vehicle + Scope 3 air & transit in India) ---
+  // In India: Distance in km/week, efficiency in km/L.
+  // 1 litre of Petrol in India = ~2.31 kg CO2e (MoEFCC & GHG Protocol emission factor)
+  const litresPerWeek = inputs.carFuelEfficiencyMpg > 0 ? inputs.gasolineCarMilesPerWeek / inputs.carFuelEfficiencyMpg : 0;
+  const annualCarDirectKg = litresPerWeek * 52 * 2.31;
 
-  // Public transit: ~0.089 kg CO2e per passenger-mile (buses/trains)
-  const annualTransitKg = inputs.publicTransitMilesPerWeek * 52 * 0.089;
+  // Public transit: Metro rail, electrified Indian Railways, and city CNG/electric buses
+  // Weighted emission factor: ~0.048 kg CO2e per passenger-km
+  const annualTransitKg = inputs.publicTransitMilesPerWeek * 52 * 0.048;
 
-  // Short-haul flight (~600 miles): ~150 kg CO2e per flight
-  const shortFlightKg = inputs.shortHaulFlightsPerYear * 150;
-  // Long-haul flight (~3500 miles): ~750 kg CO2e per flight with radiative forcing
+  // Domestic short-haul flight in India (~1,000–1,200 km, e.g. Delhi-Bengaluru/Mumbai): ~140 kg CO2e per flight
+  const shortFlightKg = inputs.shortHaulFlightsPerYear * 140;
+  // International long-haul flight (> 3 hours): ~750 kg CO2e per flight with radiative forcing
   const longFlightKg = inputs.longHaulFlightsPerYear * 750;
   const totalTransportKg = annualCarDirectKg + annualTransitKg + shortFlightKg + longFlightKg;
 
@@ -67,8 +71,8 @@ export function calculateEmissions(inputs: EmissionInputs): CalculationResult {
   // --- Goods, Clothing & Waste (Scope 3) ---
   // Embedded carbon in manufacturing: ~0.0065 kg CO2e per Rupee (₹) spent on consumer merchandise (~6.5 kg / ₹1,000)
   const goodsKg = inputs.clothingAndGoodsSpendPerMonth * 12 * 0.0065;
-  // Waste generation & recycling benefit
-  const baseWasteKg = 380; // Average annual municipal solid waste footprint
+  // Waste generation & recycling benefit (Indian municipal solid waste baseline)
+  const baseWasteKg = 240; // Average annual municipal solid waste footprint per capita in urban India
   const recyclingCredit = 1 - (inputs.recycleRatePercentage / 100) * 0.45;
   const totalGoodsAndWasteKg = goodsKg + baseWasteKg * recyclingCredit;
 
@@ -84,20 +88,22 @@ export function calculateEmissions(inputs: EmissionInputs): CalculationResult {
   const scope2 = annualElectricityKg;
   const scope3 = annualTransitKg + shortFlightKg + longFlightKg + totalDietKg + totalGoodsAndWasteKg + totalDigitalKg;
 
-  // Equivalencies
-  // 1 mature urban tree absorbs ~21.77 kg CO2e per year
+  // Equivalencies for India
+  // 1 mature native tree (Neem, Peepal, Banyan) absorbs ~21.77 kg CO2e per year
   const treesEquivalentToOffset = Math.round(totalAnnualKgCO2e / 21.77);
-  // Average passenger vehicle emits 404 grams CO2/mile (EPA)
-  const carMilesEquivalent = Math.round(totalAnnualKgCO2e / 0.404);
+  // Average Indian passenger petrol car (e.g. Maruti/Hyundai) emits ~140 grams CO2/km (0.14 kg CO2/km)
+  const carKmEquivalent = Math.round(totalAnnualKgCO2e / 0.14);
+  const carMilesEquivalent = carKmEquivalent;
 
-  // Benchmarks
-  const nationalAverageBenchmarkTonnes = 14.4; // US Average
+  // Benchmarks for India & Paris Agreement
+  const nationalAverageBenchmarkTonnes = 2.1; // India National Per-Capita Average (MoEFCC / CEA / IEA)
   const globalTargetTonnes = 2.0; // 2030 Paris Agreement 1.5°C per-capita target
 
-  // Percentile approximation
+  // Percentile approximation against Indian population distribution
+  // Median urban Indian is ~2.1t; low rural is ~1.2t; affluent high-consumption is 5-8t+
   const percentileRank = Math.min(
     99,
-    Math.max(5, Math.round((totalAnnualTonnesCO2e / nationalAverageBenchmarkTonnes) * 50))
+    Math.max(5, Math.round((totalAnnualTonnesCO2e / (nationalAverageBenchmarkTonnes * 2.5)) * 50))
   );
 
   return {
@@ -117,6 +123,7 @@ export function calculateEmissions(inputs: EmissionInputs): CalculationResult {
     },
     treesEquivalentToOffset,
     carMilesEquivalent,
+    carKmEquivalent,
     nationalAverageBenchmarkTonnes,
     globalTargetTonnes,
     percentileRank,

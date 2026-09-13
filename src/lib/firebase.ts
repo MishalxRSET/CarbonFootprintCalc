@@ -13,12 +13,12 @@ import firebaseConfig from '../../firebase-applet-config.json';
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 
-export const DRIVE_READONLY_SCOPE = 'https://www.googleapis.com/auth/drive.readonly';
+export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
 const provider = new GoogleAuthProvider();
-provider.addScope(DRIVE_READONLY_SCOPE);
+provider.addScope(DRIVE_FILE_SCOPE);
 provider.setCustomParameters({
-  prompt: 'select_account',
+  prompt: 'consent select_account',
 });
 
 // Flag to indicate if we are in the middle of a sign-in flow.

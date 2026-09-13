@@ -4,3 +4,4 @@ export { ShinyText } from './ShinyText';
 export { DecryptedText } from './DecryptedText';
 export { Magnet } from './Magnet';
 export { TiltedCard } from './TiltedCard';
+export { ThemeToggle, ThemeRippleOverlay } from './ThemeToggle';

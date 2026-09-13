@@ -102,22 +102,22 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
   }, [levers]);
 
   return (
-    <div className="bg-white border border-[#E0E7DE] rounded-[36px] p-6 sm:p-10 shadow-xs space-y-8">
+    <div className="bg-white dark:bg-[#111C13] border border-[#E0E7DE] dark:border-[#1E3021] rounded-[36px] p-6 sm:p-10 shadow-xs space-y-8 transition-colors">
       {/* Header & Mission */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#E0E7DE]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#E0E7DE] dark:border-[#1E3021]">
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851] dark:text-[#B59F76]">
               Interactive Atmospheric Modeling Engine
             </span>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#D9E4D1] text-[#1D2B17]">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#D9E4D1] dark:bg-[#1C3320] text-[#142616] dark:text-[#52e35b] border border-[#CCD9C3] dark:border-[#2F4D33]">
               IPCC AR6 INTEGRATED
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-serif text-[#1D2B17] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-serif text-[#1D2B17] dark:text-[#EEF5ED] tracking-tight">
             Decarbonization Pathway & Planetary Warming Dial
           </h2>
-          <p className="text-xs sm:text-sm text-[#5C6658] leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#5C6658] dark:text-[#9CB395] leading-relaxed">
             Adjust the 5 core decarbonization levers to simulate how scaling our 12 engineering solutions
             shifts atmospheric CO₂ ppm, stabilizes global warming, and protects the biosphere.
           </p>
@@ -129,14 +129,14 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
             <button
               key={idx}
               onClick={() => setLevers(p.levers)}
-              className="px-3.5 py-2 rounded-full text-xs font-semibold bg-[#F7F9F6] border border-[#E0E7DE] hover:bg-[#F1EFEC] hover:text-[#1D2B17] text-[#5C6658] transition-all"
+              className="px-3.5 py-2 rounded-full text-xs font-semibold bg-[#F7F9F6] dark:bg-[#162418] border border-[#E0E7DE] dark:border-[#243827] hover:bg-[#F1EFEC] dark:hover:bg-[#1E3020] hover:text-[#1D2B17] dark:hover:text-white text-[#5C6658] dark:text-[#9CB395] transition-all cursor-pointer"
             >
               {p.label}
             </button>
           ))}
           <button
             onClick={() => setLevers(DEFAULT_LEVERS)}
-            className="p-2 text-[#737C70] hover:text-[#1D2B17] hover:bg-[#F1EFEC] rounded-full transition-colors"
+            className="p-2 text-[#737C70] dark:text-[#9CB395] hover:text-[#1D2B17] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3020] rounded-full transition-colors cursor-pointer"
             title="Reset to default"
           >
             <RotateCcw className="w-4 h-4" />
@@ -149,27 +149,27 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
         {/* 5 Tactile Levers (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#1D2B17] flex items-center gap-2">
-              <Sliders className="w-3.5 h-3.5 text-[#4A6741]" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#1D2B17] dark:text-[#EEF5ED] flex items-center gap-2">
+              <Sliders className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b]" />
               <span>Technology & Behavioral Adoption Levers</span>
             </h3>
-            <span className="text-xs font-mono text-[#8C7851]">Global Scale Multiplier</span>
+            <span className="text-xs font-mono text-[#8C7851] dark:text-[#B59F76]">Global Scale Multiplier</span>
           </div>
 
           <div className="space-y-4">
             {/* Lever 1: Clean Grid */}
-            <div className="bg-[#F7F9F6] p-4.5 rounded-2xl border border-[#E0E7DE] space-y-2">
+            <div className="bg-[#F7F9F6] dark:bg-[#142216] p-4.5 rounded-2xl border border-[#E0E7DE] dark:border-[#203422] space-y-2 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white border border-[#E0E7DE] flex items-center justify-center text-[#8C7851]">
+                  <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1A2C1D] border border-[#E0E7DE] dark:border-[#2B422F] flex items-center justify-center text-[#8C7851] dark:text-[#B59F76]">
                     <Zap className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#1D2B17]">Grid Decarbonization & BESS Storage</p>
-                    <p className="text-[11px] text-[#737C70]">Solar PV, wind microgrids & LiFePO4 peak shaving</p>
+                    <p className="text-xs font-bold text-[#1D2B17] dark:text-[#EEF5ED]">Grid Decarbonization & BESS Storage</p>
+                    <p className="text-[11px] text-[#737C70] dark:text-[#8E9F8B]">Solar PV, wind microgrids & LiFePO4 peak shaving</p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-bold text-[#1D2B17]">{levers.cleanGrid}%</span>
+                <span className="font-mono text-sm font-bold text-[#1D2B17] dark:text-white">{levers.cleanGrid}%</span>
               </div>
               <input
                 type="range"
@@ -177,23 +177,23 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
                 max="100"
                 value={levers.cleanGrid}
                 onChange={(e) => updateLever('cleanGrid', Number(e.target.value))}
-                className="w-full accent-[#4A6741] cursor-pointer"
+                className="w-full accent-emerald-600 dark:accent-[#52e35b] cursor-pointer"
               />
             </div>
 
             {/* Lever 2: Building Electrification */}
-            <div className="bg-[#F7F9F6] p-4.5 rounded-2xl border border-[#E0E7DE] space-y-2">
+            <div className="bg-[#F7F9F6] dark:bg-[#142216] p-4.5 rounded-2xl border border-[#E0E7DE] dark:border-[#203422] space-y-2 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white border border-[#E0E7DE] flex items-center justify-center text-[#4A6741]">
+                  <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1A2C1D] border border-[#E0E7DE] dark:border-[#2B422F] flex items-center justify-center text-emerald-600 dark:text-[#52e35b]">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#1D2B17]">Heat Pump Retrofits & Deep Insulation</p>
-                    <p className="text-[11px] text-[#737C70]">Vapor-compression heating (COP &gt;3.5) & envelope air-sealing</p>
+                    <p className="text-xs font-bold text-[#1D2B17] dark:text-[#EEF5ED]">Heat Pump Retrofits & Deep Insulation</p>
+                    <p className="text-[11px] text-[#737C70] dark:text-[#8E9F8B]">Vapor-compression heating (COP &gt;3.5) & envelope air-sealing</p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-bold text-[#1D2B17]">{levers.heatPumps}%</span>
+                <span className="font-mono text-sm font-bold text-[#1D2B17] dark:text-white">{levers.heatPumps}%</span>
               </div>
               <input
                 type="range"
@@ -201,23 +201,23 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
                 max="100"
                 value={levers.heatPumps}
                 onChange={(e) => updateLever('heatPumps', Number(e.target.value))}
-                className="w-full accent-[#4A6741] cursor-pointer"
+                className="w-full accent-emerald-600 dark:accent-[#52e35b] cursor-pointer"
               />
             </div>
 
             {/* Lever 3: Clean Mobility */}
-            <div className="bg-[#F7F9F6] p-4.5 rounded-2xl border border-[#E0E7DE] space-y-2">
+            <div className="bg-[#F7F9F6] dark:bg-[#142216] p-4.5 rounded-2xl border border-[#E0E7DE] dark:border-[#203422] space-y-2 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white border border-[#E0E7DE] flex items-center justify-center text-[#4A6741]">
+                  <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1A2C1D] border border-[#E0E7DE] dark:border-[#2B422F] flex items-center justify-center text-emerald-600 dark:text-[#52e35b]">
                     <Car className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#1D2B17]">Electric Fleet, Rail & Micromobility</p>
-                    <p className="text-[11px] text-[#737C70]">Tailpipe elimination, electric bus transit & rail substitution</p>
+                    <p className="text-xs font-bold text-[#1D2B17] dark:text-[#EEF5ED]">Electric Fleet, Rail & Micromobility</p>
+                    <p className="text-[11px] text-[#737C70] dark:text-[#8E9F8B]">Tailpipe elimination, electric bus transit & rail substitution</p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-bold text-[#1D2B17]">{levers.cleanMobility}%</span>
+                <span className="font-mono text-sm font-bold text-[#1D2B17] dark:text-white">{levers.cleanMobility}%</span>
               </div>
               <input
                 type="range"
@@ -225,23 +225,23 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
                 max="100"
                 value={levers.cleanMobility}
                 onChange={(e) => updateLever('cleanMobility', Number(e.target.value))}
-                className="w-full accent-[#4A6741] cursor-pointer"
+                className="w-full accent-emerald-600 dark:accent-[#52e35b] cursor-pointer"
               />
             </div>
 
             {/* Lever 4: Plant-Rich Diet */}
-            <div className="bg-[#F7F9F6] p-4.5 rounded-2xl border border-[#E0E7DE] space-y-2">
+            <div className="bg-[#F7F9F6] dark:bg-[#142216] p-4.5 rounded-2xl border border-[#E0E7DE] dark:border-[#203422] space-y-2 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white border border-[#E0E7DE] flex items-center justify-center text-[#8C7851]">
+                  <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1A2C1D] border border-[#E0E7DE] dark:border-[#2B422F] flex items-center justify-center text-[#8C7851] dark:text-[#B59F76]">
                     <Utensils className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#1D2B17]">Low-Ruminant Diet & Food Waste Diversion</p>
-                    <p className="text-[11px] text-[#737C70]">Halving enteric methane & 100% aerobic food scrap composting</p>
+                    <p className="text-xs font-bold text-[#1D2B17] dark:text-[#EEF5ED]">Low-Ruminant Diet & Food Waste Diversion</p>
+                    <p className="text-[11px] text-[#737C70] dark:text-[#8E9F8B]">Halving enteric methane & 100% aerobic food scrap composting</p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-bold text-[#1D2B17]">{levers.plantDiet}%</span>
+                <span className="font-mono text-sm font-bold text-[#1D2B17] dark:text-white">{levers.plantDiet}%</span>
               </div>
               <input
                 type="range"
@@ -249,23 +249,23 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
                 max="100"
                 value={levers.plantDiet}
                 onChange={(e) => updateLever('plantDiet', Number(e.target.value))}
-                className="w-full accent-[#4A6741] cursor-pointer"
+                className="w-full accent-emerald-600 dark:accent-[#52e35b] cursor-pointer"
               />
             </div>
 
             {/* Lever 5: Carbon Removal */}
-            <div className="bg-[#F7F9F6] p-4.5 rounded-2xl border border-[#E0E7DE] space-y-2">
+            <div className="bg-[#F7F9F6] dark:bg-[#142216] p-4.5 rounded-2xl border border-[#E0E7DE] dark:border-[#203422] space-y-2 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white border border-[#E0E7DE] flex items-center justify-center text-[#4A6741]">
+                  <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#1A2C1D] border border-[#E0E7DE] dark:border-[#2B422F] flex items-center justify-center text-emerald-600 dark:text-[#52e35b]">
                     <Trees className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[#1D2B17]">Urban Afforestation & Biochar Sequestration</p>
-                    <p className="text-[11px] text-[#737C70]">Deep mycorrhizal root systems & durable soil organic carbon</p>
+                    <p className="text-xs font-bold text-[#1D2B17] dark:text-[#EEF5ED]">Urban Afforestation & Biochar Sequestration</p>
+                    <p className="text-[11px] text-[#737C70] dark:text-[#8E9F8B]">Deep mycorrhizal root systems & durable soil organic carbon</p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-bold text-[#1D2B17]">{levers.carbonRemoval}%</span>
+                <span className="font-mono text-sm font-bold text-[#1D2B17] dark:text-white">{levers.carbonRemoval}%</span>
               </div>
               <input
                 type="range"
@@ -273,7 +273,7 @@ export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate
                 max="100"
                 value={levers.carbonRemoval}
                 onChange={(e) => updateLever('carbonRemoval', Number(e.target.value))}
-                className="w-full accent-[#4A6741] cursor-pointer"
+                className="w-full accent-emerald-600 dark:accent-[#52e35b] cursor-pointer"
               />
             </div>
           </div>

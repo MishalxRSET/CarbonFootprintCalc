@@ -174,8 +174,8 @@ export const SmartReductionTipsSidebar: React.FC<SmartReductionTipsSidebarProps>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                           tip.priority === 'High Priority'
-                            ? 'bg-amber-100 text-amber-900'
-                            : 'bg-[#D9E4D1] text-[#1D2B17]'
+                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300'
+                            : 'bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b]'
                         }`}
                       >
                         {tip.priority}

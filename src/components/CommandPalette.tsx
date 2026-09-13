@@ -2,12 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { PageTab } from '../types';
 import { COMPREHENSIVE_SOLUTIONS } from '../data/solutionsData';
 import { ambientSound } from '../utils/ambientAudio';
+import { useTheme } from '../context/ThemeContext';
 import {
   Search,
   Sparkles,
   Calculator,
   Compass,
-  HardDrive,
+  Cloud,
   FileCode,
   Volume2,
   VolumeX,
@@ -17,6 +18,8 @@ import {
   X,
   Command,
   Globe2,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 interface CommandPaletteProps {
@@ -42,6 +45,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onNavigate,
   onOpenDesignDoc,
 }) => {
+  const { theme, isDark, toggleTheme } = useTheme();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(ambientSound.getIsPlaying());
@@ -115,11 +119,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       {
         id: 'nav-drive',
         category: 'Navigation',
-        title: 'Google Drive Research Findings',
-        subtitle: 'Inspect CARBON FOOTPRINT REDUCTION.pptx deck findings',
-        icon: <HardDrive className="w-4 h-4 text-[#8C7851]" />,
+        title: 'Save Plan to Google Drive',
+        subtitle: 'Export your decarbonization plan to Google Docs, Markdown, or JSON',
+        icon: <Cloud className="w-4 h-4 text-[#4A6741]" />,
         action: () => {
-          onNavigate('drive_findings');
+          onNavigate('drive_save');
           onClose();
         },
       },
@@ -131,6 +135,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         icon: <FileCode className="w-4 h-4 text-[#4A6741]" />,
         action: () => {
           onOpenDesignDoc();
+          onClose();
+        },
+      },
+      {
+        id: 'action-theme-toggle',
+        category: 'Actions',
+        title: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+        subtitle: 'Toggle theme with React Bits circular ripple transition (Shortcut: T)',
+        icon: isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-[#78B169]" />,
+        shortcut: 'T',
+        action: () => {
+          toggleTheme();
           onClose();
         },
       },
@@ -174,7 +190,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     });
 
     return items;
-  }, [onNavigate, onOpenDesignDoc, onClose, isAudioPlaying]);
+  }, [onNavigate, onOpenDesignDoc, onClose, isAudioPlaying, isDark, toggleTheme]);
 
   // Filter commands by query
   const filteredCommands = useMemo(() => {
