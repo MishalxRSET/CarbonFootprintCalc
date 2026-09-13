@@ -58,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#09140C]/90 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-[#1A2C1D] shadow-xs transition-colors">
+    <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#09140C]/90 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-[#1A2C1D] shadow-xs">
       {/* Top Atmospheric Telemetry Ribbon */}
       <div className="bg-[#08150B] dark:bg-[#040C07] text-[#9CB395] py-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-mono border-b border-[#1A2C1D] select-none no-scrollbar overflow-x-auto">
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-2 sm:gap-6">

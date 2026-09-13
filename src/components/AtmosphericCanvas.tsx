@@ -134,7 +134,13 @@ export const AtmosphericCanvas: React.FC = () => {
         if (fluxMode === 'boundary' && r === 3) {
           ctx.font = '10px "JetBrains Mono", monospace';
           ctx.fillStyle = 'rgba(220, 100, 80, 0.85)';
-          ctx.fillText('CRITICAL 1.5°C BOUNDARY [430 ppm]', centerX + ringRadius - 10, centerY - 12);
+          const text = 'CRITICAL 1.5°C BOUNDARY [430 ppm]';
+          const textWidth = ctx.measureText(text).width;
+          let textX = centerX + ringRadius - 10;
+          if (textX + textWidth > canvas.width) {
+             textX = canvas.width - textWidth - 10;
+          }
+          ctx.fillText(text, textX, centerY - 12);
         }
       }
 
@@ -279,42 +285,44 @@ export const AtmosphericCanvas: React.FC = () => {
         className="w-full h-full cursor-crosshair"
       />
 
-      {/* Mode Switcher HUD in Top Right */}
-      <div className="absolute top-5 right-5 flex items-center gap-1.5 bg-[#182414]/90 backdrop-blur-md p-1.5 rounded-full border border-[#2B3E24] shadow-lg text-xs">
+      {/* Mode Switcher HUD */}
+      <div className="absolute top-3 right-3 left-3 sm:left-auto sm:top-5 sm:right-5 flex items-center justify-between sm:justify-start gap-1 sm:gap-1.5 bg-[#182414]/90 backdrop-blur-md p-1 sm:p-1.5 rounded-xl sm:rounded-full border border-[#2B3E24] shadow-lg text-[9px] sm:text-xs z-10 w-[calc(100%-24px)] sm:w-auto overflow-x-auto no-scrollbar">
         <button
           onClick={() => setFluxMode('flux')}
-          className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 font-mono text-[11px] transition-all ${
+          className={`px-2 sm:px-3 py-1.5 sm:py-1.5 rounded-lg sm:rounded-full flex items-center justify-center gap-1 sm:gap-1.5 font-mono transition-all flex-1 sm:flex-none whitespace-nowrap shrink-0 ${
             fluxMode === 'flux'
               ? 'bg-[#4A6741] text-white font-bold shadow-xs'
               : 'text-[#9CB395] hover:text-white'
           }`}
         >
-          <Orbit className="w-3.5 h-3.5" />
+          <Orbit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           <span>Carbon Flux</span>
         </button>
 
         <button
           onClick={() => setFluxMode('boundary')}
-          className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 font-mono text-[11px] transition-all ${
+          className={`px-2 sm:px-3 py-1.5 sm:py-1.5 rounded-lg sm:rounded-full flex items-center justify-center gap-1 sm:gap-1.5 font-mono transition-all flex-1 sm:flex-none whitespace-nowrap shrink-0 ${
             fluxMode === 'boundary'
               ? 'bg-[#8C7851] text-white font-bold shadow-xs'
               : 'text-[#9CB395] hover:text-white'
           }`}
         >
-          <Wind className="w-3.5 h-3.5" />
-          <span>1.5°C Boundary</span>
+          <Wind className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="hidden sm:inline">1.5°C Boundary</span>
+          <span className="sm:hidden">1.5°C</span>
         </button>
 
         <button
           onClick={() => setFluxMode('electrification')}
-          className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 font-mono text-[11px] transition-all ${
+          className={`px-2 sm:px-3 py-1.5 sm:py-1.5 rounded-lg sm:rounded-full flex items-center justify-center gap-1 sm:gap-1.5 font-mono transition-all flex-1 sm:flex-none whitespace-nowrap shrink-0 ${
             fluxMode === 'electrification'
               ? 'bg-[#2E543B] text-white font-bold shadow-xs'
               : 'text-[#9CB395] hover:text-white'
           }`}
         >
-          <Zap className="w-3.5 h-3.5" />
-          <span>Electrification</span>
+          <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="hidden sm:inline">Electrification</span>
+          <span className="sm:hidden">Electric</span>
         </button>
       </div>
 

@@ -1,0 +1,31 @@
+{
+  "collections": [
+    {
+      "name": "users",
+      "type": "document",
+      "fields": [
+        { "name": "email", "type": "string" },
+        { "name": "displayName", "type": "string" },
+        { "name": "createdAt", "type": "timestamp" }
+      ],
+      "subcollections": [
+        {
+          "name": "chats",
+          "type": "document",
+          "fields": [
+            { "name": "messages", "type": "array" },
+            { "name": "updatedAt", "type": "timestamp" }
+          ]
+        },
+        {
+          "name": "footprints",
+          "type": "document",
+          "fields": [
+            { "name": "totalEmissions", "type": "number" },
+            { "name": "createdAt", "type": "timestamp" }
+          ]
+        }
+      ]
+    }
+  ]
+}
