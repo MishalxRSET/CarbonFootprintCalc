@@ -128,10 +128,11 @@ export function AppContent() {
     }
   };
 
-  const handleRequestDriveAccess = async () => {
+  const handleRequestDriveAccess = async (): Promise<string> => {
     try {
       const token = await requestDriveAccess();
       setAccessToken(token);
+      return token;
     } catch (err) {
       console.error('Failed to grant Drive access:', err);
       throw err;

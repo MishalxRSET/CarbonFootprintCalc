@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { PageTab } from '../types';
 import { AuthUserProfile } from '../lib/firebase';
-import { ambientSound } from '../utils/ambientAudio';
 import { ThemeToggle } from './reactbits';
 import {
   Leaf,
@@ -16,8 +15,6 @@ import {
   FileCode,
   Sparkles,
   Search,
-  Volume2,
-  VolumeX,
   Command,
   Globe2,
 } from 'lucide-react';
@@ -47,16 +44,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCommandPalette,
   onOpenGuidedTour,
 }) => {
-  const [isPlayingSound, setIsPlayingSound] = useState(ambientSound.getIsPlaying());
-
-  useEffect(() => {
-    return ambientSound.subscribe((playing) => setIsPlayingSound(playing));
-  }, []);
-
-  const toggleSound = () => {
-    ambientSound.toggle();
-  };
-
   return (
     <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#09140C]/90 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-[#1A2C1D] shadow-xs">
       {/* Top Atmospheric Telemetry Ribbon */}
@@ -88,33 +75,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Ambient Soundscape Button */}
-            <button
-              onClick={toggleSound}
-              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#D4E3D1] transition-all cursor-pointer"
-              title={isPlayingSound ? 'Mute biospheric soundscape' : 'Listen to generative ambient soundscape'}
-            >
-              {isPlayingSound ? (
-                <>
-                  <div className="flex items-center gap-0.5 h-3">
-                    <span className="w-0.5 h-2 bg-[#52e35b] animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-0.5 h-3 bg-[#52e35b] animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-0.5 h-1.5 bg-[#52e35b] animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-[#52e35b] tracking-wider">ON</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3 h-3 text-[#6A7F66]" />
-                  <span className="text-[9px] sm:text-[10px] text-[#8EA689] tracking-wider">SOUND</span>
-                </>
-              )}
-            </button>
-
             {/* Quick Cmd+K Pill */}
             <button
               onClick={onOpenCommandPalette}
-              className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#8EA689] hover:text-white transition-colors cursor-pointer text-[10px]"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#8EA689] hover:text-white transition-colors cursor-pointer text-[10px]"
               title="Open Command HUD (Cmd+K)"
             >
               <Command className="w-2.5 h-2.5" />

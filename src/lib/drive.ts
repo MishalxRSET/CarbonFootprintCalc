@@ -321,3 +321,55 @@ Emission modeling adheres to the Greenhouse Gas Protocol and Central Electricity
 `;
 }
 
+/**
+ * Downloads the customized plan file directly to the client machine
+ */
+export function downloadPlanLocally(payload: PlanExportPayload, format: DrivePlanFormat = 'markdown'): void {
+  const dateStamp = new Date().toISOString().split('T')[0];
+  const cleanTitle = (payload.planTitle.trim() || 'Climate Action Plan 2026').replace(/[\\/:*?"<>|]/g, '-');
+  let content = '';
+  let filename = '';
+  let mimeType = '';
+
+  if (format === 'markdown') {
+    content = generatePlanMarkdown(payload);
+    filename = `${cleanTitle} - ${dateStamp}.md`;
+    mimeType = 'text/markdown;charset=utf-8';
+  } else if (format === 'json') {
+    content = JSON.stringify(
+      {
+        planTitle: payload.planTitle,
+        generatedDate: new Date().toISOString(),
+        framework: 'GHG Protocol & CEA India (0.716 kg CO2/kWh)',
+        summary: {
+          baselineTonnesCO2e: payload.baselineTonnes,
+          targetReductionPercent: payload.targetPercent,
+          annualAbatementTonnesCO2e: payload.abatedTonnes,
+          projectedNetTonnesCO2e: payload.netRemainingTonnes,
+          annualEstimatedSavingsINR: payload.annualSavingsINR,
+          timelineYears: payload.horizonYears,
+        },
+        selectedStrategies: payload.selectedStrategies,
+      },
+      null,
+      2
+    );
+    filename = `${cleanTitle} - ${dateStamp}.json`;
+    mimeType = 'application/json;charset=utf-8';
+  } else {
+    content = generatePlanHTML(payload);
+    filename = `${cleanTitle} - ${dateStamp}.html`;
+    mimeType = 'text/html;charset=utf-8';
+  }
+
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+

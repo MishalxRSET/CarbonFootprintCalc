@@ -16,11 +16,11 @@ export const auth = getAuth(app);
 export const db = getFirestore(app, "ai-studio-carbonfootprintc-6f304aba-5a89-4088-806d-9cd1e865e122");
 
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-export const OAUTH_CLIENT_ID = firebaseConfig.oAuthClientId;
 
-const provider = new GoogleAuthProvider();
-// Remove DRIVE_FILE_SCOPE from basic sign-in
-provider.setCustomParameters({
+// Google Auth Provider configured with Google Drive scope
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope(DRIVE_FILE_SCOPE);
+googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
 
@@ -42,34 +42,6 @@ type FailureCallback = () => void;
 
 const successListeners: Set<AuthCallback> = new Set();
 const failureListeners: Set<FailureCallback> = new Set();
-
-/**
- * Fetch Google User Profile using OAuth2 access token
- */
-async function fetchGoogleUserProfile(token: string): Promise<AuthUserProfile> {
-  try {
-    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const info = await res.json();
-      return {
-        displayName: info.name || info.given_name || 'Google User',
-        email: info.email || null,
-        photoURL: info.picture || null,
-        uid: info.sub || `gsi_${Date.now()}`,
-      };
-    }
-  } catch (e) {
-    console.warn('Could not fetch userinfo from Google endpoint:', e);
-  }
-  return {
-    displayName: 'Google User',
-    email: null,
-    photoURL: null,
-    uid: `user_${Date.now()}`,
-  };
-}
 
 /**
  * Initialize auth state listener. Call this on app load.
@@ -112,94 +84,49 @@ export const initAuth = (
 };
 
 /**
- * Perform basic sign in using Google Identity Services (GIS token client) without Drive scopes.
+ * Request Google Drive access using Firebase Auth popup (uses authorized authDomain handler, avoiding origin mismatch)
  */
-function signInWithGIS(): Promise<{ user: AuthUserProfile; accessToken: string }> {
-  return new Promise((resolve, reject) => {
-    const google = (window as unknown as { google?: { accounts?: { oauth2?: { initTokenClient: Function } } } })?.google;
-    
-    if (!google?.accounts?.oauth2?.initTokenClient || !OAUTH_CLIENT_ID) {
-      return reject(new Error('GIS_UNAVAILABLE'));
-    }
+export const requestDriveAccess = async (): Promise<string> => {
+  if (cachedAccessToken) {
+    return cachedAccessToken;
+  }
 
-    try {
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: OAUTH_CLIENT_ID,
-        scope: `https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email`,
-        prompt: 'select_account',
-        callback: async (response: { access_token?: string; error?: string; error_description?: string }) => {
-          if (response.error) {
-            console.error('Google GSI OAuth Error:', response.error, response.error_description);
-            return reject(new Error(response.error_description || response.error));
-          }
-          if (!response.access_token) {
-            return reject(new Error('No access token received from Google Identity Services.'));
-          }
-          const token = response.access_token;
-          const profile = await fetchGoogleUserProfile(token);
-          cachedAccessToken = token;
-          cachedUserProfile = profile;
-          successListeners.forEach((cb) => cb(profile, token));
-          resolve({ user: profile, accessToken: token });
-        },
-        error_callback: (err: unknown) => {
-          console.error('GSI client initiation error:', err);
-          reject(err);
-        },
-      });
-      client.requestAccessToken();
-    } catch (err) {
-      reject(err);
+  isSigningIn = true;
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential?.accessToken) {
+      throw new Error('Could not obtain Google Drive access token from Google sign-in.');
     }
-  });
-}
+    const token = credential.accessToken;
+    cachedAccessToken = token;
 
-/**
- * Incremental Authorization: Request Drive access specifically.
- * Used only when the user intends to save something to Drive.
- */
-export const requestDriveAccess = (): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const google = (window as unknown as { google?: { accounts?: { oauth2?: { initTokenClient: Function } } } })?.google;
-    
-    if (!google?.accounts?.oauth2?.initTokenClient || !OAUTH_CLIENT_ID) {
-      return reject(new Error('Google Identity Services not available. Please try again.'));
+    const profile: AuthUserProfile = {
+      displayName: result.user.displayName,
+      email: result.user.email,
+      photoURL: result.user.photoURL,
+      uid: result.user.uid,
+    };
+    cachedUserProfile = profile;
+    successListeners.forEach((cb) => cb(profile, token));
+    return token;
+  } catch (error: unknown) {
+    console.error('Drive access error:', error);
+    const errObj = error as { code?: string; message?: string };
+    if (errObj.code === 'auth/popup-blocked' || errObj.message?.includes('popup')) {
+      throw new Error('The authorization popup was blocked by your browser. Please allow popups for this site and try again.');
     }
-
-    try {
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: OAUTH_CLIENT_ID,
-        scope: DRIVE_FILE_SCOPE,
-        include_granted_scopes: true,
-        callback: async (response: { access_token?: string; error?: string; error_description?: string }) => {
-          if (response.error) {
-            console.error('Drive OAuth Error:', response.error, response.error_description);
-            return reject(new Error(response.error_description || response.error));
-          }
-          if (!response.access_token) {
-            return reject(new Error('No access token received.'));
-          }
-          const token = response.access_token;
-          cachedAccessToken = token;
-          if (cachedUserProfile) {
-            successListeners.forEach((cb) => cb(cachedUserProfile!, token));
-          }
-          resolve(token);
-        },
-        error_callback: (err: unknown) => {
-          reject(err);
-        },
-      });
-      // Request incremental token
-      client.requestAccessToken();
-    } catch (err) {
-      reject(err);
+    if (errObj.code === 'auth/popup-closed-by-user' || errObj.code === 'auth/cancelled-popup-request') {
+      throw new Error('Authorization was cancelled before completing.');
     }
-  });
+    throw error;
+  } finally {
+    isSigningIn = false;
+  }
 };
 
 /**
- * Trigger Google Sign In for basic authentication.
+ * Trigger Google Sign In using Firebase Auth with Drive scope included
  */
 export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessToken: string | null } | null> => {
   if (isSigningIn) {
@@ -209,23 +136,8 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
 
   isSigningIn = true;
   try {
-    // 1. Try Google Identity Services (GSI) - works seamlessly across mobile, iOS Safari, Android, and desktop
-    try {
-      const gisResult = await signInWithGIS();
-      return gisResult;
-    } catch (gisError: unknown) {
-      const msg = gisError instanceof Error ? gisError.message : String(gisError);
-      // If user deliberately closed popup, don't fall back, just rethrow
-      if (msg.includes('user_cancel') || msg.includes('popup_closed_by_user')) {
-        throw new Error('Sign-in was cancelled or the popup was closed.');
-      }
-      console.log('GSI not available or returned error, falling back to Firebase Auth:', msg);
-    }
-
-    // 2. Fallback: Firebase Auth signInWithPopup
-    const result = await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, googleProvider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    // Access token is optional for basic sign-in
     cachedAccessToken = credential?.accessToken || null;
 
     const profile: AuthUserProfile = {
