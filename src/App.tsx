@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PageTab, CalculationResult } from './types';
 import { calculateEmissions, DEFAULT_EMISSION_INPUTS } from './data/carbonData';
@@ -33,6 +33,48 @@ export function AppContent() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGuidedTourOpen, setIsGuidedTourOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Helper to reliably scroll to top across window, documentElement, body, and main container
+  const scrollToTop = useCallback(() => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+    if (document.documentElement) {
+      document.documentElement.scrollTop = 0;
+    }
+    if (document.body) {
+      document.body.scrollTop = 0;
+    }
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+  }, []);
+
+  const handleTabChange = useCallback((tab: PageTab) => {
+    setCurrentTab(tab);
+    scrollToTop();
+  }, [scrollToTop]);
+
+  // Automatically scroll to the top whenever switching tabs
+  useEffect(() => {
+    scrollToTop();
+
+    const rafId = requestAnimationFrame(scrollToTop);
+    const timer1 = setTimeout(scrollToTop, 50);
+    const timer2 = setTimeout(scrollToTop, 150);
+    const timer3 = setTimeout(scrollToTop, 340);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [currentTab, scrollToTop]);
 
   // Maintain the active carbon footprint calculation state
   const [currentCalculation, setCurrentCalculation] = useState<CalculationResult>(() =>
@@ -127,7 +169,7 @@ export function AppContent() {
       {/* Navigation Header */}
       <Navbar
         currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
+        setCurrentTab={handleTabChange}
         user={user}
         onLogin={handleLogin}
         onLogout={handleLogout}
@@ -139,8 +181,8 @@ export function AppContent() {
       />
 
       {/* Main View Container with Subtle Framer Motion Transitions */}
-      <main className="relative z-10 flex-1 overflow-hidden">
-        <AnimatePresence mode="wait">
+      <main ref={mainRef} className="relative z-10 flex-1 overflow-hidden">
+        <AnimatePresence mode="wait" onExitComplete={scrollToTop}>
           {currentTab === 'overview' && (
             <motion.div
               key="overview"
@@ -150,7 +192,7 @@ export function AppContent() {
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             >
               <OverviewView
-                onNavigate={(tab) => setCurrentTab(tab)}
+                onNavigate={handleTabChange}
                 onOpenDesignDoc={() => setIsDesignDocOpen(true)}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 onOpenGuidedTour={() => setIsGuidedTourOpen(true)}
@@ -167,7 +209,7 @@ export function AppContent() {
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             >
               <SolutionsView
-                onNavigate={(tab) => setCurrentTab(tab)}
+                onNavigate={handleTabChange}
               />
             </motion.div>
           )}
@@ -181,7 +223,7 @@ export function AppContent() {
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             >
               <CalculatorView
-                onNavigate={(tab) => setCurrentTab(tab)}
+                onNavigate={handleTabChange}
                 onApplyFootprintToPlanner={handleApplyFootprintToPlanner}
               />
             </motion.div>
@@ -197,7 +239,7 @@ export function AppContent() {
             >
               <PlannerView
                 currentCalculation={currentCalculation}
-                onNavigate={(tab) => setCurrentTab(tab)}
+                onNavigate={handleTabChange}
               />
             </motion.div>
           )}
@@ -217,7 +259,7 @@ export function AppContent() {
                 onRequestDriveAccess={handleRequestDriveAccess}
                 onLogout={handleLogout}
                 isLoggingIn={isLoggingIn}
-                onNavigate={(tab) => setCurrentTab(tab)}
+                onNavigate={handleTabChange}
               />
             </motion.div>
           )}
@@ -234,14 +276,14 @@ export function AppContent() {
       <GuidedTourModal
         isOpen={isGuidedTourOpen}
         onClose={() => setIsGuidedTourOpen(false)}
-        onNavigate={(tab) => setCurrentTab(tab)}
+        onNavigate={handleTabChange}
       />
 
       {/* Modern Award-Winning Command Palette (Cmd+K) */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        onNavigate={(tab) => setCurrentTab(tab)}
+        onNavigate={handleTabChange}
         onOpenDesignDoc={() => setIsDesignDocOpen(true)}
       />
 
@@ -278,26 +320,26 @@ export function AppContent() {
 
           <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs">
             <button
-              onClick={() => setCurrentTab('overview')}
+              onClick={() => handleTabChange('overview')}
               className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
             >
               Overview
             </button>
             <button
-              onClick={() => setCurrentTab('calculator')}
+              onClick={() => handleTabChange('calculator')}
               className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
             >
               Carbon Calculator
             </button>
             <button
-              onClick={() => setCurrentTab('solutions')}
+              onClick={() => handleTabChange('solutions')}
               className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#65e66d]" />
               <span>Solutions Hub</span>
             </button>
             <button
-              onClick={() => setCurrentTab('planner')}
+              onClick={() => handleTabChange('planner')}
               className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
             >
               Reduction Planner
@@ -310,7 +352,7 @@ export function AppContent() {
               <span>Project Design Document</span>
             </button>
             <button
-              onClick={() => setCurrentTab('drive_save')}
+              onClick={() => handleTabChange('drive_save')}
               className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Cloud className="w-3.5 h-3.5 text-[#65e66d]" />
@@ -343,6 +385,9 @@ export function AppContent() {
                   </a>
                 ))}
               </div>
+              <span className="text-[11px] text-[#A6C3A9] italic font-medium mt-1">
+                For Mr. Sanjay Gireeshan with Love
+              </span>
             </div>
 
             <div className="flex flex-col items-center md:items-end gap-2">
