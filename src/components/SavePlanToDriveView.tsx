@@ -163,6 +163,15 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
         token = await onRequestDriveAccess();
         setHasDriveAccess(true);
       } catch (err: any) {
+        if (err.message === 'AUTH_CANCELLED') {
+          setIsRequestingDrive(false);
+          return;
+        }
+        if (err.message === 'AUTH_POPUP_BLOCKED') {
+          setSaveError('POPUP_BLOCKED');
+          setIsRequestingDrive(false);
+          return;
+        }
         setSaveError(err.message || 'Google Drive authorization was not granted.');
         setIsRequestingDrive(false);
         return;
@@ -638,13 +647,46 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
 
             {/* Error Notice */}
             {saveError && (
-              <div className="p-4 bg-[#FDF2F0] dark:bg-[#2B1714] border border-[#E8C5BE] dark:border-[#4D2620] rounded-2xl text-xs text-[#8C3A27] dark:text-[#E8998D] flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold">Unable to Save Plan</p>
-                  <p className="text-[11px] mt-0.5">{saveError}</p>
+              saveError === 'POPUP_BLOCKED' ? (
+                <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl text-xs text-amber-900 dark:text-amber-200 space-y-3 animate-fade-in">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-xs">Authorization Popup Blocked</p>
+                      <p className="text-[11px] mt-0.5 text-amber-800 dark:text-amber-300">
+                        Your browser restricted the Google authorization popup inside this preview frame.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <a
+                      href={window.location.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-[#4A6741] text-white font-bold rounded-lg text-[11px] flex items-center gap-1.5 shadow-2xs hover:bg-[#3B5334] transition-colors"
+                    >
+                      <span>Open App in New Tab</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleDownloadLocally}
+                      className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 font-semibold rounded-lg text-[11px] flex items-center gap-1.5 hover:bg-amber-200 transition-colors"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Download Locally Instead</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-4 bg-[#FDF2F0] dark:bg-[#2B1714] border border-[#E8C5BE] dark:border-[#4D2620] rounded-2xl text-xs text-[#8C3A27] dark:text-[#E8998D] flex items-start gap-2.5 animate-fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Unable to Save Plan</p>
+                    <p className="text-[11px] mt-0.5">{saveError}</p>
+                  </div>
+                </div>
+              )
             )}
           </div>
 

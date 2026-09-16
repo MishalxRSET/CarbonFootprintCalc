@@ -111,14 +111,15 @@ export const requestDriveAccess = async (): Promise<string> => {
     successListeners.forEach((cb) => cb(profile, token));
     return token;
   } catch (error: unknown) {
-    console.error('Drive access error:', error);
     const errObj = error as { code?: string; message?: string };
-    if (errObj.code === 'auth/popup-blocked' || errObj.message?.includes('popup')) {
-      throw new Error('The authorization popup was blocked by your browser. Please allow popups for this site and try again.');
-    }
     if (errObj.code === 'auth/popup-closed-by-user' || errObj.code === 'auth/cancelled-popup-request') {
-      throw new Error('Authorization was cancelled before completing.');
+      // User closed the popup window deliberately - not a systemic failure
+      throw new Error('AUTH_CANCELLED');
     }
+    if (errObj.code === 'auth/popup-blocked' || errObj.message?.toLowerCase().includes('popup')) {
+      throw new Error('AUTH_POPUP_BLOCKED');
+    }
+    console.error('Drive access error:', error);
     throw error;
   } finally {
     isSigningIn = false;
@@ -130,7 +131,6 @@ export const requestDriveAccess = async (): Promise<string> => {
  */
 export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessToken: string | null } | null> => {
   if (isSigningIn) {
-    console.warn('Sign-in already in progress');
     return null;
   }
 
@@ -150,14 +150,15 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
     successListeners.forEach((cb) => cb(profile, cachedAccessToken));
     return { user: profile, accessToken: cachedAccessToken };
   } catch (error: unknown) {
-    console.error('Google Sign-in Error:', error);
     const errObj = error as { code?: string; message?: string };
-    if (errObj.code === 'auth/popup-blocked' || errObj.message?.includes('popup')) {
-      throw new Error('Login popup was blocked by your browser. Please tap "Allow Popups" or enable popups for this site.');
-    }
     if (errObj.code === 'auth/popup-closed-by-user' || errObj.code === 'auth/cancelled-popup-request') {
-      throw new Error('Sign-in popup was closed before completing authorization.');
+      // Benign: User simply closed the popup before completing sign-in
+      return null;
     }
+    if (errObj.code === 'auth/popup-blocked' || errObj.message?.toLowerCase().includes('popup')) {
+      throw new Error('AUTH_POPUP_BLOCKED');
+    }
+    console.error('Google Sign-in Error:', error);
     throw error;
   } finally {
     isSigningIn = false;
