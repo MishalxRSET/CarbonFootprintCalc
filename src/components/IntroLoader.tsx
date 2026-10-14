@@ -1,103 +1,101 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { DecryptedText, ShinyText, StrokeText } from './reactbits';
-import { Leaf } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { animate, AnimatePresence, motion } from 'motion/react';
+import { prefersReducedMotion } from './fx/SmoothScroll';
+import { EASE_IN_OUT, EASE_OUT_EXPO } from './fx/Kinetic';
 
 interface IntroLoaderProps {
   onComplete: () => void;
 }
 
+const WORDS = ['Measure', 'Reduce', 'Restore', 'Sustain'];
+
 export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete }) => {
+  const [count, setCount] = useState(0);
+  const [wordIndex, setWordIndex] = useState(0);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   useEffect(() => {
-    // 4.5 seconds total intro time
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 4500);
-    return () => clearTimeout(timer);
-  }, [onComplete]);
+    const reduce = prefersReducedMotion();
+    const total = reduce ? 0.6 : 2.4;
+    const controls = animate(0, 100, {
+      duration: total,
+      ease: [0.65, 0, 0.35, 1],
+      onUpdate: (v) => {
+        setCount(Math.round(v));
+        setWordIndex(Math.min(WORDS.length - 1, Math.floor((v / 100) * WORDS.length)));
+      },
+    });
+    const done = window.setTimeout(() => onCompleteRef.current(), (total + (reduce ? 0.1 : 0.35)) * 1000);
+    return () => {
+      controls.stop();
+      window.clearTimeout(done);
+    };
+  }, []);
 
   return (
     <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-0 z-[100] bg-[#060A06] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[100] overflow-hidden bg-[#040805] text-white"
+      initial={{ y: 0 }}
+      exit={{ y: '-100%' }}
+      transition={{ duration: 1.05, ease: EASE_IN_OUT }}
+      role="status"
+      aria-label="Loading CarbonZero"
     >
-      {/* Background radial organic glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(46,84,59,0.15)_0%,transparent_50%)]" />
-      
-      {/* Dynamic Grid Background Overlay */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(255,255,255,1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,1)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(46,140,70,0.22),transparent_60%)]" />
 
-      {/* Main Logo & Title */}
       <motion.div
-        initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 1, ease: 'easeOut' }}
-        className="flex flex-col items-center gap-6 z-10"
+        className="relative flex h-full flex-col justify-between p-5 sm:p-8 lg:p-12"
+        exit={{ opacity: 0, y: -60 }}
+        transition={{ duration: 0.7, ease: EASE_IN_OUT }}
       >
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#65e66d] flex items-center justify-center font-bold shadow-[0_0_60px_rgba(101,230,109,0.5)]">
-          <Leaf className="w-8 h-8 sm:w-10 sm:h-10 text-[#081E11]" />
+        <div className="type-label flex items-start justify-between text-white/55">
+          <span>
+            Carbon<span className="text-[#65e66d]">Zero</span>®
+          </span>
+          <span className="text-right">
+            Reduce today
+            <br />
+            Restore tomorrow
+          </span>
         </div>
-        
-        <div className="relative w-[300px] sm:w-[450px] flex justify-center">
-          <StrokeText
-            text="CarbonZero"
-            strokeColor="#4A6741"
-            fillColor="#ffffff"
-            strokeWidth={1.2}
-            drawDuration={1.8}
-            fillDelay={0.4}
-            stagger={0.08}
-            ease="power3.inOut"
-            trigger="mount"
-            fillMode="fade"
-            fontSize={64}
-            fontWeight={800}
-            letterSpacing={-2}
-          />
+
+        <div className="flex items-center justify-center">
+          <div className="relative h-[1.1em] overflow-hidden font-display text-[clamp(2.5rem,7vw,6.5rem)] font-semibold tracking-[-0.045em]">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={WORDS[wordIndex]}
+                className="block"
+                initial={{ y: '100%' }}
+                animate={{ y: '0%' }}
+                exit={{ y: '-100%' }}
+                transition={{ duration: 0.55, ease: EASE_OUT_EXPO }}
+              >
+                {wordIndex === WORDS.length - 1 ? (
+                  <span className="font-editorial font-normal text-[#65e66d]">{WORDS[wordIndex]}.</span>
+                ) : (
+                  WORDS[wordIndex]
+                )}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        <div className="flex items-end justify-between gap-6">
+          <span className="type-mega tabular-nums text-[clamp(5rem,24vw,22rem)] leading-[0.78] text-white">
+            {String(count).padStart(3, '0')}
+          </span>
+          <span className="type-label mb-3 hidden text-right text-white/50 sm:block">
+            Initializing
+            <br />
+            biospheric engines
+          </span>
         </div>
       </motion.div>
 
-      {/* High-Tech Telemetry Decrypting Text */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 1 }}
-        className="mt-8 sm:mt-10 z-10 h-6 flex items-center justify-center"
-      >
-        <DecryptedText
-          text="INITIALIZING BIOSPHERIC ENGINES..."
-          animateOn="view"
-          speed={45}
-          maxIterations={25}
-          className="font-mono text-[10px] sm:text-xs tracking-[0.25em] text-[#8ca890]"
-        />
-      </motion.div>
-      
-      {/* Progress / Power Bar */}
-      <div className="relative mt-6 z-10 w-[200px] sm:w-[280px] h-[2px] bg-[#1A2C1D] rounded-full overflow-hidden">
-        <motion.div 
-          initial={{ x: '-100%' }}
-          animate={{ x: '0%' }}
-          transition={{ delay: 0.5, duration: 2.2, ease: 'easeInOut' }}
-          className="absolute inset-0 w-full h-full bg-[#65e66d] shadow-[0_0_10px_#65e66d]"
-        />
+      <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/10">
+        <div className="h-full origin-left bg-[#65e66d]" style={{ transform: `scaleX(${count / 100})` }} />
       </div>
-      
-      {/* Subtle ShinyText Note */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-10 z-10"
-      >
-        <ShinyText 
-          text="Connecting to Global Flux Data" 
-          speed={3} 
-          className="text-[#4A6741] font-mono text-[10px] tracking-widest uppercase" 
-        />
-      </motion.div>
     </motion.div>
   );
 };
