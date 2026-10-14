@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, MotionValue, useMotionValue, useSpring } from 'motion/react';
 import { PageTab } from '../types';
 import { AuthUserProfile } from '../lib/firebase';
 import { ThemeToggle } from './reactbits';
@@ -18,6 +19,79 @@ import {
   Command,
   Globe2,
 } from 'lucide-react';
+
+const DESKTOP_TABS: { tab: PageTab; id: string; label: string; Icon: React.FC<{ className?: string }>; badge?: string }[] = [
+  { tab: 'overview', id: 'tab-btn-overview', label: 'Overview', Icon: FileText },
+  { tab: 'solutions', id: 'tab-btn-solutions', label: 'Solutions', Icon: Sparkles, badge: '16' },
+  { tab: 'calculator', id: 'tab-btn-calculator', label: 'Calculator', Icon: Calculator },
+  { tab: 'planner', id: 'tab-btn-planner', label: 'Planner', Icon: Compass },
+  { tab: 'drive_save', id: 'tab-btn-drive', label: 'Drive Sync', Icon: Cloud },
+];
+
+/**
+ * Tracks scroll direction (to tuck the bar away while reading) and whether a
+ * dark full-bleed section sits under the bar (to switch it to its dark skin).
+ */
+function useNavScrollState(headerRef: React.RefObject<HTMLElement | null>, currentTab: PageTab, progress: MotionValue<number>) {
+  const [state, setState] = useState({ hidden: false, overDark: false, atTop: true });
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      progress.set(scrollable > 0 ? Math.min(1, Math.max(0, y / scrollable)) : 0);
+      const header = headerRef.current;
+      const h = header?.offsetHeight ?? 0;
+      const probe = h / 2;
+      const overDark = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-theme="dark"]')).some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top <= probe && r.bottom >= probe;
+      });
+      const delta = y - lastY;
+      setState((prev) => {
+        let hidden = prev.hidden;
+        if (y < 120) hidden = false;
+        else if (delta > 6) hidden = true;
+        else if (delta < -6) hidden = false;
+        const atTop = y < 24;
+        if (hidden === prev.hidden && overDark === prev.overDark && atTop === prev.atTop) return prev;
+        return { hidden, overDark, atTop };
+      });
+      lastY = y;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    // Page height changes (intro unlock, lazy content) also move the progress bar
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(document.body);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [headerRef, currentTab, progress]);
+
+  // Publish the bar's height so full-bleed heroes can slide underneath it
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const publish = () => document.documentElement.style.setProperty('--header-h', `${header.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [headerRef]);
+
+  return state;
+}
 
 interface NavbarProps {
   currentTab: PageTab;
@@ -44,10 +118,36 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCommandPalette,
   onOpenGuidedTour,
 }) => {
+  const headerRef = useRef<HTMLElement>(null);
+  const scrollProgress = useMotionValue(0);
+  const { hidden, overDark, atTop } = useNavScrollState(headerRef, currentTab, scrollProgress);
+  const progress = useSpring(scrollProgress, { stiffness: 220, damping: 40, restDelta: 0.001 });
+  const transparent = overDark && atTop;
+
   return (
-    <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#09140C]/90 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-[#1A2C1D] shadow-xs">
+    <header
+      ref={headerRef}
+      style={{ transform: hidden ? 'translateY(-100%)' : 'translateY(0)' }}
+      className={`sticky top-0 z-40 transition-[transform,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        overDark ? 'dark' : ''
+      } ${
+        transparent
+          ? 'bg-transparent border-b border-transparent'
+          : 'bg-white/80 dark:bg-[#050B06]/75 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-white/[0.07] shadow-xs'
+      }`}
+    >
+      {/* Scroll progress hairline */}
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: progress }}
+        className="absolute bottom-[-1px] left-0 right-0 h-[2px] origin-left bg-[#65e66d]"
+      />
       {/* Top Atmospheric Telemetry Ribbon */}
-      <div className="bg-[#08150B] dark:bg-[#040C07] text-[#9CB395] py-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-mono border-b border-[#1A2C1D] select-none no-scrollbar overflow-x-auto">
+      <div
+        className={`text-[#9CB395] py-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-mono border-b select-none no-scrollbar overflow-x-auto transition-colors duration-500 ${
+          transparent ? 'bg-transparent border-white/[0.06]' : 'bg-[#08150B] dark:bg-[#030805] border-[#1A2C1D] dark:border-white/[0.05]'
+        }`}
+      >
         <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-2 sm:gap-6">
           <div className="flex items-center gap-2 sm:gap-4 shrink-0 truncate">
             <span className="flex items-center gap-1.5 text-[#B6CCB0] shrink-0">
@@ -102,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Leaf className="w-4.5 h-4.5 text-emerald-600 dark:text-[#52e35b]" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-[#142314] dark:text-white text-xl tracking-tight">
+                <span className="font-display font-bold text-[#142314] dark:text-white text-[22px] tracking-[-0.04em]">
                   Carbon<span className="text-emerald-600 dark:text-[#52e35b]">Zero</span>
                 </span>
                 <span className="hidden xl:inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
@@ -112,80 +212,53 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Desktop Navigation Tabs - Airy, Single-line, No Wrapping */}
-          <nav className="hidden lg:flex items-center gap-1 bg-[#F4F6F2]/90 dark:bg-[#111C13]/90 p-1.5 rounded-full border border-[#DFE6DC] dark:border-[#1E3021] shadow-2xs backdrop-blur-md">
-            <button
-              id="tab-btn-overview"
-              onClick={() => setCurrentTab('overview')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                currentTab === 'overview'
-                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
-                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5 text-[#8C7851] dark:text-[#E2C792]" />
-              <span>Overview</span>
-            </button>
-
-            <button
-              id="tab-btn-solutions"
-              onClick={() => setCurrentTab('solutions')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                currentTab === 'solutions'
-                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
-                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b]" />
-              <span>Solutions</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold">
-                16
-              </span>
-            </button>
-
-            <button
-              id="tab-btn-calculator"
-              onClick={() => setCurrentTab('calculator')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                currentTab === 'calculator'
-                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
-                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-              }`}
-            >
-              <Calculator className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b]" />
-              <span>Calculator</span>
-            </button>
-
-            <button
-              id="tab-btn-planner"
-              onClick={() => setCurrentTab('planner')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                currentTab === 'planner'
-                  ? 'bg-white dark:bg-[#1C3320] text-[#142314] dark:text-white shadow-xs font-bold border border-black/5 dark:border-white/10'
-                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5 text-[#8C7851] dark:text-[#E2C792]" />
-              <span>Planner</span>
-            </button>
-
-            <button
-              id="tab-btn-drive"
-              onClick={() => setCurrentTab('drive_save')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer relative ${
-                currentTab === 'drive_save'
-                  ? 'bg-[#142314] dark:bg-[#52e35b] text-white dark:text-[#061408] shadow-xs font-bold'
-                  : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-              }`}
-            >
-              <Cloud className="w-3.5 h-3.5" />
-              <span>Drive Sync</span>
-              {driveConnected ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#52e35b] dark:bg-[#061408]" />
-              ) : (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8C7851] dark:bg-[#E2C792]" />
-              )}
-            </button>
+          {/* Desktop Navigation Tabs with a sliding active pill */}
+          <nav className="hidden lg:flex items-center gap-0.5 bg-[#F4F6F2]/80 dark:bg-white/[0.04] p-1.5 rounded-full border border-[#DFE6DC] dark:border-white/[0.08] backdrop-blur-md">
+            {DESKTOP_TABS.map(({ tab, id, label, Icon, badge }) => {
+              const active = currentTab === tab;
+              return (
+                <button
+                  key={tab}
+                  id={id}
+                  onClick={() => setCurrentTab(tab)}
+                  className={`relative flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                    active
+                      ? 'text-[#04110a]'
+                      : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#142314] dark:hover:text-white'
+                  }`}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="nav-active-pill"
+                      className="absolute inset-0 rounded-full bg-[#65e66d] shadow-[0_0_24px_rgba(101,230,109,0.35)]"
+                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    />
+                  )}
+                  <Icon className="relative w-3.5 h-3.5" />
+                  <span className="relative">{label}</span>
+                  {badge && (
+                    <span
+                      className={`relative text-[10px] px-1.5 rounded-full font-bold ${
+                        active ? 'bg-[#04110a]/15 text-[#04110a]' : 'bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300'
+                      }`}
+                    >
+                      {badge}
+                    </span>
+                  )}
+                  {tab === 'drive_save' && (
+                    <span
+                      className={`relative w-1.5 h-1.5 rounded-full ${
+                        active
+                          ? 'bg-[#04110a]'
+                          : driveConnected
+                            ? 'bg-[#2E7D32] dark:bg-[#52e35b]'
+                            : 'bg-[#8C7851] dark:bg-[#E2C792]'
+                      }`}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </nav>
 
           {/* Right Actions: Compact, Responsive, No Text-Wrapping or Viewport Cutoff */}
