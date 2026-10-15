@@ -653,6 +653,13 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
                 <span>Download {format === 'gdoc' ? 'DOC' : format.toUpperCase()} Locally</span>
               </button>
             </div>
+            <p className="text-[11px] leading-relaxed text-[#5C6658] dark:text-[#9DB099]">
+              Saving uses Google’s limited Drive permission: CarbonZero can only see files it creates. See our{' '}
+              <a href="/privacy#google" className="font-semibold text-[#4A6741] dark:text-[#88B080] underline underline-offset-2">
+                Privacy Policy
+              </a>
+              .
+            </p>
 
             {/* Save Success Alert */}
             {saveSuccessFile && (
