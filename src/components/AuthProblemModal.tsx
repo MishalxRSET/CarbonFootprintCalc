@@ -20,6 +20,8 @@ interface AuthProblemModalProps {
   onClose: () => void;
   onRetry: () => void;
   onDownloadInstead: () => void;
+  /** Label for the download fallback ("Download plan instead" on the Save page, otherwise a link to it). */
+  downloadLabel?: string;
 }
 
 const COPY = {
@@ -37,7 +39,13 @@ const COPY = {
   },
 } as const;
 
-export const AuthProblemModal: React.FC<AuthProblemModalProps> = ({ problem, onClose, onRetry, onDownloadInstead }) => {
+export const AuthProblemModal: React.FC<AuthProblemModalProps> = ({
+  problem,
+  onClose,
+  onRetry,
+  onDownloadInstead,
+  downloadLabel = 'Download plan instead',
+}) => {
   const [copied, setCopied] = useState(false);
   const host = window.location.hostname;
 
@@ -183,7 +191,7 @@ export const AuthProblemModal: React.FC<AuthProblemModalProps> = ({ problem, onC
                   className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-[#1D2B17] dark:bg-[#4A6741] text-white rounded-xl hover:bg-[#2E4726] dark:hover:bg-[#3B5334] transition-colors cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download plan instead</span>
+                  <span>{downloadLabel}</span>
                 </button>
               ) : (
                 <button

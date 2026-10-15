@@ -175,16 +175,10 @@ export function AppContent() {
     // Yield to the browser to paint loading state if this was invoked from a button
     await new Promise(resolve => setTimeout(resolve, 50));
     
-    try {
-      const token = await requestDriveAccess({ forceRefresh });
-      setAccessToken(token);
-      return token;
-    } catch (err: unknown) {
-      // Popup and domain problems get the explanatory modal; the caller still shows its own inline state
-      const problem = authProblemFromError(err);
-      if (problem && problem.kind !== 'other') setAuthProblem(problem);
-      throw err;
-    }
+    // The Save page explains failures inline (with its own download fallback), so no modal here
+    const token = await requestDriveAccess({ forceRefresh });
+    setAccessToken(token);
+    return token;
   };
 
   // Google rejected the token (expired, revoked or missing the Drive scope): forget it
@@ -387,9 +381,12 @@ export function AppContent() {
           setAuthProblem(null);
           handleLogin();
         }}
+        downloadLabel={currentTab === 'drive_save' ? 'Download plan instead' : 'Go to plan download'}
         onDownloadInstead={() => {
           setAuthProblem(null);
-          if (currentTab !== 'drive_save') handleTabChange('drive_save');
+          // On the Save page, download right away; elsewhere take the user to it
+          if (currentTab === 'drive_save') document.getElementById('download-plan-locally-btn')?.click();
+          else handleTabChange('drive_save');
         }}
       />
 
