@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion } from 'motion/react';
 import { prefersReducedMotion } from './fx/SmoothScroll';
 import { EASE_IN_OUT, EASE_OUT_EXPO } from './fx/Kinetic';
+import { readGlobeAnchor } from './hero/globeAnchor';
 
 interface IntroLoaderProps {
   onComplete: () => void;
+  /** Fired when the overlay starts opening onto the hero (the hand-off moment). */
+  onReveal?: () => void;
   /** True once the heavy hero visuals have rendered; the curve waits for it (up to a cap). */
   assetsReady?: boolean;
 }
@@ -107,16 +110,18 @@ const pathwayPath = (upTo: number) => {
 
 /* ------------------------------------------------------------------------- */
 
-type Phase = 'draw' | 'bend';
-const COLUMNS = 5;
+type Phase = 'draw' | 'bend' | 'home';
+const TRAIL = 8;
 
-export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsReady = false }) => {
+export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, assetsReady = false }) => {
   const [phase, setPhase] = useState<Phase>('draw');
   const [started, setStarted] = useState(false);
   const mountedAt = useRef(performance.now());
   const [passed, setPassed] = useState(0);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const onRevealRef = useRef(onReveal);
+  onRevealRef.current = onReveal;
 
   const lineRef = useRef<SVGPathElement>(null);
   const areaRef = useRef<SVGPathElement>(null);
@@ -127,6 +132,11 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
   const yearRef = useRef<HTMLSpanElement>(null);
   const ppmRef = useRef<HTMLSpanElement>(null);
   const deltaRef = useRef<HTMLSpanElement>(null);
+  const tipDotRef = useRef<HTMLSpanElement>(null);
+  const layerRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const flyerRef = useRef<HTMLDivElement>(null);
+  const trailRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   // Hold on 1750 while the hero finishes its first render, so the curve draws on an idle main thread
   useEffect(() => {
@@ -146,6 +156,99 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
       if (finished) return;
       finished = true;
       onCompleteRef.current();
+    };
+
+    let flight: ReturnType<typeof animate> | null = null;
+    let open: ReturnType<typeof animate> | null = null;
+
+    const place = (el: HTMLElement | null | undefined, x: number, y: number, scale = 1) => {
+      if (el) el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
+    };
+
+    // Open the overlay from the landing point: a soft-edged hole plus a shockwave ring
+    const reveal = (at: { x: number; y: number }) => {
+      onRevealRef.current?.();
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const maxR = Math.hypot(Math.max(at.x, W - at.x), Math.max(at.y, H - at.y)) + 140;
+      const ring = ringRef.current;
+      if (ring) {
+        ring.style.left = `${at.x}px`;
+        ring.style.top = `${at.y}px`;
+      }
+      open = animate(0, maxR, {
+        duration: 1.35,
+        ease: [0.7, 0, 0.25, 1],
+        onUpdate: (r) => {
+          const mask = `radial-gradient(circle at ${at.x}px ${at.y}px, transparent ${r}px, #000 ${r + 120}px)`;
+          const layer = layerRef.current;
+          if (layer) {
+            layer.style.maskImage = mask;
+            layer.style.setProperty('-webkit-mask-image', mask);
+          }
+          if (ring) {
+            ring.style.width = ring.style.height = `${2 * r + 40}px`;
+            ring.style.opacity = String(Math.max(0, 1 - r / maxR) * 0.9);
+          }
+          if (flyerRef.current) {
+            flyerRef.current.style.opacity = String(Math.max(0, 1 - r / 180));
+            place(flyerRef.current.firstElementChild as HTMLElement | null, at.x, at.y, 1 + r / 70);
+          }
+        },
+        onComplete: finish,
+      });
+    };
+
+    // The curve's tip leaves the chart and arcs onto home on the hero globe
+    const flyHome = () => {
+      if (reduce) {
+        onRevealRef.current?.();
+        finish();
+        return;
+      }
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const tip = tipDotRef.current?.getBoundingClientRect();
+      const from = tip ? { x: tip.left + tip.width / 2, y: tip.top + tip.height / 2 } : { x: W * 0.85, y: H * 0.45 };
+      const fallback = { x: W * (W >= 1024 ? 0.72 : 0.5), y: H * (W >= 1024 ? 0.5 : 0.36) };
+      const target = () => readGlobeAnchor() ?? fallback;
+
+      if (tipRef.current) tipRef.current.style.opacity = '0';
+      if (scanRef.current) scanRef.current.style.opacity = '0';
+      const flyer = flyerRef.current;
+      if (flyer) {
+        flyer.style.opacity = '1';
+        place(flyer.firstElementChild as HTMLElement, from.x, from.y);
+      }
+      setPhase('home');
+
+      const at = (p: number, to: { x: number; y: number }) => {
+        const c = { x: (from.x + to.x) / 2 + (to.x - from.x) * 0.15, y: Math.min(from.y, to.y) - H * 0.24 };
+        const q = 1 - p;
+        return { x: q * q * from.x + 2 * q * p * c.x + p * p * to.x, y: q * q * from.y + 2 * q * p * c.y + p * p * to.y };
+      };
+
+      flight = animate(0, 1, {
+        duration: 1.15,
+        delay: 0.3,
+        ease: [0.6, 0, 0.3, 1],
+        onUpdate: (p) => {
+          const to = target();
+          const head = at(p, to);
+          place(flyer?.firstElementChild as HTMLElement | null, head.x, head.y, 1 + Math.sin(p * Math.PI) * 0.7);
+          trailRefs.current.forEach((el, k) => {
+            if (!el) return;
+            const tp = Math.max(0, p - (k + 1) * 0.028);
+            const pt = at(tp, to);
+            place(el, pt.x, pt.y);
+            el.style.opacity = p > 0.02 ? String((1 - (k + 1) / (TRAIL + 1)) * 0.75) : '0';
+          });
+        },
+        onComplete: () => {
+          trailRefs.current.forEach((el) => el && (el.style.opacity = '0'));
+          reveal(target());
+        },
+      });
     };
 
     const placeTip = (year: number, ppm: number, labelPpm: number) => {
@@ -200,13 +303,15 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
           },
         });
         if (deltaRef.current) deltaRef.current.textContent = 'Net-zero pathway → 2050';
-        timers.push(window.setTimeout(finish, reduce ? 500 : 2100));
+        timers.push(window.setTimeout(flyHome, reduce ? 300 : 1750));
       },
     });
 
     return () => {
       draw.stop();
       bend?.stop();
+      flight?.stop();
+      open?.stop();
       timers.forEach((t) => window.clearTimeout(t));
     };
   }, [started]);
@@ -229,25 +334,25 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
     if (scanRef.current) scanRef.current.style.left = left;
   }, []);
 
-  const bending = phase === 'bend';
+  const bending = phase !== 'draw';
+  const homing = phase === 'home';
+
+  const headline =
+    phase === 'home'
+      ? ['It starts', <span key="h" className="font-editorial text-[#65e66d]">here.</span>]
+      : phase === 'bend'
+        ? ['Now let’s bend', <span key="a" className="font-editorial text-[#65e66d]">the curve.</span>]
+        : ['Carbon in our air,', <span key="b" className="font-editorial text-[#ffb36b]">since 1750.</span>];
 
   return (
-    <motion.div className="fixed inset-0 z-[100] overflow-hidden text-white" role="status" aria-label="Loading CarbonZero">
-      {/* Shutter columns: they hold the backdrop, then lift away one after another */}
-      {Array.from({ length: COLUMNS }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute top-0 bottom-0 bg-[#040805] border-b-2 border-[#65e66d]"
-          style={{ left: `${(i * 100) / COLUMNS}%`, width: `calc(${100 / COLUMNS}% + 1px)` }}
-          initial={{ y: '0%' }}
-          exit={{ y: '-100%', transition: { duration: 0.95, ease: EASE_IN_OUT, delay: 0.18 + i * 0.07 } }}
-        />
-      ))}
-
-      <motion.div
-        className="absolute inset-0"
-        exit={{ opacity: 0, y: -60, transition: { duration: 0.45, ease: EASE_IN_OUT } }}
-      >
+    <motion.div
+      className="fixed inset-0 z-[100] overflow-hidden text-white"
+      role="status"
+      aria-label="Loading CarbonZero"
+      exit={{ opacity: 0, transition: { duration: 0.35, ease: EASE_IN_OUT } }}
+    >
+      {/* Everything that is masked away when the overlay opens onto the globe */}
+      <div ref={layerRef} className="absolute inset-0 bg-[#040805]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_35%,rgba(255,120,80,0.10),transparent_55%),radial-gradient(ellipse_at_20%_80%,rgba(46,140,70,0.16),transparent_60%)]" />
 
         {/* Corner labels */}
@@ -260,11 +365,19 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
           <span>
             Carbon<span className="text-[#65e66d]">Zero</span>®
           </span>
-          <span className="text-right">
-            Atmospheric CO₂ · ppm
-            <br />
-            <span className="text-white/35">Ice cores + Mauna Loa</span>
-          </span>
+          {homing ? (
+            <span className="text-right text-[#65e66d]">
+              Kochi, India
+              <br />
+              <span className="text-white/45">09°55′N 76°15′E</span>
+            </span>
+          ) : (
+            <span className="text-right">
+              Atmospheric CO₂ · ppm
+              <br />
+              <span className="text-white/35">Ice cores + Mauna Loa</span>
+            </span>
+          )}
         </motion.div>
 
         {/* Headline that changes with the story */}
@@ -277,10 +390,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
               animate="shown"
               exit="gone"
             >
-              {(bending
-                ? ['Now let’s bend', <span key="a" className="font-editorial text-[#65e66d]">the curve.</span>]
-                : ['Carbon in our air,', <span key="b" className="font-editorial text-[#ffb36b]">since 1750.</span>]
-              ).map((line, i) => (
+              {headline.map((line, i) => (
                 <span key={i} className="block overflow-hidden pb-[0.1em] -mb-[0.1em] pr-[0.12em]">
                   <motion.span
                     className="block"
@@ -307,9 +417,9 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
           <motion.div
             className="absolute inset-0"
             style={{ transformOrigin: '100% 12%' }}
-            initial={{ scale: 1 }}
-            animate={bending ? { scale: 1.85 } : { scale: 1 }}
-            transition={{ duration: 1.6, ease: EASE_OUT_EXPO }}
+            initial={{ scale: 1, opacity: 1 }}
+            animate={homing ? { scale: 2.6, opacity: 0 } : bending ? { scale: 1.85, opacity: 1 } : { scale: 1, opacity: 1 }}
+            transition={homing ? { duration: 0.9, ease: EASE_IN_OUT } : { duration: 1.6, ease: EASE_OUT_EXPO }}
           >
           {/* Axes */}
           {AXIS_PPM.map((ppm, i) => (
@@ -399,6 +509,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
           <div ref={scanRef} className="pointer-events-none absolute -top-[18%] -bottom-[10%] left-0 w-px bg-gradient-to-b from-transparent via-white/25 to-transparent" />
           <div ref={tipRef} className="pointer-events-none absolute left-0 top-full">
             <span
+              ref={tipDotRef}
               className={`absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-700 ${
                 bending ? 'bg-[#65e66d] shadow-[0_0_24px_6px_rgba(101,230,109,0.55)]' : 'bg-[#ff7a50] shadow-[0_0_24px_6px_rgba(255,122,80,0.55)]'
               }`}
@@ -421,7 +532,11 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
         </div>
 
         {/* Readouts */}
-        <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-6 sm:inset-x-8 sm:bottom-8 lg:inset-x-12 lg:bottom-10">
+        <motion.div
+          className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-6 sm:inset-x-8 sm:bottom-8 lg:inset-x-12 lg:bottom-10"
+          animate={homing ? { opacity: 0, y: 30 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE_IN_OUT }}
+        >
           <span
             ref={yearRef}
             className={`type-mega tabular-nums text-[clamp(4.5rem,20vw,18rem)] leading-[0.78] transition-colors duration-700 ${
@@ -449,8 +564,29 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, assetsRead
               Skip intro ↵
             </button>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Shockwave ring that opens the overlay */}
+      <div
+        ref={ringRef}
+        className="pointer-events-none absolute h-0 w-0 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#65e66d] opacity-0 shadow-[0_0_60px_rgba(101,230,109,0.55),inset_0_0_60px_rgba(101,230,109,0.3)]"
+      />
+
+      {/* The curve's tip in flight, with a comet trail */}
+      <div ref={flyerRef} className="pointer-events-none absolute inset-0 opacity-0">
+        <span className="absolute left-0 top-0 h-3.5 w-3.5 rounded-full bg-[#b8ffbc] shadow-[0_0_30px_10px_rgba(101,230,109,0.65)]" />
+        {Array.from({ length: TRAIL }).map((_, k) => (
+          <span
+            key={k}
+            ref={(el) => {
+              trailRefs.current[k] = el;
+            }}
+            className="absolute left-0 top-0 rounded-full bg-[#65e66d] opacity-0"
+            style={{ width: `${12 - k}px`, height: `${12 - k}px`, filter: `blur(${k * 0.4}px)` }}
+          />
+        ))}
+      </div>
     </motion.div>
   );
 };
