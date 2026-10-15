@@ -14,6 +14,30 @@ export interface PlanExportPayload {
 export type DrivePlanFormat = 'gdoc' | 'markdown' | 'json';
 
 /**
+ * Turn a failed Drive API response into one of the app's error codes:
+ * UNAUTHORIZED_EXPIRED_TOKEN (401), DRIVE_SCOPE_MISSING (Drive permission not granted),
+ * DRIVE_API_DISABLED (Drive API off in the Google Cloud project), or the API's own message.
+ */
+export async function toDriveError(response: Response, fallback: string): Promise<Error> {
+  if (response.status === 401) return new Error('UNAUTHORIZED_EXPIRED_TOKEN');
+  const body = await response.json().catch(() => ({}));
+  const err = (body as { error?: { message?: string; errors?: { reason?: string }[]; details?: { reason?: string }[] } })?.error ?? {};
+  const reasons = [...(err.errors ?? []), ...(err.details ?? [])].map((e) => e?.reason).filter(Boolean);
+  if (response.status === 403) {
+    if (
+      reasons.some((r) => r === 'insufficientPermissions' || r === 'ACCESS_TOKEN_SCOPE_INSUFFICIENT') ||
+      /insufficient authentication scopes/i.test(err.message ?? '')
+    ) {
+      return new Error('DRIVE_SCOPE_MISSING');
+    }
+    if (reasons.some((r) => r === 'accessNotConfigured' || r === 'SERVICE_DISABLED')) {
+      return new Error('DRIVE_API_DISABLED');
+    }
+  }
+  return new Error(err.message || `${fallback} (${response.status})`);
+}
+
+/**
  * Saves the customized Climate Action Plan directly to the user's Google Drive.
  * Supports Google Docs (converted natively from HTML), Markdown (.md), and structured JSON.
  */
@@ -106,11 +130,7 @@ export async function savePlanToGoogleDrive(
   );
 
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('UNAUTHORIZED_EXPIRED_TOKEN');
-    }
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData?.error?.message || `Google Drive upload error (${response.status})`);
+    throw await toDriveError(response, 'Google Drive upload error');
   }
 
   const savedFile: DriveFileItem = await response.json();
@@ -138,9 +158,7 @@ export async function listSavedPlansFromDrive(accessToken: string): Promise<Driv
     });
 
     if (!response.ok) {
-      if (response.status === 401) throw new Error('UNAUTHORIZED_EXPIRED_TOKEN');
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `Drive list error: ${response.status}`);
+      throw await toDriveError(response, 'Drive list error');
     }
 
     const data = await response.json();
