@@ -28,6 +28,9 @@ import { SmoothScroll, getLenis, prefersReducedMotion } from './components/fx/Sm
 import { CustomCursor } from './components/fx/CustomCursor';
 import { PageCurtain, CurtainRequest } from './components/fx/PageCurtain';
 
+// Stable identity: Iridescence rebuilds its WebGL context whenever this array changes
+const IRIDESCENCE_COLOR: [number, number, number] = [0.1, 0.5, 0.3];
+
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<PageTab>('overview');
   const [user, setUser] = useState<AuthUserProfile | null>(null);
@@ -203,13 +206,13 @@ export function AppContent() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1] ${showIntro ? 'h-screen overflow-hidden' : ''}`}>
+    <div className={`min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1] ${heroRevealed ? '' : 'h-screen overflow-hidden'}`}>
       {/* Global Iridescence Background */}
       <div className="fixed inset-0 z-0 opacity-[0.12] dark:opacity-[0.16] pointer-events-none">
-        <Iridescence color={[0.1, 0.5, 0.3]} mouseReact={true} speed={0.8} amplitude={0.15} />
+        <Iridescence color={IRIDESCENCE_COLOR} mouseReact={true} speed={0.8} amplitude={0.15} />
       </div>
 
-      <SmoothScroll paused={showIntro} />
+      <SmoothScroll paused={!heroRevealed} />
       <CustomCursor />
       <div className="grain-overlay" aria-hidden="true" />
 
