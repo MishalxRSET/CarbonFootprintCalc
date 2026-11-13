@@ -116,6 +116,10 @@ export function AppContent() {
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
+    
+    // Yield to the browser to paint the loading state (fixes INP block)
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
     try {
       const res = await googleSignIn();
       if (res) {
@@ -135,6 +139,9 @@ export function AppContent() {
   };
 
   const handleRequestDriveAccess = async (): Promise<string> => {
+    // Yield to the browser to paint loading state if this was invoked from a button
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
     try {
       const token = await requestDriveAccess();
       setAccessToken(token);
