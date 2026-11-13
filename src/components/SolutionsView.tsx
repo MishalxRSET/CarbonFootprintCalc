@@ -179,7 +179,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[#1D2B17] dark:text-[#EEF5ED] tracking-tight leading-tight max-w-2xl">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-semibold text-[#1D2B17] dark:text-[#EEF5ED] tracking-[-0.045em] leading-[0.98] max-w-3xl">
             Solutions for the Problem Given: Carbon Footprint Reduction
           </h1>
 

@@ -24,13 +24,182 @@ body.dark {
 }
 
 .font-display {
-  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
-  letter-spacing: -0.025em;
+  font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.03em;
 }
 
 .font-serif {
-  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
-  letter-spacing: -0.02em;
+  font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.025em;
+}
+
+@layer components {
+  /* Editorial italic accent used for emphasis words in oversized headlines */
+  .font-editorial {
+    font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Oversized display type used across the landing experience */
+  .type-mega {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 0.88;
+  }
+
+  .type-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Hollow outline text for marquees and giant wordmarks */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.2px currentColor;
+  }
+  .text-outline-strong {
+    color: transparent;
+    -webkit-text-stroke: 2px currentColor;
+  }
+}
+
+/* ========================================================================= */
+/* Award-site effects layer: grain, cursor, marquee, smooth scroll            */
+/* ========================================================================= */
+
+/* Film grain: a static SVG turbulence tile, composited once */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+.dark .grain-overlay {
+  opacity: 0.09;
+}
+
+/* Cursor follower ring (desktop, fine pointers only) */
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 96;
+  pointer-events: none;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  mix-blend-mode: difference;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    margin 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease, opacity 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
+}
+.cursor-ring[data-state='hover'] {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  background-color: rgba(255, 255, 255, 1);
+}
+.cursor-ring[data-state='label'] {
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+  background-color: #65e66d;
+  border-color: #65e66d;
+  mix-blend-mode: normal;
+}
+.cursor-ring[data-state='text'] {
+  width: 4px;
+  height: 28px;
+  margin: -14px 0 0 -2px;
+  border-radius: 2px;
+  opacity: 0.5;
+}
+.cursor-ring[data-hidden='true'] {
+  opacity: 0;
+}
+.cursor-ring-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #050a06;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cursor-ring[data-state='label'] .cursor-ring-label {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (hover: none), (pointer: coarse) {
+  .cursor-ring {
+    display: none !important;
+  }
+}
+
+/* Infinite marquee track (duplicated content, translate -50%) */
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.animate-marquee {
+  animation: marquee-x var(--marquee-duration, 40s) linear infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+}
+
+@keyframes scroll-cue {
+  0% { transform: translateY(-100%); }
+  60%, 100% { transform: translateY(220%); }
+}
+.animate-scroll-cue {
+  animation: scroll-cue 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* Lenis smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-spin-slow,
+  .animate-scroll-cue {
+    animation: none !important;
+  }
 }
 
 .font-mono {
@@ -60,6 +229,16 @@ body.dark {
 
 ::view-transition-new(root) {
   z-index: 9999;
+}
+
+:focus-visible {
+  outline: 2px solid #65e66d;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: #65e66d;
+  color: #04110a;
 }
 
 /* Award-winning bespoke scrollbar */

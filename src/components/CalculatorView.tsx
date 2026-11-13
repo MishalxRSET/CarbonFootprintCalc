@@ -131,7 +131,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
             <Sparkles className="w-3.5 h-3.5" />
             <span>Interactive Carbon Accounting</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-serif text-[#1D2B17] dark:text-[#EEF5ED] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-semibold text-[#1D2B17] dark:text-[#EEF5ED] tracking-[-0.045em] leading-[0.98]">
             Personal Carbon Footprint Calculator
           </h1>
           <p className="text-sm text-[#5C6658] dark:text-[#9DB099] mt-1 max-w-2xl">
