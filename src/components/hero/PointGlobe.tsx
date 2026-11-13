@@ -3,6 +3,7 @@ import React, { Component, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { MotionValue } from 'motion/react';
 import { clearGlobeAnchor, publishGlobeAnchor } from './globeAnchor';
+import { prefersReducedMotion } from '../fx/SmoothScroll';
 
 const DEG = Math.PI / 180;
 const HOME = { lat: 9.93, lon: 76.26 }; // Kochi, Kerala
@@ -273,7 +274,6 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
   const cloud = useLandCloud();
   const group = useRef<THREE.Group>(null);
   const dust = useRef<THREE.Points>(null);
-  const introStart = useRef<number | null>(null);
 
   const pointMaterial = useMemo(
     () =>
@@ -446,7 +446,12 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
 
   const spin = useRef(0);
   const readyFired = useRef(false);
-  const playStart = useRef<number | null>(null);
+  // Timelines accumulate frame deltas: R3F resets its clock whenever the frameloop
+  // switches (e.g. scrolling the hero off and back on screen), which would replay them
+  const time = useRef(0);
+  const introProgress = useRef(0);
+  const settleProgress = useRef(0);
+  const reduceMotion = useMemo(() => prefersReducedMotion(), []);
   const homeWorld = useMemo(() => new THREE.Vector3(), []);
   const homeLocal = useMemo(() => toVec(HOME.lat, HOME.lon, 1.006), []);
   const camDir = useMemo(() => new THREE.Vector3(), []);
@@ -455,8 +460,11 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
   useEffect(() => () => clearGlobeAnchor(gl.domElement), [gl]);
 
   useFrame((state, delta) => {
-    const t = state.clock.elapsedTime;
     const dt = Math.min(delta, 0.05);
+    // One-shot timelines tolerate slower frames so low-fps devices don't play them in slow motion
+    const step = Math.min(delta, 0.1);
+    time.current += dt;
+    const t = time.current;
     pointMaterial.uniforms.uTime.value = t;
     arcMaterial.uniforms.uTime.value = t;
     pulseMaterial.uniforms.uTime.value = t;
@@ -468,17 +476,17 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
       requestAnimationFrame(() => onReady?.());
     }
 
-    // The reveal clock only starts once the page is on screen
+    // The reveal wave only starts once the page is on screen (instant under reduced motion)
     if (pointGeometry && play) {
-      if (introStart.current === null) introStart.current = t;
-      pointMaterial.uniforms.uIntro.value = Math.min(1, (t - introStart.current) / 2.6);
+      introProgress.current = reduceMotion ? 1 : Math.min(1, introProgress.current + step / 2.6);
+      pointMaterial.uniforms.uIntro.value = introProgress.current;
     }
 
     // Hold perfectly still until handoff so the intro can land on the home marker,
-    // then ease spin and pointer parallax in over a few seconds
-    if (play && playStart.current === null) playStart.current = t;
-    const settle = playStart.current === null ? 0 : Math.min(1, (t - playStart.current) / 3);
-    const ease = settle * settle * (3 - 2 * settle);
+    // then ease spin and pointer parallax in over a few seconds (never under reduced motion)
+    if (play) settleProgress.current = Math.min(1, settleProgress.current + step / 3);
+    const settle = settleProgress.current;
+    const ease = reduceMotion ? 0 : settle * settle * (3 - 2 * settle);
     spin.current += dt * 0.055 * ease;
     const scroll = scrollProgress ? scrollProgress.get() : 0;
     if (group.current) {
@@ -491,7 +499,7 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
       group.current.updateMatrixWorld();
       homeWorld.copy(homeLocal).applyMatrix4(group.current.matrixWorld);
       state.camera.getWorldDirection(camDir);
-      const facing = homeWorld.clone().normalize().dot(camDir) < -0.15;
+      const facing = homeWorld.dot(camDir) / homeWorld.length() < -0.15;
       homeWorld.project(state.camera);
       publishGlobeAnchor(state.gl.domElement, homeWorld.x, homeWorld.y, facing);
     }

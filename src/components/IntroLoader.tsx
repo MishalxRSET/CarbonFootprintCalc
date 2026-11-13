@@ -134,6 +134,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
   const deltaRef = useRef<HTMLSpanElement>(null);
   const tipDotRef = useRef<HTMLSpanElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const flyerRef = useRef<HTMLDivElement>(null);
   const trailRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -180,6 +181,8 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
         duration: 1.35,
         ease: [0.7, 0, 0.25, 1],
         onUpdate: (r) => {
+          // Once most of the hero is exposed, let clicks reach it instead of the overlay
+          if (r > maxR * 0.5 && rootRef.current) rootRef.current.style.pointerEvents = 'none';
           const mask = `radial-gradient(circle at ${at.x}px ${at.y}px, transparent ${r}px, #000 ${r + 120}px)`;
           const layer = layerRef.current;
           if (layer) {
@@ -210,15 +213,21 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
       const H = window.innerHeight;
       const tip = tipDotRef.current?.getBoundingClientRect();
       const from = tip ? { x: tip.left + tip.width / 2, y: tip.top + tip.height / 2 } : { x: W * 0.85, y: H * 0.45 };
+      const s0 = tip && tip.width > 0 ? tip.width / 14 : 1;
       const fallback = { x: W * (W >= 1024 ? 0.72 : 0.5), y: H * (W >= 1024 ? 0.5 : 0.36) };
-      const target = () => readGlobeAnchor() ?? fallback;
+      const target = () => {
+        const a = readGlobeAnchor();
+        if (!a) return fallback;
+        const m = 24;
+        return { x: Math.min(Math.max(a.x, m), W - m), y: Math.min(Math.max(a.y, m), H - m) };
+      };
 
       if (tipRef.current) tipRef.current.style.opacity = '0';
       if (scanRef.current) scanRef.current.style.opacity = '0';
       const flyer = flyerRef.current;
       if (flyer) {
         flyer.style.opacity = '1';
-        place(flyer.firstElementChild as HTMLElement, from.x, from.y);
+        place(flyer.firstElementChild as HTMLElement, from.x, from.y, s0);
       }
       setPhase('home');
 
@@ -235,7 +244,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
         onUpdate: (p) => {
           const to = target();
           const head = at(p, to);
-          place(flyer?.firstElementChild as HTMLElement | null, head.x, head.y, 1 + Math.sin(p * Math.PI) * 0.7);
+          place(flyer?.firstElementChild as HTMLElement | null, head.x, head.y, s0 + (1 - s0) * p + Math.sin(p * Math.PI) * 0.7);
           trailRefs.current.forEach((el, k) => {
             if (!el) return;
             const tp = Math.max(0, p - (k + 1) * 0.028);
@@ -346,17 +355,22 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
 
   return (
     <motion.div
+      ref={rootRef}
+      data-intro
       className="fixed inset-0 z-[100] overflow-hidden text-white"
-      role="status"
-      aria-label="Loading CarbonZero"
       exit={{ opacity: 0, transition: { duration: 0.35, ease: EASE_IN_OUT } }}
     >
+      <span role="status" className="sr-only">
+        Loading CarbonZero…
+      </span>
+
       {/* Everything that is masked away when the overlay opens onto the globe */}
       <div ref={layerRef} className="absolute inset-0 bg-[#040805]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_35%,rgba(255,120,80,0.10),transparent_55%),radial-gradient(ellipse_at_20%_80%,rgba(46,140,70,0.16),transparent_60%)]" />
+        <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_35%,rgba(255,120,80,0.10),transparent_55%),radial-gradient(ellipse_at_20%_80%,rgba(46,140,70,0.16),transparent_60%)]" />
 
         {/* Corner labels */}
         <motion.div
+          aria-hidden="true"
           className="type-label absolute inset-x-5 top-5 flex items-start justify-between text-white/55 sm:inset-x-8 sm:top-8 lg:inset-x-12 lg:top-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -381,7 +395,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
         </motion.div>
 
         {/* Headline that changes with the story */}
-        <div className="absolute left-5 right-5 top-[13%] sm:left-8 lg:left-12">
+        <div aria-hidden="true" className="absolute left-5 right-5 top-[13%] sm:left-8 lg:left-12">
           <AnimatePresence mode="wait" initial={false}>
             <motion.h2
               key={phase}
@@ -410,6 +424,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
 
         {/* Chart */}
         <div
+          aria-hidden="true"
           className="absolute left-5 right-5 top-[36%] bottom-[33%] sm:left-8 sm:right-8 lg:left-12 lg:right-12 lg:top-[33%]"
           style={{ clipPath: 'inset(-40% -4% -12% -4%)' }}
         >
@@ -533,6 +548,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
 
         {/* Readouts */}
         <motion.div
+          aria-hidden="true"
           className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-6 sm:inset-x-8 sm:bottom-8 lg:inset-x-12 lg:bottom-10"
           animate={homing ? { opacity: 0, y: 30 } : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: EASE_IN_OUT }}
@@ -545,7 +561,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
           >
             1750
           </span>
-          <div className="mb-1 text-right">
+          <div className="mb-1 pb-9 text-right">
             <div className="font-display text-[clamp(1.6rem,4vw,3.5rem)] font-semibold leading-none tracking-[-0.04em] tabular-nums">
               <span ref={ppmRef}>280.0</span>
               <span className="ml-1 text-[0.45em] font-medium text-white/50">ppm</span>
@@ -556,15 +572,16 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
             >
               +0.0% since 1750
             </span>
-            <button
-              type="button"
-              onClick={() => onCompleteRef.current()}
-              className="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-white/40 underline-offset-4 transition-colors hover:text-white hover:underline cursor-pointer"
-            >
-              Skip intro ↵
-            </button>
           </div>
         </motion.div>
+
+        <button
+          type="button"
+          onClick={() => onCompleteRef.current()}
+          className="absolute bottom-5 right-5 font-mono text-[10px] uppercase tracking-[0.16em] text-white/40 underline-offset-4 transition-colors hover:text-white hover:underline sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-12 cursor-pointer"
+        >
+          Skip intro ↵
+        </button>
       </div>
 
       {/* Shockwave ring that opens the overlay */}
@@ -575,7 +592,7 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete, onReveal, 
 
       {/* The curve's tip in flight, with a comet trail */}
       <div ref={flyerRef} className="pointer-events-none absolute inset-0 opacity-0">
-        <span className="absolute left-0 top-0 h-3.5 w-3.5 rounded-full bg-[#b8ffbc] shadow-[0_0_30px_10px_rgba(101,230,109,0.65)]" />
+        <span className="absolute left-0 top-0 h-3.5 w-3.5 rounded-full bg-[#65e66d] shadow-[0_0_24px_6px_rgba(101,230,109,0.55)]" />
         {Array.from({ length: TRAIL }).map((_, k) => (
           <span
             key={k}
