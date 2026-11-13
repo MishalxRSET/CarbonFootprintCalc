@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import React, { Component, useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { MotionValue } from 'motion/react';
+import { clearGlobeAnchor, publishGlobeAnchor } from './globeAnchor';
 
 const DEG = Math.PI / 180;
 const HOME = { lat: 9.93, lon: 76.26 }; // Kochi, Kerala
@@ -102,24 +103,32 @@ const pointVertex = /* glsl */ `
   uniform float uTime;
   uniform float uSize;
   uniform float uIntro;
+  uniform vec3 uOrigin;
   attribute float aRandom;
   attribute float aLand;
   varying float vAlpha;
   varying float vRandom;
   varying float vLand;
+  varying float vFront;
   void main() {
     vec3 p = position;
-    // points rise out of the surface during the intro reveal
-    float reveal = smoothstep(aRandom * 0.6, aRandom * 0.6 + 0.4, uIntro);
-    p *= mix(1.35, 1.0, reveal);
+    // Reveal travels outward from home as a wave across the sphere (0 at home, 1 at the antipode)
+    float dist = acos(clamp(dot(normalize(position), uOrigin), -1.0, 1.0)) / 3.14159265;
+    float wave = uIntro * 1.15;
+    float reveal = smoothstep(dist - 0.02, dist + 0.07, wave - aRandom * 0.05);
+    float front = (1.0 - smoothstep(0.0, 0.06, abs(wave - dist))) * (1.0 - step(0.999, uIntro));
+    p *= 1.0 + front * 0.07;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     vec3 n = normalize(normalMatrix * position);
     float facing = dot(n, normalize(-mv.xyz));
+    float frontFacing = smoothstep(-0.05, 0.5, facing);
     float twinkle = 0.7 + 0.3 * sin(uTime * (0.5 + aRandom * 1.6) + aRandom * 40.0);
-    vAlpha = mix(0.025, 1.0, smoothstep(-0.05, 0.5, facing)) * twinkle * reveal;
+    vAlpha = mix(0.025, 1.0, frontFacing) * twinkle * reveal + front * frontFacing;
     vRandom = aRandom;
     vLand = aLand;
+    vFront = front;
     float size = aLand > 0.5 ? (0.7 + aRandom * 0.55) : 0.6;
+    size *= 1.0 + front * 1.6;
     gl_PointSize = uSize * size / -mv.z;
     gl_Position = projectionMatrix * mv;
   }
@@ -132,12 +141,14 @@ const pointFragment = /* glsl */ `
   varying float vAlpha;
   varying float vRandom;
   varying float vLand;
+  varying float vFront;
   void main() {
     float d = length(gl_PointCoord - 0.5);
     if (d > 0.5) discard;
     float soft = smoothstep(0.5, 0.05, d);
     vec3 col = vLand > 0.5 ? mix(uColorA, uColorB, vRandom * vRandom) : uColorOcean;
-    float a = vAlpha * soft * (vLand > 0.5 ? 0.9 : 0.3);
+    col = mix(col, vec3(0.92, 1.0, 0.85), vFront);
+    float a = vAlpha * soft * (vLand > 0.5 ? 0.9 : max(0.3, vFront));
     gl_FragColor = vec4(col, a);
   }
 `;
@@ -276,6 +287,7 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
           uTime: { value: 0 },
           uSize: { value: 10.5 * Math.min(window.devicePixelRatio || 1, 1.75) },
           uIntro: { value: 0 },
+          uOrigin: { value: toVec(HOME.lat, HOME.lon).normalize() },
           uColorA: { value: new THREE.Color('#65e66d') },
           uColorB: { value: new THREE.Color('#d8ffb0') },
           uColorOcean: { value: new THREE.Color('#2f6b45') },
@@ -434,6 +446,13 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
 
   const spin = useRef(0);
   const readyFired = useRef(false);
+  const playStart = useRef<number | null>(null);
+  const homeWorld = useMemo(() => new THREE.Vector3(), []);
+  const homeLocal = useMemo(() => toVec(HOME.lat, HOME.lon, 1.006), []);
+  const camDir = useMemo(() => new THREE.Vector3(), []);
+  const gl = useThree((state) => state.gl);
+
+  useEffect(() => () => clearGlobeAnchor(gl.domElement), [gl]);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -452,16 +471,29 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady })
     // The reveal clock only starts once the page is on screen
     if (pointGeometry && play) {
       if (introStart.current === null) introStart.current = t;
-      pointMaterial.uniforms.uIntro.value = Math.min(1, (t - introStart.current) / 2.4);
+      pointMaterial.uniforms.uIntro.value = Math.min(1, (t - introStart.current) / 2.6);
     }
 
-    spin.current += dt * 0.055;
+    // Hold perfectly still until handoff so the intro can land on the home marker,
+    // then ease spin and pointer parallax in over a few seconds
+    if (play && playStart.current === null) playStart.current = t;
+    const settle = playStart.current === null ? 0 : Math.min(1, (t - playStart.current) / 3);
+    const ease = settle * settle * (3 - 2 * settle);
+    spin.current += dt * 0.055 * ease;
     const scroll = scrollProgress ? scrollProgress.get() : 0;
     if (group.current) {
-      const targetY = -HOME.lon * DEG + 0.35 + spin.current + scroll * 1.6 + pointer.current.x * 0.35;
-      const targetX = 0.32 + pointer.current.y * 0.18 + scroll * 0.25;
+      const targetY = -HOME.lon * DEG + 0.35 + spin.current + scroll * 1.6 + pointer.current.x * 0.35 * ease;
+      const targetX = 0.32 + pointer.current.y * 0.18 * ease + scroll * 0.25;
       group.current.rotation.y += (targetY - group.current.rotation.y) * Math.min(1, dt * 3);
       group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, dt * 3);
+
+      // Publish where home sits on screen (and whether it faces the viewer)
+      group.current.updateMatrixWorld();
+      homeWorld.copy(homeLocal).applyMatrix4(group.current.matrixWorld);
+      state.camera.getWorldDirection(camDir);
+      const facing = homeWorld.clone().normalize().dot(camDir) < -0.15;
+      homeWorld.project(state.camera);
+      publishGlobeAnchor(state.gl.domElement, homeWorld.x, homeWorld.y, facing);
     }
     if (dust.current) dust.current.rotation.y -= dt * 0.04;
   });

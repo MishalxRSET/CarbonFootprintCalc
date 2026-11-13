@@ -190,7 +190,7 @@ const Hero: React.FC<HeroProps> = ({ ready, onVisualReady, onNavigate, onOpenDes
           style={{ scale: globeScale, y: globeY }}
           initial={{ opacity: 0 }}
           animate={ready ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 2, ease: EASE_OUT_EXPO }}
+          transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
         >
           <div className="absolute inset-[22%] rounded-full bg-[#2fae4b]/25 blur-[90px]" />
           <PointGlobe scrollProgress={scrollYProgress} play={ready} onReady={onVisualReady} className="absolute inset-0" />
