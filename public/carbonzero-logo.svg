@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>CarbonZero</title>
+  <rect width="512" height="512" fill="#040805"/>
+  <path d="M96.7 306 L160 306 C220 306 206 164 256 164" fill="none" stroke="#ffb36b" stroke-width="44"/>
+  <path d="M256 164 C300 164 314 237 330 285 C338 309 346 334 374.1 374.1" fill="none" stroke="#65e66d" stroke-width="44"/>
+  <circle cx="256" cy="256" r="167" fill="none" stroke="#65e66d" stroke-width="44"/>
+</svg>

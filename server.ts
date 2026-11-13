@@ -55,6 +55,14 @@ Be concise, practical, and knowledgeable about IPCC standards, biospheric sinks,
   }
 });
 
+// Static legal pages (public/privacy.html, public/terms.html) at clean URLs; mirrors vercel.json
+const LEGAL_PAGES: Record<string, string> = { '/privacy': '/privacy.html', '/terms': '/terms.html' };
+app.use((req, _res, next) => {
+  const page = LEGAL_PAGES[req.path];
+  if (page) req.url = page;
+  next();
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

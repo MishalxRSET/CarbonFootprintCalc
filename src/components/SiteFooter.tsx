@@ -103,6 +103,10 @@ export const SiteFooter: React.FC<SiteFooterProps> = ({ onNavigate, onOpenDesign
 
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-3 border-t border-white/10 px-5 py-6 font-mono text-[11px] text-[#8ca890] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
         <span>© 2026 CarbonZero | For a sustainable future</span>
+        <nav aria-label="Legal" className="flex gap-5">
+          <a href="/privacy" className="transition-colors hover:text-[#65e66d]">Privacy Policy</a>
+          <a href="/terms" className="transition-colors hover:text-[#65e66d]">Terms of Service</a>
+        </nav>
         <span className="text-[#789d7d]">Aligned with GHG Protocol Scopes 1, 2 & 3</span>
       </div>
     </footer>
