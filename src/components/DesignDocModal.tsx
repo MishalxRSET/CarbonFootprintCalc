@@ -20,10 +20,10 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-serif font-bold text-[#1D2B17]">
-                CO900G Assessment Design Document (1–2 Pages)
+                Decarbonization Project Design Document (1–2 Pages)
               </h2>
               <p className="text-xs text-[#5C6658]">
-                Environmental Science & Sustainable Engineering • Section B AAM (10 Marks)
+                Carbon Footprint Reduction & Technical Architecture Specification
               </p>
             </div>
           </div>
@@ -59,7 +59,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
               Decarbonization Engine: Carbon Footprint Calculator & Reduction Planner
             </h1>
             <p className="text-xs text-[#737C70]">
-              Module 3 (Energy & Atmosphere) & Module 4 (Sustainable Engineering & Climate Mitigations)
+              Energy & Atmosphere Decarbonization • Sustainable Systems & Climate Mitigations
             </p>
           </div>
 
@@ -99,7 +99,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
                 calculating abated tonnage, financial savings, and payback periods.
               </li>
               <li>
-                <strong>Google Drive Research & Findings Integration:</strong> Cloud-connected module linking directly to
+                <strong>Google Drive Research & Findings Integration:</strong> Cloud-connected workspace linking directly to
                 <em> "CARBON FOOTPRINT REDUCTION.pptx"</em>, synthesizing key findings and comparing multi-dimensional pros.
               </li>
               <li>
@@ -160,7 +160,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
         {/* Modal Footer */}
         <div className="p-5 border-t border-[#E0E7DE] bg-[#F7F9F6] flex items-center justify-between rounded-b-[32px]">
           <span className="text-xs text-[#5C6658] font-sans">
-            Ready for rubric submission (Criterion 1 through 5)
+            Technical Specification & Decarbonization Framework
           </span>
           <button
             onClick={onClose}

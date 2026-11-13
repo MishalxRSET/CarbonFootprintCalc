@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PageTab } from '../types';
 import { COMPREHENSIVE_SOLUTIONS } from '../data/solutionsData';
-import { CITADEL_MONUMENTS } from '../data/citadelMonuments';
-import { KOCHI_LOCATIONS } from '../data/kochiLocations';
 import { ambientSound } from '../utils/ambientAudio';
 import {
   Search,
@@ -82,17 +80,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         },
       },
       {
-        id: 'nav-kochi',
-        category: 'Navigation',
-        title: 'Kochi 3D Decarbonization Odyssey',
-        subtitle: 'Immersive aerial 3D simulation of RSET Kakkanad & 5 Kochi landmarks',
-        icon: <Globe2 className="w-4 h-4 text-emerald-400" />,
-        action: () => {
-          onNavigate('kochi_simulation');
-          onClose();
-        },
-      },
-      {
         id: 'nav-solutions',
         category: 'Navigation',
         title: 'Solutions Directory (12 Interventions)',
@@ -139,8 +126,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       {
         id: 'action-designdoc',
         category: 'Actions',
-        title: 'Open Assessment Design Document',
-        subtitle: 'Comprehensive 1–2 page technical report & academic rubric',
+        title: 'Open Project Design Document',
+        subtitle: 'Comprehensive 1–2 page technical report & reduction framework',
         icon: <FileCode className="w-4 h-4 text-[#4A6741]" />,
         action: () => {
           onOpenDesignDoc();
@@ -162,7 +149,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         id: 'action-print',
         category: 'Actions',
         title: 'Print Technical Decarbonization Dossier',
-        subtitle: 'Export active page to academic PDF / printer format',
+        subtitle: 'Export active page to PDF / printer format',
         icon: <Printer className="w-4 h-4 text-[#5C6658]" />,
         action: () => {
           window.print();
@@ -170,36 +157,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         },
       },
     ];
-
-    // Add each of the 6 Kochi Simulation landmarks to the command palette
-    KOCHI_LOCATIONS.forEach((loc) => {
-      items.push({
-        id: `kochi-${loc.id}`,
-        category: 'Navigation',
-        title: `Kochi: ${loc.title}`,
-        subtitle: `${loc.malayalamTitle} • ${loc.primarySolution}`,
-        icon: <Globe2 className="w-4 h-4 text-emerald-400" />,
-        action: () => {
-          onNavigate('kochi_simulation');
-          onClose();
-        },
-      });
-    });
-
-    // Add each of the 6 Persepolis Citadel monuments to the command palette
-    CITADEL_MONUMENTS.forEach((mon) => {
-      items.push({
-        id: `mon-${mon.id}`,
-        category: 'Navigation',
-        title: `${mon.romanNumeral}. ${mon.title}`,
-        subtitle: `3D Citadel • ${mon.subtitle} • ${mon.telemetry.co2AbatementTonnes}`,
-        icon: <Globe2 className="w-4 h-4 text-[#D4AF37]" />,
-        action: () => {
-          onNavigate('persepolis_citadel');
-          onClose();
-        },
-      });
-    });
 
     // Add each of the 12 solutions to the command palette
     COMPREHENSIVE_SOLUTIONS.forEach((sol) => {

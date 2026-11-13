@@ -138,12 +138,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="font-serif font-bold text-[#1D2B17] text-2xl tracking-tight">
                     CarbonZero
                   </span>
-                  <span className="text-[10px] font-mono font-bold bg-[#D9E4D1] text-[#1D2B17] border border-[#4A6741]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    IPCC AR6
-                  </span>
                 </div>
                 <p className="text-[11px] text-[#737C70] hidden sm:block font-medium">
-                  Environmental Science & Sustainable Engineering
+                  Carbon Footprint Calculator & Reduction Planner
                 </p>
               </div>
             </button>
@@ -162,21 +159,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <FileText className="w-3.5 h-3.5 text-[#8C7851]" />
               Overview & Brief
-            </button>
-
-            {/* Kochi Decarbonization Immersive 3D Experience Tab */}
-            <button
-              id="tab-btn-kochi"
-              onClick={() => setCurrentTab('kochi_simulation')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all relative ${
-                currentTab === 'kochi_simulation' || currentTab === 'persepolis_citadel'
-                  ? 'bg-[#121810] text-[#4ADE80] shadow-md font-bold border border-[#22C55E]/50 ring-1 ring-[#22C55E]/30'
-                  : 'text-[#2E7D32] hover:text-[#1D2B17] hover:bg-white/60 font-semibold'
-              }`}
-            >
-              <Globe2 className="w-3.5 h-3.5 text-[#22C55E] animate-pulse" />
-              <span>Kochi 3D Odyssey</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
             </button>
 
             <button
@@ -332,15 +314,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             Overview
-          </button>
-          <button
-            onClick={() => setCurrentTab('kochi_simulation')}
-            className={`px-3 py-1.5 rounded-full font-bold whitespace-nowrap transition-colors flex items-center gap-1 ${
-              currentTab === 'kochi_simulation' || currentTab === 'persepolis_citadel' ? 'bg-[#121810] text-[#4ADE80]' : 'text-[#2E7D32]'
-            }`}
-          >
-            <Globe2 className="w-3 h-3 text-[#22C55E]" />
-            <span>Kochi 3D</span>
           </button>
           <button
             onClick={() => setCurrentTab('solutions')}

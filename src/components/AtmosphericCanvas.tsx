@@ -236,7 +236,7 @@ export const AtmosphericCanvas: React.FC = () => {
       // 5. Scientific Telemetry Overlay inside canvas
       ctx.font = '11px "JetBrains Mono", monospace';
       ctx.fillStyle = 'rgba(217, 228, 209, 0.75)';
-      ctx.fillText(`FLUX: ${fluxMode.toUpperCase()} SIMULATION`, 24, height - 24);
+      ctx.fillText(`FLUX: ${fluxMode.toUpperCase()} DYNAMICS`, 24, height - 24);
       ctx.fillText(`PPM DENSITY: 426.8 ± 0.3`, 24, height - 40);
 
       animationFrameId = requestAnimationFrame(render);

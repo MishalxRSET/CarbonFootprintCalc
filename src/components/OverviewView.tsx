@@ -10,6 +10,7 @@ import {
   Layers,
   Users,
   Award,
+  Leaf,
   Globe2,
   BookOpen,
   CheckCircle,
@@ -46,44 +47,35 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
         <div className="max-w-3xl relative z-10 space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-[#D9E4D1] text-xs font-mono font-medium tracking-wide">
-            <Award className="w-3.5 h-3.5 text-[#78B169]" />
+            <Leaf className="w-3.5 h-3.5 text-[#78B169]" />
             <ShinyText
-              text="CO900G Alternative Assessment Method (AAM) • Modules 3 & 4"
+              text="GHG Protocol Accounting & Systematic Decarbonization Platform"
               speed={3}
               className="text-[#D9E4D1]"
             />
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium tracking-tight text-white leading-[1.08]">
-            Atmospheric Carbon Modeling & Engineering Decarbonization
+            Carbon Footprint Modeling & Systematic Decarbonization
           </h1>
 
           <p className="text-[#C5D3C1] text-base sm:text-lg leading-relaxed max-w-2xl font-light">
-            An engineering and IT-enabled sustainability platform designed to model, audit, and systematically
-            decarbonize anthropogenic greenhouse gas emissions across institutional, domestic, and industrial systems.
+            A comprehensive sustainability platform designed to model, audit, and systematically
+            decarbonize greenhouse gas emissions across domestic, institutional, and organizational systems.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-3">
             <Magnet padding={20} magnetStrength={1.5}>
               <button
-                id="hero-enter-persepolis-btn"
-                onClick={() => onNavigate('persepolis_citadel')}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-[#121810] font-bold text-xs sm:text-sm hover:brightness-110 transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98] ring-2 ring-[#D4AF37]/50"
+                id="hero-explore-solutions-btn"
+                onClick={() => onNavigate('solutions')}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white text-[#1D2B17] font-bold text-xs sm:text-sm hover:bg-[#F1EFEC] transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
               >
-                <Globe2 className="w-4 h-4 text-[#121810]" />
-                <span>Enter Persepolis 3D Citadel</span>
-                <ArrowRight className="w-4 h-4 text-[#121810]" />
+                <Sparkles className="w-4 h-4 text-[#4A6741]" />
+                <span>Solutions Directory</span>
+                <ArrowRight className="w-4 h-4 text-[#1D2B17]" />
               </button>
             </Magnet>
-
-            <button
-              id="hero-explore-solutions-btn"
-              onClick={() => onNavigate('solutions')}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white text-[#1D2B17] font-bold text-xs sm:text-sm hover:bg-[#F1EFEC] transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Sparkles className="w-4 h-4 text-[#4A6741]" />
-              <span>Solutions Directory</span>
-            </button>
 
             <button
               id="hero-launch-calculator-btn"
@@ -91,6 +83,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#243520] text-white border border-[#3E5637] font-semibold text-xs sm:text-sm hover:bg-[#2F472A] transition-all"
             >
               <span>Carbon Calculator</span>
+            </button>
+
+            <button
+              id="hero-view-planner-btn"
+              onClick={() => onNavigate('planner')}
+              className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-[#3E5637] text-white font-semibold text-xs sm:text-sm hover:bg-[#4A6741] transition-all shadow-xs"
+            >
+              <span>Reduction Planner</span>
             </button>
 
             <button
@@ -114,80 +114,24 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         </div>
       </div>
 
-      {/* Kochi Decarbonization 3D Interactive Case Study Gateway Banner */}
-      <div className="relative rounded-[36px] bg-[#0E1710] border border-[#22C55E]/40 p-8 sm:p-10 overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#22C55E]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-[#06B6D4]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-          <div className="space-y-4 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-[#22C55E]/15 border border-[#22C55E]/40 text-[#4ADE80] text-xs font-mono font-bold tracking-wider uppercase">
-                INTERACTIVE 3D CASE STUDY
-              </span>
-              <span className="text-xs text-[#9CB395] font-mono">KOCHI, KERALA • ZERO-CARBON ODYSSEY</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-4xl font-serif font-medium text-white tracking-tight">
-              Kochi Decarbonization: A Simulated 3D Aerial Odyssey
-            </h2>
-
-            <p className="text-sm sm:text-base text-[#C2CDBE] leading-relaxed font-light">
-              Experience an immersive, fun-to-scroll 3D flight across Kochi simulating real-world engineering solutions.
-              Explore 6 accurately positioned landmarks: <strong>Rajagiri School of Engineering & Technology (RSET)</strong> green campus microgrid,
-              the world-famous 100% solar CIAL Airport, silent electric Water Metro catamarans, Infopark tech towers, Cochin Port cold-ironing berths, and Fort Kochi heritage.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-mono text-[#4ADE80]">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />
-                RSET Kakkanad & 5 Key Locations
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-                Fun Scroll-Driven Aerial Flight
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EAB308]" />
-                Interactive Sliders & ₹ INR Telemetry
-              </span>
-            </div>
-          </div>
-
-          <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-            <Magnet padding={25} magnetStrength={2}>
-              <button
-                id="btn-launch-kochi-banner"
-                onClick={() => onNavigate('kochi_simulation')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-gradient-to-r from-[#22C55E] via-[#10B981] to-[#06B6D4] text-[#0A160C] font-serif font-bold text-sm tracking-wide hover:brightness-110 transition-all shadow-xl hover:scale-105"
-              >
-                <Globe2 className="w-4 h-4 text-[#0A160C]" />
-                <span>Launch Kochi 3D Simulation</span>
-                <ArrowRight className="w-4 h-4 text-[#0A160C]" />
-              </button>
-            </Magnet>
-          </div>
-        </div>
-      </div>
-
-      {/* Atmospheric Carbon Simulation & Orbit Canvas Section */}
+      {/* Atmospheric Carbon Flux & Particle Dynamics Canvas Section */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
-                Interactive Atmospheric Simulation
+                Interactive Atmospheric Model
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#D9E4D1] text-[#1D2B17]">
                 60 FPS KINETIC CANVAS
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif text-[#1D2B17] mt-1 tracking-tight">
-              Real-Time Atmospheric Carbon Flux & Boundary Simulation
+              Real-Time Atmospheric Carbon Flux & Boundary Dynamics
             </h2>
           </div>
           <p className="text-xs text-[#737C70] font-mono max-w-sm sm:text-right">
-            Visualizing biospheric sinks vs. anthropogenic emissions. Interact with the particle field to simulate flow deflections.
+            Visualizing biospheric sinks vs. anthropogenic emissions. Interact with the particle field to observe flow deflections.
           </p>
         </div>
 
@@ -251,9 +195,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           </div>
           <h2 className="text-2xl font-serif text-[#1D2B17]">Target Stakeholders</h2>
           <p className="text-sm text-[#3E5637] leading-relaxed">
-            Engineered for university campus facility administrators, engineering researchers, academic dormitories,
-            and small-to-medium enterprises (SMEs) seeking actionable, cost-effective abatement roadmaps with verified
-            return-on-investment (ROI).
+            Designed for facility managers, sustainability coordinators, households, and organizations
+            seeking actionable, cost-effective carbon abatement roadmaps with verified return-on-investment (ROI).
           </p>
           <div className="pt-2 text-xs font-semibold text-[#1D2B17] flex items-center gap-1.5 font-mono">
             <Cpu className="w-4 h-4 text-[#4A6741]" />
@@ -439,53 +382,53 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         </div>
       </div>
 
-      {/* Course Alignment & Rubric Fulfillment Card */}
+      {/* Carbon Reduction Framework & Standards Card */}
       <div className="bg-white border border-[#E0E7DE] rounded-[32px] p-8 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E0E7DE]">
           <div>
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
-              Academic Alignment & Syllabus Criteria
+              Frameworks & Accounting Standards
             </span>
             <h3 className="text-2xl font-serif text-[#1D2B17] mt-1">
-              CO900G Environmental Science & Sustainable Engineering
+              Methodology & Climate Standards Alignment
             </h3>
           </div>
           <div className="flex items-center gap-2">
             <span className="px-3.5 py-1.5 bg-[#F1EFEC] border border-[#E8E4DF] rounded-full text-xs font-medium text-[#5C6658]">
-              Outcome: <strong className="text-[#1D2B17]">CO4 (Primary)</strong>
+              Standard: <strong className="text-[#1D2B17]">GHG Protocol</strong>
             </span>
             <span className="px-3.5 py-1.5 bg-[#F1EFEC] border border-[#E8E4DF] rounded-full text-xs font-medium text-[#5C6658]">
-              Supports: <strong className="text-[#1D2B17]">CO3</strong>
+              Target: <strong className="text-[#1D2B17]">Net-Zero 2030</strong>
             </span>
             <span className="px-3.5 py-1.5 bg-[#D9E4D1] text-[#1D2B17] border border-[#CCD9C3] rounded-full text-xs font-bold font-mono">
-              10 Marks AAM
+              Scopes 1, 2 & 3
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 text-xs">
           <div className="bg-[#F7F9F6] p-5 rounded-2xl border border-[#E0E7DE] space-y-1.5">
-            <p className="font-bold text-[#1D2B17]">1. Problem Understanding</p>
+            <p className="font-bold text-[#1D2B17]">1. Carbon Accounting & Scopes</p>
             <p className="text-[#5C6658] leading-relaxed">
-              Mathematical modeling of emissions across Scopes 1, 2, and 3 with verified EPA factors.
+              Mathematical modeling of emissions across Scopes 1, 2, and 3 with verified EPA emission factors.
             </p>
           </div>
           <div className="bg-[#F7F9F6] p-5 rounded-2xl border border-[#E0E7DE] space-y-1.5">
-            <p className="font-bold text-[#1D2B17]">2. Engineering & IT Solution</p>
+            <p className="font-bold text-[#1D2B17]">2. Decarbonization Engine</p>
             <p className="text-[#5C6658] leading-relaxed">
-              Real-time interactive calculation engine, dynamic roadmap generation, and Google Drive cloud integration.
+              Real-time calculation engine, dynamic roadmap generation, and actionable intervention strategies.
             </p>
           </div>
           <div className="bg-[#F7F9F6] p-5 rounded-2xl border border-[#E0E7DE] space-y-1.5">
             <p className="font-bold text-[#1D2B17]">3. Usability & Interactivity</p>
             <p className="text-[#5C6658] leading-relaxed">
-              4 distinct functional screens, responsive inputs, live visual breakdown charts, and scenario simulation.
+              Dedicated functional views, responsive inputs, live visual breakdown charts, and scenario simulation.
             </p>
           </div>
           <div className="bg-[#F7F9F6] p-5 rounded-2xl border border-[#E0E7DE] space-y-1.5">
             <p className="font-bold text-[#1D2B17]">4. Research Reference</p>
             <p className="text-[#5C6658] leading-relaxed">
-              Direct ingestion and synthesis of the team's "CARBON FOOTPRINT REDUCTION.pptx" slide deck.
+              Direct ingestion and synthesis of the team's "CARBON FOOTPRINT REDUCTION.pptx" research presentation.
             </p>
           </div>
         </div>

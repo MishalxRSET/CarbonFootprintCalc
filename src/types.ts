@@ -1,4 +1,4 @@
-export type PageTab = 'overview' | 'kochi_simulation' | 'persepolis_citadel' | 'solutions' | 'calculator' | 'planner' | 'drive_findings' | 'designdoc';
+export type PageTab = 'overview' | 'solutions' | 'calculator' | 'planner' | 'drive_findings' | 'designdoc';
 
 export interface ScopeEmissions {
   scope1: number; // Direct emissions (fuel, vehicle)
