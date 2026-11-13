@@ -164,29 +164,29 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
       {/* Header Banner */}
-      <div className="bg-white border border-[#E0E7DE] rounded-[32px] p-8 sm:p-10 shadow-xs relative overflow-hidden">
+      <div className="bg-white dark:bg-[#111A12] border border-[#E0E7DE] dark:border-[#1E3021] rounded-[32px] p-8 sm:p-10 shadow-xs relative overflow-hidden">
         <div className="max-w-4xl space-y-4 relative z-10">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851] dark:text-[#D4AF37]">
               Technical Interventions & Blueprints
             </span>
-            <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] border border-[#CCD9C3] dark:border-[#2F4D33] flex items-center gap-1">
+            <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] border border-[#CCD9C3] dark:border-[#2F4D33] flex items-center gap-1 shadow-md">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#4A6741] dark:text-[#52e35b]" />
               5 Flagship Climate Solutions
             </span>
-            <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F1EFEC] text-[#5C6658] border border-[#E8E4DF]">
+            <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F1EFEC] dark:bg-[#202E21] text-[#5C6658] dark:text-[#9DB099] border border-[#E8E4DF] dark:border-[#2C402E] shadow-md">
               IPCC AR6 & GHG Protocol Aligned
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[#1D2B17] tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[#1D2B17] dark:text-[#EEF5ED] tracking-tight leading-tight max-w-2xl">
             Solutions for the Problem Given: Carbon Footprint Reduction
           </h1>
 
-          <p className="text-sm sm:text-base text-[#5C6658] leading-relaxed max-w-3xl">
+          <p className="text-sm sm:text-base text-[#5C6658] dark:text-[#9DB099] leading-relaxed max-w-3xl">
             A comprehensive catalog of engineering, operational, and behavioral solutions directly answering the
             decarbonization challenges analyzed in our primary presentation deck{' '}
-            <strong className="text-[#1D2B17] font-mono bg-[#F1EFEC] px-1.5 py-0.5 rounded-md border border-[#E8E4DF]">
+            <strong className="text-[#1D2B17] dark:text-[#EEF5ED] font-mono bg-[#F1EFEC] dark:bg-[#202E21] px-1.5 py-0.5 rounded-md border border-[#E8E4DF] dark:border-[#2C402E]">
               CARBON FOOTPRINT REDUCTION.pptx
             </strong>
             . Each solution pairs thermodynamic mechanics with verified emissions abatement and return-on-investment metrics.
@@ -196,7 +196,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
             <button
               id="solutions-open-planner-btn"
               onClick={() => onNavigate('planner')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A6741] hover:bg-[#3E5637] text-white rounded-full text-xs font-bold transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A6741] hover:bg-[#3E5637] dark:bg-[#65e66d] dark:hover:bg-[#58d75f] text-white dark:text-[#060A06] rounded-full text-xs font-bold transition-colors shadow-xs dark:shadow-[0_0_20px_rgba(101,230,109,0.3)]"
             >
               <Compass className="w-4 h-4" />
               <span>Assemble in Reduction Planner</span>
@@ -204,24 +204,24 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
             <button
               id="solutions-open-calculator-btn"
               onClick={() => onNavigate('calculator')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#F1EFEC] hover:bg-[#E8E4DF] text-[#1D2B17] border border-[#E8E4DF] rounded-full text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#F1EFEC] dark:bg-[#202E21] hover:bg-[#E8E4DF] dark:hover:bg-[#2A3D2C] text-[#1D2B17] dark:text-[#EEF5ED] border border-[#E8E4DF] dark:border-[#2C402E] rounded-full text-xs font-semibold transition-colors"
             >
-              <TrendingDown className="w-4 h-4 text-[#4A6741]" />
+              <TrendingDown className="w-4 h-4 text-[#4A6741] dark:text-[#52e35b]" />
               <span>Audit Baseline Emissions First</span>
             </button>
             <button
               id="solutions-print-dossier-btn"
               onClick={() => window.print()}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-[#F7F9F6] text-[#5C6658] border border-[#E0E7DE] rounded-full text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#111A12] hover:bg-[#F7F9F6] dark:hover:bg-[#1A2619] text-[#5C6658] dark:text-[#9DB099] border border-[#E0E7DE] dark:border-[#263824] rounded-full text-xs font-medium transition-colors"
             >
-              <Printer className="w-4 h-4 text-[#8C7851]" />
+              <Printer className="w-4 h-4 text-[#8C7851] dark:text-[#D4AF37]" />
               <span>Print Technical Dossier</span>
             </button>
           </div>
         </div>
 
         {/* Decorative corner ring */}
-        <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[#D9E4D1]/20 pointer-events-none" />
+        <div className="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-[#D9E4D1]/20 dark:bg-[#1C3320]/30 pointer-events-none" />
       </div>
 
       {/* Dynamic Scale & Context Selector */}
@@ -249,7 +249,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                 key={preset.id}
                 id={`scale-preset-${preset.id}-btn`}
                 onClick={() => setActiveScalePreset(preset)}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer hover:-translate-y-1 hover:shadow-md ${
                   isSelected
                     ? 'bg-white dark:bg-[#1A3320] border-[#4A6741] dark:border-[#52e35b] shadow-xs ring-2 ring-[#4A6741]/20 dark:ring-[#52e35b]/30'
                     : 'bg-white dark:bg-[#132216] border-[#E0E7DE] dark:border-[#223825] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D] text-[#5C6658] dark:text-[#A0B89C]'
@@ -327,7 +327,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
               <button
                 key={scope}
                 onClick={() => setSelectedScope(scope)}
-                className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer hover:-translate-y-1 hover:shadow-md shrink-0 ${
                   selectedScope === scope
                     ? 'bg-[#1D2B17] dark:bg-[#25452B] text-white dark:text-[#52e35b] font-bold border border-[#1D2B17] dark:border-[#38663E]'
                     : 'bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[#5C6658] dark:text-[#A0B89C] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
@@ -347,7 +347,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer hover:-translate-y-1 hover:shadow-md shrink-0 ${
                   isSelected
                     ? 'bg-[#4A6741] dark:bg-[#27532E] text-white dark:text-[#52e35b] font-bold shadow-xs border border-[#4A6741] dark:border-[#3D7846]'
                     : 'bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[#5C6658] dark:text-[#A0B89C] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
@@ -394,7 +394,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                 key={sol.id}
                 id={`solution-card-${sol.id}`}
                 spotlightColor="rgba(74, 103, 65, 0.12)"
-                className="bg-white border border-[#E0E7DE] rounded-[32px] overflow-hidden shadow-xs transition-all hover:border-[#CCD9C3]"
+                className="bg-white border border-[#E0E7DE] rounded-[32px] overflow-hidden shadow-xs transition-all hover:border-emerald-500 hover:shadow-lg hover:-translate-y-1.5"
               >
                 {/* Top Solution Overview Bar */}
                 <div className="p-6 sm:p-8 space-y-5">

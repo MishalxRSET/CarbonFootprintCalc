@@ -2,7 +2,35 @@ import React from 'react';
 import { PageTab } from '../types';
 import { AtmosphericCanvas } from './AtmosphericCanvas';
 import { ScenarioSimulator } from './ScenarioSimulator';
-import { Magnet } from './reactbits';
+import { Magnet, FluidGlassButton, BorderGlow, ChromaGrid } from './reactbits';
+
+const planetaryItems = [
+  {
+    image: "https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1000&q=85",
+    title: "Rising Temperatures",
+    icon: "🌡️",
+    subtitle: "Atmospheric CO₂ past 426 ppm amplifies global mean temperatures and triggers severe heatwaves and climate volatility.",
+    borderColor: "#EF4444",
+    gradient: "linear-gradient(180deg, #111, #300000)"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=1000&q=85",
+    title: "Climate & Oceans",
+    icon: "🌊",
+    subtitle: "Thermal expansion and ocean acidification destabilize marine ecosystems and increase coastal vulnerability.",
+    borderColor: "#3B82F6",
+    gradient: "linear-gradient(180deg, #111, #001e33)"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1000&q=85",
+    title: "Ecosystem Loss",
+    icon: "🌲",
+    subtitle: "Loss of natural vegetative carbon sinks diminishes Earth's innate capacity to buffer surplus atmospheric carbon.",
+    borderColor: "#10B981",
+    gradient: "linear-gradient(180deg, #111, #002200)"
+  }
+];
+import { useTheme } from '../context/ThemeContext';
 import {
   ArrowRight,
   TrendingDown,
@@ -36,6 +64,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   onOpenCommandPalette,
   onOpenGuidedTour,
 }) => {
+  const { isDark } = useTheme();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-14">
       {/* ========================================================================= */}
@@ -50,6 +80,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           backgroundPosition: 'center',
         }}
       >
+        {/* React Bits Iridescence Background */}
+        <div className="absolute inset-0 z-0 opacity-40 mix-blend-screen pointer-events-auto">
+          {/* Moved to App.tsx */}
+        </div>
+
         <div className="relative z-10 p-6 sm:p-12 lg:p-16 max-w-3xl space-y-5 sm:space-y-6">
           {/* Pill Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#6bea73]/70 bg-[#09200e]/80 backdrop-blur-md text-[#7bf583] text-xs font-semibold tracking-wide shadow-xs">
@@ -82,13 +117,13 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               </button>
             </Magnet>
 
-            <button
+            <FluidGlassButton
               id="hero-launch-calculator-btn"
               onClick={() => onNavigate('calculator')}
-              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-full border border-white/80 bg-white/10 hover:bg-white/20 backdrop-blur-xs text-white font-semibold text-xs sm:text-sm transition-all cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 font-semibold text-xs sm:text-sm text-white whitespace-nowrap"
             >
               <span>Carbon Calculator</span>
-            </button>
+            </FluidGlassButton>
 
             <button
               id="hero-view-planner-btn"
@@ -158,70 +193,83 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {/* Step 1 */}
-          <div
+          <BorderGlow
             onClick={() => onNavigate('calculator')}
-            className="p-5 sm:p-6 rounded-2xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-[#4A6741] dark:hover:border-[#78B169] transition-all cursor-pointer group space-y-2.5 hover:-translate-y-0.5"
+            backgroundColor={isDark ? '#1A2619' : '#F7F9F6'}
+            glowColor="130 80 80"
+            className="rounded-2xl border border-[#E0E7DE] dark:border-[#263824] hover:border-[#4A6741] dark:hover:border-[#78B169] transition-all cursor-pointer group hover:-translate-y-1 hover:shadow-lg"
           >
-            <div className="flex items-center justify-between">
-              <span className="w-8 h-8 rounded-full bg-[#E8EFE5] dark:bg-[#203623] text-[#2E4726] dark:text-[#78B169] font-bold text-xs flex items-center justify-center">
-                1
+            <div className="flex flex-col h-full p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-full bg-[#E8EFE5] dark:bg-[#203623] text-[#2E4726] dark:text-[#78B169] font-bold text-xs flex items-center justify-center">
+                  1
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#737C70] group-hover:text-[#4A6741] group-hover:translate-x-1 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-[#1D2B17] dark:text-[#EEF5ED] mb-2">
+                Calculate Footprint
+              </h3>
+              <p className="text-xs text-[#5C6658] dark:text-[#9DB099] leading-relaxed mb-4 flex-1">
+                Input domestic power, vehicle fuel, LPG, and transit. Generates instant Scope 1, 2 & 3 emissions breakdown using Indian CEA factors.
+              </p>
+              <span className="inline-block text-[11px] font-bold text-[#4A6741] dark:text-[#78B169]">
+                Launch Calculator →
               </span>
-              <ArrowRight className="w-4 h-4 text-[#737C70] group-hover:text-[#4A6741] group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-base font-bold text-[#1D2B17] dark:text-[#EEF5ED]">
-              Calculate Footprint
-            </h3>
-            <p className="text-xs text-[#5C6658] dark:text-[#9DB099] leading-relaxed">
-              Input domestic power, vehicle fuel, LPG, and transit. Generates instant Scope 1, 2 & 3 emissions breakdown using Indian CEA factors.
-            </p>
-            <span className="inline-block text-[11px] font-bold text-[#4A6741] dark:text-[#78B169]">
-              Launch Calculator →
-            </span>
-          </div>
+          </BorderGlow>
 
           {/* Step 2 */}
-          <div
+          <BorderGlow
             onClick={() => onNavigate('solutions')}
-            className="p-5 sm:p-6 rounded-2xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-[#8C7851] dark:hover:border-[#D4AF37] transition-all cursor-pointer group space-y-2.5 hover:-translate-y-0.5"
+            backgroundColor={isDark ? '#1A2619' : '#F7F9F6'}
+            glowColor="40 80 80"
+            colors={['#D4AF37', '#8C7851', '#F5EFE6']}
+            className="rounded-2xl border border-[#E0E7DE] dark:border-[#263824] hover:border-[#8C7851] dark:hover:border-[#D4AF37] transition-all cursor-pointer group hover:-translate-y-1 hover:shadow-lg"
           >
-            <div className="flex items-center justify-between">
-              <span className="w-8 h-8 rounded-full bg-[#F5EFE6] dark:bg-[#2A2316] text-[#8C7851] dark:text-[#D4AF37] font-bold text-xs flex items-center justify-center">
-                2
+            <div className="flex flex-col h-full p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-full bg-[#F5EFE6] dark:bg-[#2A2316] text-[#8C7851] dark:text-[#D4AF37] font-bold text-xs flex items-center justify-center">
+                  2
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#737C70] group-hover:text-[#8C7851] group-hover:translate-x-1 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-[#1D2B17] dark:text-[#EEF5ED] mb-2">
+                Explore 5 Flagship Solutions
+              </h3>
+              <p className="text-xs text-[#5C6658] dark:text-[#9DB099] leading-relaxed mb-4 flex-1">
+                Examine the 5 core solutions from our PPT: Solar PV, Heat Pumps, Electric Vehicles, Plant-Rich Diets, and Urban Afforestation with payback data.
+              </p>
+              <span className="inline-block text-[11px] font-bold text-[#8C7851] dark:text-[#D4AF37]">
+                Browse 5 Solutions →
               </span>
-              <ArrowRight className="w-4 h-4 text-[#737C70] group-hover:text-[#8C7851] group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-base font-bold text-[#1D2B17] dark:text-[#EEF5ED]">
-              Explore 5 Flagship Solutions
-            </h3>
-            <p className="text-xs text-[#5C6658] dark:text-[#9DB099] leading-relaxed">
-              Examine the 5 core solutions from our PPT: Solar PV, Heat Pumps, Electric Vehicles, Plant-Rich Diets, and Urban Afforestation with payback data.
-            </p>
-            <span className="inline-block text-[11px] font-bold text-[#8C7851] dark:text-[#D4AF37]">
-              Browse 5 Solutions →
-            </span>
-          </div>
+          </BorderGlow>
 
           {/* Step 3 */}
-          <div
+          <BorderGlow
             onClick={() => onNavigate('planner')}
-            className="p-5 sm:p-6 rounded-2xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-[#4A6741] dark:hover:border-[#78B169] transition-all cursor-pointer group space-y-2.5 hover:-translate-y-0.5"
+            backgroundColor={isDark ? '#1A2619' : '#F7F9F6'}
+            glowColor="130 80 80"
+            className="rounded-2xl border border-[#E0E7DE] dark:border-[#263824] hover:border-[#4A6741] dark:hover:border-[#78B169] transition-all cursor-pointer group hover:-translate-y-1 hover:shadow-lg"
           >
-            <div className="flex items-center justify-between">
-              <span className="w-8 h-8 rounded-full bg-[#E8EFE5] dark:bg-[#203623] text-[#2E4726] dark:text-[#78B169] font-bold text-xs flex items-center justify-center">
-                3
+            <div className="flex flex-col h-full p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-full bg-[#E8EFE5] dark:bg-[#203623] text-[#2E4726] dark:text-[#78B169] font-bold text-xs flex items-center justify-center">
+                  3
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#737C70] group-hover:text-[#4A6741] group-hover:translate-x-1 transition-all" />
+              </div>
+              <h3 className="text-base font-bold text-[#1D2B17] dark:text-[#EEF5ED] mb-2">
+                Plan & Save to Google Drive
+              </h3>
+              <p className="text-xs text-[#5C6658] dark:text-[#9DB099] leading-relaxed mb-4 flex-1">
+                Simulate 5–10 year reduction curves, estimate financial savings (₹), and save your plan directly to Google Drive as a Google Doc.
+              </p>
+              <span className="inline-block text-[11px] font-bold text-[#4A6741] dark:text-[#78B169]">
+                Build & Save Plan →
               </span>
-              <ArrowRight className="w-4 h-4 text-[#737C70] group-hover:text-[#4A6741] group-hover:translate-x-1 transition-all" />
             </div>
-            <h3 className="text-base font-bold text-[#1D2B17] dark:text-[#EEF5ED]">
-              Plan & Save to Google Drive
-            </h3>
-            <p className="text-xs text-[#5C6658] dark:text-[#9DB099] leading-relaxed">
-              Simulate 5–10 year reduction curves, estimate financial savings (₹), and save your plan directly to Google Drive as a Google Doc.
-            </p>
-            <span className="inline-block text-[11px] font-bold text-[#4A6741] dark:text-[#78B169]">
-              Build & Save Plan →
-            </span>
-          </div>
+          </BorderGlow>
         </div>
       </div>
 
@@ -244,66 +292,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Rising Temperatures */}
-          <div
-            className="min-h-[260px] sm:min-h-[300px] rounded-[20px] p-6 flex flex-col justify-end relative overflow-hidden group shadow-lg border border-white/10"
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.88) 85%), url("https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?auto=format&fit=crop&w=1000&q=85")`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <div className="relative z-10 space-y-1.5 transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
-                <span>🌡️</span>
-                <span>Rising Temperatures</span>
-              </h3>
-              <p className="text-xs text-[#e2ece0] leading-relaxed">
-                Atmospheric CO₂ past 426 ppm amplifies global mean temperatures and triggers severe heatwaves and climate volatility.
-              </p>
-            </div>
-          </div>
-
-          {/* Climate & Oceans */}
-          <div
-            className="min-h-[260px] sm:min-h-[300px] rounded-[20px] p-6 flex flex-col justify-end relative overflow-hidden group shadow-lg border border-white/10"
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.88) 85%), url("https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=1000&q=85")`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <div className="relative z-10 space-y-1.5 transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
-                <span>🌊</span>
-                <span>Climate & Oceans</span>
-              </h3>
-              <p className="text-xs text-[#e2ece0] leading-relaxed">
-                Thermal expansion and ocean acidification destabilize marine ecosystems and increase coastal vulnerability.
-              </p>
-            </div>
-          </div>
-
-          {/* Ecosystem Loss */}
-          <div
-            className="min-h-[260px] sm:min-h-[300px] rounded-[20px] p-6 flex flex-col justify-end relative overflow-hidden group shadow-lg border border-white/10"
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.88) 85%), url("https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1000&q=85")`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <div className="relative z-10 space-y-1.5 transform group-hover:-translate-y-1 transition-transform duration-300">
-              <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
-                <span>🌲</span>
-                <span>Ecosystem Loss</span>
-              </h3>
-              <p className="text-xs text-[#e2ece0] leading-relaxed">
-                Loss of natural vegetative carbon sinks diminishes Earth's innate capacity to buffer surplus atmospheric carbon.
-              </p>
-            </div>
-          </div>
+        <div className="w-full">
+          <ChromaGrid 
+            items={planetaryItems} 
+            radius={280} 
+            damping={0.45} 
+            fadeOut={0.6} 
+            ease="power3.out" 
+          />
         </div>
       </section>
 
@@ -359,7 +355,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           {/* Solution 1 */}
           <div
             onClick={() => onNavigate('solutions')}
-            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-xs transition-all cursor-pointer group space-y-2"
+            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group space-y-2"
           >
             <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
               <Zap className="w-4 h-4" />
@@ -378,7 +374,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           {/* Solution 2 */}
           <div
             onClick={() => onNavigate('solutions')}
-            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-xs transition-all cursor-pointer group space-y-2"
+            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group space-y-2"
           >
             <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <Building2 className="w-4 h-4" />
@@ -397,7 +393,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           {/* Solution 3 */}
           <div
             onClick={() => onNavigate('solutions')}
-            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-xs transition-all cursor-pointer group space-y-2"
+            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group space-y-2"
           >
             <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <Car className="w-4 h-4" />
@@ -416,7 +412,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           {/* Solution 4 */}
           <div
             onClick={() => onNavigate('solutions')}
-            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-xs transition-all cursor-pointer group space-y-2"
+            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group space-y-2"
           >
             <div className="w-8 h-8 rounded-lg bg-orange-500/15 text-orange-600 dark:text-orange-400 flex items-center justify-center">
               <Utensils className="w-4 h-4" />
@@ -435,7 +431,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           {/* Solution 5 */}
           <div
             onClick={() => onNavigate('solutions')}
-            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-xs transition-all cursor-pointer group space-y-2"
+            className="p-4 rounded-xl bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] hover:border-emerald-500 hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group space-y-2"
           >
             <div className="w-8 h-8 rounded-lg bg-green-500/15 text-green-600 dark:text-green-400 flex items-center justify-center">
               <Trees className="w-4 h-4" />
