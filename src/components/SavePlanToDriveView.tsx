@@ -32,11 +32,50 @@ import {
 } from 'lucide-react';
 import { SpotlightCard, ShinyText, Magnet } from './reactbits';
 
+// What went wrong on the last save attempt, rendered as an inline notice
+type SaveIssue =
+  | { kind: 'popup' }
+  | { kind: 'domain' }
+  | { kind: 'reconnect'; message: string }
+  | { kind: 'error'; message: string };
+
+/** Map auth/Drive error codes (lib/firebase.ts, lib/drive.ts) to an inline notice; null means "say nothing". */
+const saveIssueFromError = (err: unknown): SaveIssue | null => {
+  const message = (err as Error)?.message || '';
+  switch (message) {
+    case 'AUTH_CANCELLED':
+      return null;
+    case 'AUTH_POPUP_BLOCKED':
+      return { kind: 'popup' };
+    case 'AUTH_UNAUTHORIZED_DOMAIN':
+      return { kind: 'domain' };
+    case 'AUTH_NETWORK':
+      return { kind: 'error', message: 'Could not reach Google. Check your connection and try again.' };
+    case 'UNAUTHORIZED_EXPIRED_TOKEN':
+      return { kind: 'reconnect', message: 'Your Google session expired. Reconnect to save your plan.' };
+    case 'DRIVE_SCOPE_MISSING':
+      return {
+        kind: 'reconnect',
+        message: 'Google Drive permission wasn’t granted. Reconnect and tick the Google Drive checkbox on the consent screen.',
+      };
+    case 'DRIVE_API_DISABLED':
+      return {
+        kind: 'error',
+        message: 'The Google Drive API is turned off for this project. Enable it in the Google Cloud console, then try again.',
+      };
+    default:
+      return { kind: 'error', message: message || 'Failed to save file to Google Drive' };
+  }
+};
+
 interface SavePlanToDriveViewProps {
   currentCalculation: CalculationResult;
   accessToken: string | null;
   onLogin: () => void;
-  onRequestDriveAccess: () => Promise<string>;
+  /** Resolves a fresh Drive token, opening the Google popup when needed (or always, with forceRefresh). */
+  onRequestDriveAccess: (forceRefresh?: boolean) => Promise<string>;
+  /** Google rejected the current token; the app should forget it. */
+  onDriveTokenInvalid: () => void;
   onLogout: () => void;
   isLoggingIn: boolean;
   onNavigate: (tab: PageTab) => void;
@@ -47,6 +86,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
   accessToken,
   onLogin,
   onRequestDriveAccess,
+  onDriveTokenInvalid,
   onLogout,
   isLoggingIn,
   onNavigate,
@@ -69,7 +109,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
   // Saving state
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccessFile, setSaveSuccessFile] = useState<DriveFileItem | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<SaveIssue | null>(null);
 
   // Saved files in Drive state
   const [existingPlans, setExistingPlans] = useState<DriveFileItem[]>([]);
@@ -109,21 +149,25 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
   const [isRequestingDrive, setIsRequestingDrive] = useState<boolean>(false);
 
   // Load existing plans from Drive if connected
-  const fetchExistingPlans = async () => {
-    if (!accessToken) return;
+  const fetchExistingPlans = async (token: string | null = accessToken) => {
+    if (!token) return;
     setIsLoadingExisting(true);
     setExistingError(null);
     try {
-      const files = await listSavedPlansFromDrive(accessToken);
+      const files = await listSavedPlansFromDrive(token);
       setExistingPlans(files);
       setHasDriveAccess(true);
     } catch (err: any) {
       console.error('Failed to load drive files:', err);
-      const errMsg = err.message || '';
-      if (errMsg.includes('403') || errMsg.includes('insufficient permissions')) {
+      const errMsg = err?.message || '';
+      if (errMsg === 'UNAUTHORIZED_EXPIRED_TOKEN') {
+        // Token expired or was revoked: drop it so the panel offers a fresh sign-in
+        onDriveTokenInvalid();
+      } else if (errMsg === 'DRIVE_SCOPE_MISSING') {
         setHasDriveAccess(false);
       } else {
-        setExistingError(err.message || 'Could not load existing plans');
+        const issue = saveIssueFromError(err);
+        setExistingError(issue && 'message' in issue ? issue.message : 'Could not load existing plans');
       }
     } finally {
       setIsLoadingExisting(false);
@@ -132,9 +176,21 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
 
   useEffect(() => {
     if (accessToken) {
-      fetchExistingPlans();
+      fetchExistingPlans(accessToken);
     }
   }, [accessToken]);
+
+  // Re-ask Google for Drive access (e.g. after the Drive checkbox was left unticked) and reload the list
+  const handleGrantDriveAccess = async () => {
+    setExistingError(null);
+    try {
+      const token = await onRequestDriveAccess(true);
+      fetchExistingPlans(token);
+    } catch (err) {
+      const issue = saveIssueFromError(err);
+      if (issue && issue.kind !== 'popup' && issue.kind !== 'domain') setExistingError(issue.message);
+    }
+  };
 
   // Handle local download of the plan
   const handleDownloadLocally = () => {
@@ -153,41 +209,22 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
 
   // Handle saving the plan to Google Drive
   const handleSaveToDrive = async () => {
-    let token = accessToken;
-
-    // If not connected yet, initiate Google authentication with Drive scope
-    if (!token) {
-      setIsRequestingDrive(true);
-      setSaveError(null);
-      try {
-        token = await onRequestDriveAccess();
-        setHasDriveAccess(true);
-      } catch (err: any) {
-        if (err.message === 'AUTH_CANCELLED') {
-          setIsRequestingDrive(false);
-          return;
-        }
-        if (err.message === 'AUTH_POPUP_BLOCKED') {
-          setSaveError('POPUP_BLOCKED');
-          setIsRequestingDrive(false);
-          return;
-        }
-        setSaveError(err.message || 'Google Drive authorization was not granted.');
-        setIsRequestingDrive(false);
-        return;
-      }
-      setIsRequestingDrive(false);
-    }
-
-    if (!token) {
-      setSaveError('Google Drive authorization token is required to save to Drive.');
-      return;
-    }
-
-    setIsSaving(true);
     setSaveError(null);
     setSaveSuccessFile(null);
 
+    // Reuses a fresh token, otherwise opens the Google popup (still inside this click)
+    let token: string;
+    if (!accessToken) setIsRequestingDrive(true);
+    try {
+      token = await onRequestDriveAccess();
+    } catch (err) {
+      setSaveError(saveIssueFromError(err));
+      return;
+    } finally {
+      setIsRequestingDrive(false);
+    }
+
+    setIsSaving(true);
     const payload: PlanExportPayload = {
       planTitle: planTitle.trim() || 'Personal Climate Action Plan 2026',
       baselineTonnes,
@@ -202,25 +239,17 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     try {
       const savedFile = await savePlanToGoogleDrive(token, payload, format);
       setSaveSuccessFile(savedFile);
+      setHasDriveAccess(true);
       fireCelebrationConfetti();
       // Refresh list of plans
-      fetchExistingPlans();
+      fetchExistingPlans(token);
     } catch (err: any) {
       console.error('Error saving plan to Google Drive:', err);
-      if (err.message === 'UNAUTHORIZED_EXPIRED_TOKEN') {
-        try {
-          const freshToken = await onRequestDriveAccess();
-          const savedFile = await savePlanToGoogleDrive(freshToken, payload, format);
-          setSaveSuccessFile(savedFile);
-          fireCelebrationConfetti();
-          fetchExistingPlans();
-          return;
-        } catch (retryErr: any) {
-          setSaveError('Session expired. Please reconnect your Google Drive account.');
-        }
-      } else {
-        setSaveError(err.message || 'Failed to save file to Google Drive');
-      }
+      const issue = saveIssueFromError(err);
+      // Google rejected the token: forget it so the next click asks for a fresh one.
+      // Retrying here would open the popup outside the click, where browsers block it.
+      if (issue?.kind === 'reconnect') onDriveTokenInvalid();
+      setSaveError(issue);
     } finally {
       setIsSaving(false);
     }
@@ -646,8 +675,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
             )}
 
             {/* Error Notice */}
-            {saveError && (
-              saveError === 'POPUP_BLOCKED' ? (
+            {saveError?.kind === 'popup' && (
                 <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl text-xs text-amber-900 dark:text-amber-200 space-y-3 animate-fade-in">
                   <div className="flex items-start gap-2.5">
                     <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
@@ -678,15 +706,73 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
                     </button>
                   </div>
                 </div>
-              ) : (
+            )}
+
+            {saveError?.kind === 'domain' && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl text-xs text-amber-900 dark:text-amber-200 space-y-3 animate-fade-in">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-xs">Google sign-in isn’t enabled for this site yet</p>
+                    <p className="text-[11px] mt-0.5 text-amber-800 dark:text-amber-300">
+                      Firebase rejected sign-in from <span className="font-mono">{window.location.hostname}</span>. The site owner
+                      needs to add it under Firebase → Authentication → Settings → Authorized domains.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleDownloadLocally}
+                    className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 font-semibold rounded-lg text-[11px] flex items-center gap-1.5 hover:bg-amber-200 transition-colors"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Download Locally Instead</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {saveError?.kind === 'reconnect' && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl text-xs text-amber-900 dark:text-amber-200 space-y-3 animate-fade-in">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-xs">Reconnect Google Drive</p>
+                    <p className="text-[11px] mt-0.5 text-amber-800 dark:text-amber-300">{saveError.message}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <button
+                    id="drive-reconnect-save-btn"
+                    type="button"
+                    onClick={handleSaveToDrive}
+                    disabled={isSaving || isRequestingDrive}
+                    className="px-3 py-1.5 bg-[#4A6741] text-white font-bold rounded-lg text-[11px] flex items-center gap-1.5 shadow-2xs hover:bg-[#3B5334] transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span>Reconnect &amp; Save</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadLocally}
+                    className="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 font-semibold rounded-lg text-[11px] flex items-center gap-1.5 hover:bg-amber-200 transition-colors"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Download Locally Instead</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {saveError?.kind === 'error' && (
                 <div className="p-4 bg-[#FDF2F0] dark:bg-[#2B1714] border border-[#E8C5BE] dark:border-[#4D2620] rounded-2xl text-xs text-[#8C3A27] dark:text-[#E8998D] flex items-start gap-2.5 animate-fade-in">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold">Unable to Save Plan</p>
-                    <p className="text-[11px] mt-0.5">{saveError}</p>
+                    <p className="text-[11px] mt-0.5">{saveError.message}</p>
                   </div>
                 </div>
-              )
             )}
           </div>
 
@@ -700,7 +786,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
               {accessToken && (
                 <button
                   type="button"
-                  onClick={fetchExistingPlans}
+                  onClick={() => fetchExistingPlans()}
                   disabled={isLoadingExisting}
                   className="text-xs text-[#5C6658] dark:text-[#9DB099] hover:text-[#1D2B17] flex items-center gap-1"
                 >
@@ -731,14 +817,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
                   Grant Google Drive access to view and manage previously saved Climate Action Plans.
                 </p>
                 <button
-                  onClick={async () => {
-                    try {
-                      await onRequestDriveAccess();
-                      fetchExistingPlans();
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  }}
+                  onClick={handleGrantDriveAccess}
                   className="px-4 py-1.5 bg-[#4A6741] text-white text-xs font-bold rounded-full hover:bg-[#3B5334] transition-colors"
                 >
                   Grant Drive Access

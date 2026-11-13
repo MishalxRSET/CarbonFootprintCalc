@@ -16,6 +16,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app, "ai-studio-carbonfootprintc-6f304aba-5a89-4088-806d-9cd1e865e122");
 
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+export const FIREBASE_PROJECT_ID = firebaseConfig.projectId;
 
 // Google Auth Provider configured with Google Drive scope
 const googleProvider = new GoogleAuthProvider();
@@ -31,10 +32,36 @@ export interface AuthUserProfile {
   uid: string;
 }
 
-// Memory token cache
+// Memory token cache. Google OAuth access tokens expire after 60 minutes,
+// so treat a cached token as stale a little before that.
+const TOKEN_LIFETIME_MS = 55 * 60 * 1000;
 let isSigningIn = false;
 let cachedAccessToken: string | null = null;
+let tokenIssuedAt = 0;
 let cachedUserProfile: AuthUserProfile | null = null;
+
+const cacheAccessToken = (token: string | null) => {
+  cachedAccessToken = token;
+  tokenIssuedAt = token ? Date.now() : 0;
+};
+
+const freshAccessToken = (): string | null =>
+  cachedAccessToken && Date.now() - tokenIssuedAt < TOKEN_LIFETIME_MS ? cachedAccessToken : null;
+
+/**
+ * Map Firebase auth failures onto the app's error codes:
+ * AUTH_CANCELLED, AUTH_POPUP_BLOCKED, AUTH_UNAUTHORIZED_DOMAIN, AUTH_NETWORK.
+ */
+const toAuthError = (error: unknown): Error => {
+  const { code, message } = (error ?? {}) as { code?: string; message?: string };
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/user-cancelled') {
+    return new Error('AUTH_CANCELLED');
+  }
+  if (code === 'auth/unauthorized-domain') return new Error('AUTH_UNAUTHORIZED_DOMAIN');
+  if (code === 'auth/network-request-failed') return new Error('AUTH_NETWORK');
+  if (code === 'auth/popup-blocked' || message?.toLowerCase().includes('popup')) return new Error('AUTH_POPUP_BLOCKED');
+  return error instanceof Error ? error : new Error(message || 'Google sign-in failed.');
+};
 
 // Global listener callbacks
 type AuthCallback = (user: AuthUserProfile, token: string | null) => void;
@@ -55,7 +82,7 @@ export const initAuth = (
 
   // If already authenticated in session memory
   if (cachedUserProfile) {
-    if (onAuthSuccess) onAuthSuccess(cachedUserProfile, cachedAccessToken);
+    if (onAuthSuccess) onAuthSuccess(cachedUserProfile, freshAccessToken());
   }
 
   // Also listen to Firebase Auth changes
@@ -68,10 +95,10 @@ export const initAuth = (
         uid: firebaseUser.uid,
       };
       cachedUserProfile = profile;
-      successListeners.forEach((cb) => cb(profile, cachedAccessToken));
+      successListeners.forEach((cb) => cb(profile, freshAccessToken()));
     } else if (!isSigningIn) {
       cachedUserProfile = null;
-      cachedAccessToken = null;
+      cacheAccessToken(null);
       failureListeners.forEach((cb) => cb());
     }
   });
@@ -84,11 +111,13 @@ export const initAuth = (
 };
 
 /**
- * Request Google Drive access using Firebase Auth popup (uses authorized authDomain handler, avoiding origin mismatch)
+ * Request Google Drive access using Firebase Auth popup (uses authorized authDomain handler, avoiding origin mismatch).
+ * Reuses the cached token while it is fresh unless `forceRefresh` is set (e.g. to re-ask for a declined Drive scope).
  */
-export const requestDriveAccess = async (): Promise<string> => {
-  if (cachedAccessToken) {
-    return cachedAccessToken;
+export const requestDriveAccess = async ({ forceRefresh = false }: { forceRefresh?: boolean } = {}): Promise<string> => {
+  const fresh = freshAccessToken();
+  if (fresh && !forceRefresh) {
+    return fresh;
   }
 
   isSigningIn = true;
@@ -99,7 +128,7 @@ export const requestDriveAccess = async (): Promise<string> => {
       throw new Error('Could not obtain Google Drive access token from Google sign-in.');
     }
     const token = credential.accessToken;
-    cachedAccessToken = token;
+    cacheAccessToken(token);
 
     const profile: AuthUserProfile = {
       displayName: result.user.displayName,
@@ -111,16 +140,10 @@ export const requestDriveAccess = async (): Promise<string> => {
     successListeners.forEach((cb) => cb(profile, token));
     return token;
   } catch (error: unknown) {
-    const errObj = error as { code?: string; message?: string };
-    if (errObj.code === 'auth/popup-closed-by-user' || errObj.code === 'auth/cancelled-popup-request') {
-      // User closed the popup window deliberately - not a systemic failure
-      throw new Error('AUTH_CANCELLED');
-    }
-    if (errObj.code === 'auth/popup-blocked' || errObj.message?.toLowerCase().includes('popup')) {
-      throw new Error('AUTH_POPUP_BLOCKED');
-    }
-    console.error('Drive access error:', error);
-    throw error;
+    const authError = toAuthError(error);
+    // A closed popup is a deliberate user choice, not a failure worth logging
+    if (authError.message !== 'AUTH_CANCELLED') console.error('Drive access error:', error);
+    throw authError;
   } finally {
     isSigningIn = false;
   }
@@ -138,7 +161,7 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    cachedAccessToken = credential?.accessToken || null;
+    cacheAccessToken(credential?.accessToken || null);
 
     const profile: AuthUserProfile = {
       displayName: result.user.displayName,
@@ -150,33 +173,35 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
     successListeners.forEach((cb) => cb(profile, cachedAccessToken));
     return { user: profile, accessToken: cachedAccessToken };
   } catch (error: unknown) {
-    const errObj = error as { code?: string; message?: string };
-    if (errObj.code === 'auth/popup-closed-by-user' || errObj.code === 'auth/cancelled-popup-request') {
-      // Benign: User simply closed the popup before completing sign-in
-      return null;
-    }
-    if (errObj.code === 'auth/popup-blocked' || errObj.message?.toLowerCase().includes('popup')) {
-      throw new Error('AUTH_POPUP_BLOCKED');
-    }
+    const authError = toAuthError(error);
+    // Benign: User simply closed the popup before completing sign-in
+    if (authError.message === 'AUTH_CANCELLED') return null;
     console.error('Google Sign-in Error:', error);
-    throw error;
+    throw authError;
   } finally {
     isSigningIn = false;
   }
 };
 
 /**
- * Retrieve cached access token in memory
+ * Retrieve the cached access token while it is still fresh
  */
 export const getAccessToken = async (): Promise<string | null> => {
-  return cachedAccessToken;
+  return freshAccessToken();
 };
 
 /**
  * Explicitly cache access token if updated
  */
 export const setCachedAccessToken = (token: string | null) => {
-  cachedAccessToken = token;
+  cacheAccessToken(token);
+};
+
+/**
+ * Drop the cached token after Google rejects it (expired, revoked or missing the Drive scope)
+ */
+export const invalidateAccessToken = () => {
+  cacheAccessToken(null);
 };
 
 /**
@@ -188,7 +213,7 @@ export const logoutUser = async () => {
   } catch (e) {
     console.warn('Firebase signout error:', e);
   }
-  cachedAccessToken = null;
+  cacheAccessToken(null);
   cachedUserProfile = null;
   failureListeners.forEach((cb) => cb());
 };
