@@ -20,7 +20,7 @@ import { GuidedTourModal } from './components/GuidedTourModal';
 import { Chatbot } from './components/Chatbot';
 import { ThemeRippleOverlay, FluidGlassButton, Iridescence } from './components/reactbits';
 import { ThemeProvider } from './context/ThemeContext';
-import { FileCode, Cloud, Leaf, Sparkles, HelpCircle, Instagram } from 'lucide-react';
+import { FileCode, Cloud, Leaf, Sparkles, HelpCircle, Instagram, AlertTriangle, ExternalLink, X } from 'lucide-react';
 
 import { IntroLoader } from './components/IntroLoader';
 
@@ -29,6 +29,7 @@ export function AppContent() {
   const [user, setUser] = useState<AuthUserProfile | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showPopupBlockedModal, setShowPopupBlockedModal] = useState(false);
   const [isDesignDocOpen, setIsDesignDocOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGuidedTourOpen, setIsGuidedTourOpen] = useState(false);
@@ -121,8 +122,13 @@ export function AppContent() {
         setUser(res.user);
         setAccessToken(res.accessToken);
       }
-    } catch (err) {
-      console.error('Login flow failed:', err);
+    } catch (err: unknown) {
+      const errMsg = (err as Error)?.message;
+      if (errMsg === 'AUTH_POPUP_BLOCKED') {
+        setShowPopupBlockedModal(true);
+      } else if (errMsg !== 'AUTH_CANCELLED') {
+        console.warn('Login notice:', err);
+      }
     } finally {
       setIsLoggingIn(false);
     }
@@ -133,8 +139,11 @@ export function AppContent() {
       const token = await requestDriveAccess();
       setAccessToken(token);
       return token;
-    } catch (err) {
-      console.error('Failed to grant Drive access:', err);
+    } catch (err: unknown) {
+      const errMsg = (err as Error)?.message;
+      if (errMsg === 'AUTH_POPUP_BLOCKED') {
+        setShowPopupBlockedModal(true);
+      }
       throw err;
     }
   };
@@ -398,6 +407,90 @@ export function AppContent() {
           </div>
         </div>
       </footer>
+
+      {/* Browser Popup Blocked Guidance Modal */}
+      <AnimatePresence>
+        {showPopupBlockedModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md bg-white dark:bg-[#152316] rounded-2xl p-6 border border-[#D5DDD2] dark:border-[#2C482A] shadow-xl space-y-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-700 dark:text-amber-300 shrink-0">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[#142314] dark:text-white text-base">
+                      Popup Blocked by Browser
+                    </h3>
+                    <p className="text-xs text-[#5C6658] dark:text-[#9DB099]">
+                      Google sign-in popups are often blocked inside preview frames
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPopupBlockedModal(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <p className="text-xs text-[#475544] dark:text-[#CBD8C9] leading-relaxed">
+                Your browser blocked the Google authorization window from opening. To connect your account or save to Drive:
+              </p>
+
+              <div className="space-y-2 text-xs">
+                <div className="p-3 bg-[#F4F7F2] dark:bg-[#1A2E1C] rounded-xl flex items-center justify-between gap-3">
+                  <div>
+                    <strong className="block text-[#1D2B17] dark:text-white font-semibold">1. Open in Standalone Tab</strong>
+                    <span className="text-[11px] text-[#5C6658] dark:text-[#9DB099]">Popups work reliably without iframe security restrictions</span>
+                  </div>
+                  <a
+                    href={window.location.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4A6741] text-white font-semibold rounded-lg hover:bg-[#3B5334] transition-colors shrink-0 text-[11px]"
+                  >
+                    <span>Open Tab</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <div className="p-3 bg-[#F4F7F2] dark:bg-[#1A2E1C] rounded-xl">
+                  <strong className="block text-[#1D2B17] dark:text-white font-semibold">2. Or Allow Popups in Address Bar</strong>
+                  <span className="text-[11px] text-[#5C6658] dark:text-[#9DB099]">Click the pop-up blocked icon in your browser URL bar and choose "Always allow pop-ups".</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPopupBlockedModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-[#5C6658] dark:text-[#CBD8C9] hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl cursor-pointer"
+                >
+                  Dismiss
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPopupBlockedModal(false);
+                    handleLogin();
+                  }}
+                  className="px-4 py-2 text-xs font-bold bg-[#1D2B17] dark:bg-[#4A6741] text-white rounded-xl hover:bg-[#2E4726] dark:hover:bg-[#3B5334] transition-colors cursor-pointer"
+                >
+                  Try Again
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <Chatbot />
     </div>
   );
