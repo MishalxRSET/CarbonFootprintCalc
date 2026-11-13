@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 import {
   getAuth,
   signInWithPopup,
@@ -12,6 +13,7 @@ import firebaseConfig from '../../firebase-applet-config.json';
 // Initialize Firebase App singleton safely
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
+export const db = getFirestore(app, "ai-studio-carbonfootprintc-6f304aba-5a89-4088-806d-9cd1e865e122");
 
 export const DRIVE_FILE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 export const OAUTH_CLIENT_ID = firebaseConfig.oAuthClientId;

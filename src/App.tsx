@@ -18,9 +18,10 @@ import { SavePlanToDriveView } from './components/SavePlanToDriveView';
 import { DesignDocModal } from './components/DesignDocModal';
 import { CommandPalette } from './components/CommandPalette';
 import { GuidedTourModal } from './components/GuidedTourModal';
+import { Chatbot } from './components/Chatbot';
 import { ThemeRippleOverlay } from './components/reactbits';
 import { ThemeProvider } from './context/ThemeContext';
-import { FileCode, Cloud, Leaf, Sparkles, HelpCircle } from 'lucide-react';
+import { FileCode, Cloud, Leaf, Sparkles, HelpCircle, Instagram } from 'lucide-react';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<PageTab>('overview');
@@ -98,7 +99,7 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1] transition-colors duration-300">
+    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1]">
       {/* React Bits Circular Theme Ripple Overlay */}
       <ThemeRippleOverlay />
 
@@ -223,12 +224,12 @@ export function AppContent() {
       />
 
       {/* Floating Quick Tour & Help Button */}
-      <div className="fixed bottom-6 right-6 z-30">
+      <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom)+1rem)] sm:bottom-6 right-[5.5rem] sm:right-24 z-30">
         <button
           id="floating-quick-tour-btn"
           type="button"
           onClick={() => setIsGuidedTourOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#1D2B17] dark:bg-[#2E4726] text-white hover:bg-[#2F472A] dark:hover:bg-[#3E5C34] shadow-xl hover:shadow-2xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer text-xs font-bold group"
+          className="flex items-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-[#1D2B17] dark:bg-[#2E4726] text-white hover:bg-[#2F472A] dark:hover:bg-[#3E5C34] shadow-xl hover:shadow-2xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer text-[11px] sm:text-xs font-bold group"
           title="Start interactive guided tour"
         >
           <Sparkles className="w-4 h-4 text-[#78B169] group-hover:rotate-12 transition-transform" />
@@ -237,7 +238,7 @@ export function AppContent() {
       </div>
 
       {/* Global Project Footer */}
-      <footer className="bg-[#081E11] dark:bg-[#06120A] text-[#c7d8ca] border-t border-[#193822] dark:border-[#14281A] mt-20 py-12 transition-colors">
+      <footer className="bg-[#081E11] dark:bg-[#06120A] text-[#c7d8ca] border-t border-[#193822] dark:border-[#14281A] mt-20 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#65e66d] text-[#081E11] flex items-center justify-center font-bold shadow-xs">
@@ -294,12 +295,41 @@ export function AppContent() {
             </button>
           </div>
 
-          <div className="pt-4 border-t border-white/10 text-xs text-[#8ca890] flex flex-col sm:flex-row items-center justify-between gap-2 max-w-4xl mx-auto">
-            <span>© 2026 Carbon Zero | For a sustainable future</span>
-            <span className="font-mono text-[11px] text-[#789d7d]">Aligned with GHG Protocol Scopes 1, 2 & 3</span>
+          <div className="pt-8 border-t border-white/10 text-xs text-[#8ca890] flex flex-col md:flex-row items-center justify-between gap-6 max-w-5xl mx-auto">
+            <span className="hidden md:inline-block">© 2026 CarbonZero | For a sustainable future</span>
+            
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-[#0A2414] dark:bg-[#07160B] border border-[#193822] dark:border-[#1A2C1D] px-4 py-2 rounded-full shadow-inner">
+                <span>Built with <span className="text-emerald-400">♥</span> by</span>
+                <span className="text-white font-semibold tracking-wide">Team Nigeshhh</span>
+                <span className="font-mono text-[10px] text-[#4A6741]">[GROUP 8]</span>
+              </div>
+              
+              <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 max-w-[320px] sm:max-w-none">
+                {[
+                  '@gearshift.overdrive',
+                  '@blurdragon2007',
+                  '@bossdk.himself',
+                  '@mukthabinu',
+                  '@ak_nike12',
+                  '@steve20072025'
+                ].map(handle => (
+                  <a key={handle} href={`https://instagram.com/${handle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors cursor-pointer group">
+                    <Instagram className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                    <span className="font-mono text-[10px]">{handle}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center md:items-end gap-2">
+              <span className="font-mono text-[11px] text-[#789d7d]">Aligned with GHG Protocol Scopes 1, 2 & 3</span>
+              <span className="md:hidden">© 2026 CarbonZero</span>
+            </div>
           </div>
         </div>
       </footer>
+      <Chatbot />
     </div>
   );
 }
