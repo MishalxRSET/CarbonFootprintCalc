@@ -322,7 +322,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </h2>
           </div>
           <p className="text-xs text-[#737C70] dark:text-[#839580] font-mono sm:text-right">
-            Touch or hover to deflect particle currents
+            Drag to rotate 3D globe • Click hotspots • Scroll to zoom • + to inject sinks
           </p>
         </div>
 

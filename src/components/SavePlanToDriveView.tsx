@@ -5,6 +5,7 @@ import { formatINR } from '../utils/currency';
 import {
   savePlanToGoogleDrive,
   listSavedPlansFromDrive,
+  downloadPlanLocally,
   DrivePlanFormat,
   PlanExportPayload,
 } from '../lib/drive';
@@ -27,6 +28,7 @@ import {
   Sliders,
   TrendingDown,
   FileSpreadsheet,
+  Download,
 } from 'lucide-react';
 import { SpotlightCard, ShinyText, Magnet } from './reactbits';
 
@@ -34,7 +36,7 @@ interface SavePlanToDriveViewProps {
   currentCalculation: CalculationResult;
   accessToken: string | null;
   onLogin: () => void;
-  onRequestDriveAccess: () => Promise<void>;
+  onRequestDriveAccess: () => Promise<string>;
   onLogout: () => void;
   isLoggingIn: boolean;
   onNavigate: (tab: PageTab) => void;
@@ -134,24 +136,43 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     }
   }, [accessToken]);
 
+  // Handle local download of the plan
+  const handleDownloadLocally = () => {
+    const payload: PlanExportPayload = {
+      planTitle: planTitle.trim() || 'Personal Climate Action Plan 2026',
+      baselineTonnes,
+      targetPercent,
+      abatedTonnes: totalAbatedTonnes,
+      netRemainingTonnes,
+      annualSavingsINR,
+      horizonYears,
+      selectedStrategies,
+    };
+    downloadPlanLocally(payload, format);
+  };
+
   // Handle saving the plan to Google Drive
   const handleSaveToDrive = async () => {
-    if (!accessToken) {
-      onLogin();
-      return;
-    }
+    let token = accessToken;
 
-    if (!hasDriveAccess) {
+    // If not connected yet, initiate Google authentication with Drive scope
+    if (!token) {
       setIsRequestingDrive(true);
+      setSaveError(null);
       try {
-        await onRequestDriveAccess();
+        token = await onRequestDriveAccess();
         setHasDriveAccess(true);
       } catch (err: any) {
-        setSaveError(err.message || 'Drive access was not granted.');
+        setSaveError(err.message || 'Google Drive authorization was not granted.');
         setIsRequestingDrive(false);
         return;
       }
       setIsRequestingDrive(false);
+    }
+
+    if (!token) {
+      setSaveError('Google Drive authorization token is required to save to Drive.');
+      return;
     }
 
     setIsSaving(true);
@@ -170,7 +191,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     };
 
     try {
-      const savedFile = await savePlanToGoogleDrive(accessToken, payload, format);
+      const savedFile = await savePlanToGoogleDrive(token, payload, format);
       setSaveSuccessFile(savedFile);
       fireCelebrationConfetti();
       // Refresh list of plans
@@ -178,7 +199,16 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     } catch (err: any) {
       console.error('Error saving plan to Google Drive:', err);
       if (err.message === 'UNAUTHORIZED_EXPIRED_TOKEN') {
-        setSaveError('Session expired. Please reconnect your Google Drive account.');
+        try {
+          const freshToken = await onRequestDriveAccess();
+          const savedFile = await savePlanToGoogleDrive(freshToken, payload, format);
+          setSaveSuccessFile(savedFile);
+          fireCelebrationConfetti();
+          fetchExistingPlans();
+          return;
+        } catch (retryErr: any) {
+          setSaveError('Session expired. Please reconnect your Google Drive account.');
+        }
       } else {
         setSaveError(err.message || 'Failed to save file to Google Drive');
       }
@@ -543,25 +573,36 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
               </div>
             </div>
 
-            {/* Save Button */}
-            <div className="pt-2">
+            {/* Action Buttons: Google Drive & Local Download */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <button
                 id="save-plan-to-drive-btn"
                 onClick={handleSaveToDrive}
                 disabled={isSaving || isRequestingDrive || selectedStrategies.length === 0}
-                className="w-full py-3.5 px-6 bg-[#1D2B17] dark:bg-[#4A6741] hover:bg-[#2E4726] dark:hover:bg-[#3B5334] text-white font-bold text-sm rounded-2xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="py-3.5 px-5 bg-[#1D2B17] dark:bg-[#4A6741] hover:bg-[#2E4726] dark:hover:bg-[#3B5334] text-white font-bold text-xs sm:text-sm rounded-2xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSaving || isRequestingDrive ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>{isRequestingDrive ? 'Requesting Drive Access...' : 'Uploading Plan to Google Drive...'}</span>
+                    <span>{isRequestingDrive ? 'Connecting Drive...' : 'Saving to Drive...'}</span>
                   </>
                 ) : (
                   <>
                     <FolderUp className="w-4 h-4" />
-                    <span>Save Plan to Google Drive</span>
+                    <span>Save to Google Drive</span>
                   </>
                 )}
+              </button>
+
+              <button
+                id="download-plan-locally-btn"
+                type="button"
+                onClick={handleDownloadLocally}
+                disabled={selectedStrategies.length === 0}
+                className="py-3.5 px-5 bg-[#F1EFEC] dark:bg-[#1F2E1D] hover:bg-[#E2DFD8] dark:hover:bg-[#2B3F27] text-[#1D2B17] dark:text-[#EEF5ED] font-bold text-xs sm:text-sm rounded-2xl border border-[#D5DDD2] dark:border-[#2F442C] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <Download className="w-4 h-4 text-[#4A6741] dark:text-[#88B080]" />
+                <span>Download {format === 'gdoc' ? 'DOC' : format.toUpperCase()} Locally</span>
               </button>
             </div>
 
