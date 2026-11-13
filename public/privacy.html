@@ -57,17 +57,17 @@
       <h2 id="summary-title">The short version</h2>
       <ul>
         <li>You can use the calculator, solutions hub and planner without signing in. Those numbers are processed in your browser.</li>
-        <li>Signing in with Google is optional. If you do, we receive your name, email address, profile photo and a Google account ID.</li>
-        <li>Saving to Google Drive only creates files you ask us to create. We can't see the rest of your Drive.</li>
+        <li>Signing in with Google is optional. If you do, we receive your name, email address, profile photo and a Google account ID, and Google asks you to let CarbonZero create files in your Drive.</li>
+        <li>We only create the plan files you ask us to save. We can't see the rest of your Drive.</li>
         <li>We don't sell your data, show ads, or use tracking or analytics cookies.</li>
         <li>You can disconnect CarbonZero from your Google Account at any time, and email us to delete what we hold.</li>
       </ul>
     </section>
 
-    <ol class="toc">
+    <nav aria-label="Contents"><ol class="toc">
       <li><a href="#collect">1. Information we collect</a></li>
       <li><a href="#use">2. How we use information</a></li>
-      <li><a href="#google">3. Google user data</a></li>
+      <li><a href="#google">3. How we handle Google user data</a></li>
       <li><a href="#share">4. Sharing and service providers</a></li>
       <li><a href="#storage">5. Cookies and browser storage</a></li>
       <li><a href="#retention">6. Retention and deletion</a></li>
@@ -77,7 +77,7 @@
       <li><a href="#international">10. Where data is processed</a></li>
       <li><a href="#changes">11. Changes to this policy</a></li>
       <li><a href="#contact">12. Contact us</a></li>
-    </ol>
+    </ol></nav>
 
     <h2 id="collect">1. Information we collect</h2>
 
@@ -85,28 +85,30 @@
     <p>
       The figures you enter (for example electricity use, LPG, vehicle mileage, flights and diet) and the plan
       you build are processed in your browser to calculate your results. We don't send them to our servers or
-      store them in a database. They leave your device only when you choose to export a plan, save it to
-      Google Drive, or type them into the AI assistant.
+      store them in a database. They leave your device only when you choose to save your plan to Google Drive
+      or type them into the AI assistant. Downloading a plan saves the file directly to your device.
     </p>
 
-    <h3>b. Google sign-in (optional)</h3>
+    <h3>b. Google sign-in (optional, 18+)</h3>
     <p>
-      If you choose “Connect” or “Sign in with Google”, we use Firebase Authentication (a Google service) to
-      sign you in. We receive your <strong>name, email address, profile photo URL and a unique Google account
+      If you choose “Sign in with Google”, “Connect Google Drive”, “Log In” or “Save to Google Drive”, we use
+      Firebase Authentication (a Google service) to sign you in with Google. We receive your <strong>name, email address, profile photo URL and a unique Google account
       identifier</strong>. Firebase keeps a user record for our project (including sign-in dates), and keeps
-      you signed in using your browser’s storage. We use this information only to show that you are signed in,
-      to label the plans you save, and to keep your assistant conversation linked to your account.
+      you signed in using your browser’s storage. We use this information only to show that you are signed in
+      (your name and photo in the navigation bar) and to link your saved assistant conversation to your account
+      ID. We don’t display or otherwise use your email address.
     </p>
 
     <h3>c. Google Drive (optional)</h3>
     <p>
-      When you choose to save a plan to Google Drive, we ask for the
-      <code>drive.file</code> permission, which only lets CarbonZero work with files that CarbonZero itself
-      creates (or that you explicitly open with it). With that permission we:
+      When you sign in, Google also asks you to grant the <code>drive.file</code> permission, which only lets
+      CarbonZero work with files that CarbonZero itself creates (or that you explicitly open with it). With that
+      permission we:
     </p>
     <ul>
-      <li>create your reduction plan as a new file in your Drive; and</li>
-      <li>list the names, dates and links of plan files CarbonZero created, so you can find your earlier plans.</li>
+      <li>create your reduction plan as a new file in your Drive when you choose to save it; and</li>
+      <li>when you open the Save to Drive page, list basic details (name, file type, size, description,
+        thumbnail, dates and link) of the plan files CarbonZero created, so you can find your earlier plans.</li>
     </ul>
     <p>
       We cannot see, read, change or delete any other files in your Drive. The temporary access token Google
@@ -119,8 +121,10 @@
       If you use the CarbonZero assistant, the messages you type and the conversation so far are sent through
       our server (a Vercel serverless function) to Google’s Gemini API to generate a reply. We don’t send your
       name, email address or Google Drive content to Gemini. If you are signed in, the conversation is also
-      saved to Cloud Firestore under your account, where our security rules allow only you to read or write it.
-      Please don’t share sensitive personal information in the chat.
+      saved to Cloud Firestore under your account ID (your messages, the assistant’s replies and their
+      timestamps), where our security rules allow only your account to read or write it. Each new conversation
+      replaces the previous copy, and CarbonZero does not currently show saved conversations back to you; email
+      us for a copy or to delete it. Please don’t share sensitive personal information in the chat.
     </p>
 
     <h3>e. Technical data</h3>
@@ -136,8 +140,8 @@
     <ul>
       <li>calculate and display your footprint, plan and results;</li>
       <li>sign you in and show your account in the navigation bar;</li>
-      <li>save your plan to your Google Drive and show your previously saved plans when you ask;</li>
-      <li>answer your questions in the AI assistant and keep your conversation for you while signed in; and</li>
+      <li>save your plan to your Google Drive and show your previously saved plans on the Save to Drive page;</li>
+      <li>answer your questions in the AI assistant and, while you are signed in, keep a copy of your latest conversation under your account; and</li>
       <li>keep the Service working, secure and free of abuse.</li>
     </ul>
     <p>
@@ -156,12 +160,12 @@
       <li>We use your Google profile information and Drive access only to provide the user-facing features described above.</li>
       <li>We don’t transfer Google user data to others except as needed to provide those features, to comply with the law, or with your explicit consent.</li>
       <li>We don’t use Google user data for advertising, and we don’t sell it.</li>
-      <li>We don’t let humans read Google user data unless you ask us to (for example in a support request), it is needed for security or to comply with the law.</li>
+      <li>We don’t let humans read Google user data unless you first agree to it for specific data (for example in a support request), or it is necessary for security purposes (such as investigating a bug or abuse) or to comply with applicable law.</li>
       <li>We don’t use Google user data to develop, improve or train generalised AI or machine-learning models.</li>
     </ul>
 
     <h2 id="share">4. Sharing and service providers</h2>
-    <p>We share information only with the providers that run the Service for us, and only so they can do that:</p>
+    <p>We share information with the providers that run the Service for us, only so they can do that, and in the limited legal and safety cases described below:</p>
     <div class="table-wrap">
       <table>
         <thead>
@@ -181,12 +185,12 @@
           <tr>
             <td>Google (Drive API)</td>
             <td>Creates and lists the plan files you save</td>
-            <td>The plan you save; names and links of CarbonZero-created files</td>
+            <td>The plan you save; basic details of CarbonZero-created files</td>
           </tr>
           <tr>
             <td>Google (Gemini API)</td>
             <td>Generates AI assistant replies</td>
-            <td>The chat messages you send</td>
+            <td>The chat messages you send and the conversation so far (including the assistant’s replies)</td>
           </tr>
           <tr>
             <td>Vercel</td>
@@ -220,7 +224,7 @@
       <li><strong>Calculator and planner inputs</strong> stay in your browser and are cleared when you close or reload the page.</li>
       <li><strong>Plan files in Google Drive</strong> belong to you and stay there until you delete them in Drive. Disconnecting CarbonZero does not delete them.</li>
       <li><strong>Drive access tokens</strong> are kept in browser memory only and expire after about an hour.</li>
-      <li><strong>Your account record and saved assistant conversation</strong> are kept while the Service is running so you can return to them. Email us and we will delete them within 30 days. If the project is shut down, we will delete them.</li>
+      <li><strong>Your account record and your most recent assistant conversation</strong> are kept until you ask us to delete them or the project is shut down. Email us and we will delete them within 30 days.</li>
       <li><strong>Hosting logs</strong> are kept by Vercel for a short period under its own retention settings.</li>
     </ul>
     <p>
@@ -239,9 +243,10 @@
 
     <h2 id="children">8. Children</h2>
     <p>
-      CarbonZero is not directed at children under 13, and they should not sign in or use the AI assistant.
-      If you are under 18, please use the Service with the involvement of a parent or guardian. If you believe a
-      child has given us personal information, contact us and we will delete it.
+      You can use the calculator, solutions hub and planner without signing in, at any age. Signing in with
+      Google, saving to Drive and using the AI assistant are intended only for people aged 18 or over. If you are
+      under 18, please don’t sign in or use the assistant. If you believe a child has signed in or given us
+      personal information, contact us and we will delete it.
     </p>
 
     <h2 id="rights">9. Your choices and rights</h2>
@@ -253,9 +258,10 @@
       <li>ask us for a copy of, a correction to, or deletion of the information we hold about you.</li>
     </ul>
     <p>
-      Depending on where you live, including under India’s Digital Personal Data Protection Act, 2023, you may
-      have further rights such as to withdraw consent or to raise a grievance. Email us and we will respond
-      within 30 days.
+      Depending on where you live, you may have further rights. For example, under India’s Digital Personal
+      Data Protection Act, 2023, you can withdraw consent, ask us to correct or erase your personal data,
+      nominate someone to exercise your rights for you, and raise a grievance with us. Email us and we will
+      respond within 30 days.
     </p>
 
     <h2 id="international">10. Where data is processed</h2>
