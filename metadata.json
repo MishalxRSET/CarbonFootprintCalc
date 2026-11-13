@@ -1,0 +1,6 @@
+{
+  "name": "Carbon Footprint Calculator & Reduction Planner",
+  "description": "Comprehensive engineering solutions, emission calculations, reduction blueprints, and interactive 3D Kochi case study simulation (RSET Kakkanad, CIAL, Water Metro, Infopark, Cochin Port & Fort Kochi).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
