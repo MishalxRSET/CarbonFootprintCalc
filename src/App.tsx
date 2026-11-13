@@ -14,18 +14,22 @@ import { OverviewView } from './components/OverviewView';
 import { SolutionsView } from './components/SolutionsView';
 import { CalculatorView } from './components/CalculatorView';
 import { PlannerView } from './components/PlannerView';
-import { DriveFindingsView } from './components/DriveFindingsView';
+import { SavePlanToDriveView } from './components/SavePlanToDriveView';
 import { DesignDocModal } from './components/DesignDocModal';
 import { CommandPalette } from './components/CommandPalette';
-import { FileCode, HardDrive, Leaf, Sparkles } from 'lucide-react';
+import { GuidedTourModal } from './components/GuidedTourModal';
+import { ThemeRippleOverlay } from './components/reactbits';
+import { ThemeProvider } from './context/ThemeContext';
+import { FileCode, Cloud, Leaf, Sparkles, HelpCircle } from 'lucide-react';
 
-export default function App() {
+export function AppContent() {
   const [currentTab, setCurrentTab] = useState<PageTab>('overview');
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isDesignDocOpen, setIsDesignDocOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isGuidedTourOpen, setIsGuidedTourOpen] = useState(false);
 
   // Maintain the active carbon footprint calculation state
   const [currentCalculation, setCurrentCalculation] = useState<CalculationResult>(() =>
@@ -94,7 +98,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F9F6] text-[#2D332B] flex flex-col font-sans selection:bg-[#D9E4D1] selection:text-[#1D2B17]">
+    <div className="min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1] transition-colors duration-300">
+      {/* React Bits Circular Theme Ripple Overlay */}
+      <ThemeRippleOverlay />
+
       {/* Navigation Header */}
       <Navbar
         currentTab={currentTab}
@@ -106,6 +113,7 @@ export default function App() {
         driveConnected={Boolean(accessToken)}
         onOpenDesignDoc={() => setIsDesignDocOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenGuidedTour={() => setIsGuidedTourOpen(true)}
       />
 
       {/* Main View Container with Subtle Framer Motion Transitions */}
@@ -123,6 +131,7 @@ export default function App() {
                 onNavigate={(tab) => setCurrentTab(tab)}
                 onOpenDesignDoc={() => setIsDesignDocOpen(true)}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onOpenGuidedTour={() => setIsGuidedTourOpen(true)}
               />
             </motion.div>
           )}
@@ -171,19 +180,21 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentTab === 'drive_findings' && (
+          {currentTab === 'drive_save' && (
             <motion.div
-              key="drive_findings"
+              key="drive_save"
               initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             >
-              <DriveFindingsView
-                user={user}
+              <SavePlanToDriveView
+                currentCalculation={currentCalculation}
                 accessToken={accessToken}
                 onLogin={handleLogin}
+                onLogout={handleLogout}
                 isLoggingIn={isLoggingIn}
+                onNavigate={(tab) => setCurrentTab(tab)}
               />
             </motion.div>
           )}
@@ -196,6 +207,13 @@ export default function App() {
         onClose={() => setIsDesignDocOpen(false)}
       />
 
+      {/* Interactive Step-by-Step Guided Tour Modal */}
+      <GuidedTourModal
+        isOpen={isGuidedTourOpen}
+        onClose={() => setIsGuidedTourOpen(false)}
+        onNavigate={(tab) => setCurrentTab(tab)}
+      />
+
       {/* Modern Award-Winning Command Palette (Cmd+K) */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
@@ -204,44 +222,93 @@ export default function App() {
         onOpenDesignDoc={() => setIsDesignDocOpen(true)}
       />
 
+      {/* Floating Quick Tour & Help Button */}
+      <div className="fixed bottom-6 right-6 z-30">
+        <button
+          id="floating-quick-tour-btn"
+          type="button"
+          onClick={() => setIsGuidedTourOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#1D2B17] dark:bg-[#2E4726] text-white hover:bg-[#2F472A] dark:hover:bg-[#3E5C34] shadow-xl hover:shadow-2xl border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer text-xs font-bold group"
+          title="Start interactive guided tour"
+        >
+          <Sparkles className="w-4 h-4 text-[#78B169] group-hover:rotate-12 transition-transform" />
+          <span className="hidden sm:inline">Guided Tour</span>
+        </button>
+      </div>
+
       {/* Global Project Footer */}
-      <footer className="bg-white/80 backdrop-blur-md border-t border-[#E0E7DE] mt-16 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#737C70]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-full bg-[#4A6741] text-white flex items-center justify-center shadow-xs">
-              <Leaf className="w-3.5 h-3.5" />
+      <footer className="bg-[#081E11] dark:bg-[#06120A] text-[#c7d8ca] border-t border-[#193822] dark:border-[#14281A] mt-20 py-12 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#65e66d] text-[#081E11] flex items-center justify-center font-bold shadow-xs">
+              <Leaf className="w-4 h-4 text-[#081E11]" />
             </div>
-            <span className="font-semibold text-[#1D2B17]">
-              CarbonZero • Carbon Footprint Reduction & Climate Action Platform
-            </span>
+            <h2 className="text-2xl font-serif font-bold text-white tracking-tight">
+              Carbon<span className="text-[#65e66d]">Zero</span>
+            </h2>
           </div>
 
-          <div className="flex items-center gap-5">
+          <p className="text-sm sm:text-base text-[#c7d8ca] font-medium tracking-wide">
+            Reduce today. Restore tomorrow. Sustain forever.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs">
+            <button
+              onClick={() => setCurrentTab('overview')}
+              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setCurrentTab('calculator')}
+              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
+            >
+              Carbon Calculator
+            </button>
             <button
               onClick={() => setCurrentTab('solutions')}
-              className="text-[#4A6741] hover:text-[#1D2B17] font-semibold flex items-center gap-1.5 transition-colors"
+              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-[#65e66d]" />
               <span>Solutions Hub</span>
             </button>
             <button
-              onClick={() => setIsDesignDocOpen(true)}
-              className="text-[#4A6741] hover:text-[#1D2B17] font-semibold flex items-center gap-1.5 transition-colors"
+              onClick={() => setCurrentTab('planner')}
+              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
             >
-              <FileCode className="w-3.5 h-3.5" />
+              Reduction Planner
+            </button>
+            <button
+              onClick={() => setIsDesignDocOpen(true)}
+              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <FileCode className="w-3.5 h-3.5 text-[#65e66d]" />
               <span>Project Design Document</span>
             </button>
             <button
-              onClick={() => setCurrentTab('drive_findings')}
-              className="text-[#4A6741] hover:text-[#1D2B17] font-semibold flex items-center gap-1.5 transition-colors"
+              onClick={() => setCurrentTab('drive_save')}
+              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <HardDrive className="w-3.5 h-3.5" />
-              <span>CARBON FOOTPRINT REDUCTION.pptx</span>
+              <Cloud className="w-3.5 h-3.5 text-[#65e66d]" />
+              <span>Save Plan to Google Drive</span>
             </button>
-            <span className="text-[#737C70] font-medium text-[11px]">GHG Protocol Standards</span>
+          </div>
+
+          <div className="pt-4 border-t border-white/10 text-xs text-[#8ca890] flex flex-col sm:flex-row items-center justify-between gap-2 max-w-4xl mx-auto">
+            <span>© 2026 Carbon Zero | For a sustainable future</span>
+            <span className="font-mono text-[11px] text-[#789d7d]">Aligned with GHG Protocol Scopes 1, 2 & 3</span>
           </div>
         </div>
       </footer>
     </div>
   );
 }
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+

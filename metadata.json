@@ -1,6 +1,6 @@
 {
   "name": "Carbon Footprint Calculator & Reduction Planner",
-  "description": "Comprehensive carbon footprint calculator, emission reduction blueprints, actionable mitigation pathways, and climate research findings.",
+  "description": "Comprehensive carbon footprint calculator, emission reduction blueprints, actionable mitigation pathways, and Google Drive plan export.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

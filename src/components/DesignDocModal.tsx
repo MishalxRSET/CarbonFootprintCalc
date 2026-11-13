@@ -66,7 +66,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
           {/* Section 1: Problem Domain */}
           <section className="space-y-2">
             <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] text-[#1D2B17] flex items-center justify-center text-xs font-bold font-sans">1</span>
+              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">1</span>
               Assigned Problem Domain: Carbon Footprint Reduction
             </h2>
             <p className="text-[#2D332B]">
@@ -82,7 +82,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
           {/* Section 2: Website Solution */}
           <section className="space-y-2">
             <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] text-[#1D2B17] flex items-center justify-center text-xs font-bold font-sans">2</span>
+              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">2</span>
               Proposed Engineering / IT Solution
             </h2>
             <p className="text-[#2D332B]">
@@ -91,8 +91,8 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
             </p>
             <ul className="list-disc pl-5 space-y-1 text-[#2D332B]">
               <li>
-                <strong>Granular GHG Calculation Engine:</strong> Evaluates Scope 1, 2, and 3 emissions using EPA eGRID factors,
-                thermodynamic combustion calculations, and dietary trophic layer indices.
+                <strong>Granular GHG Calculation Engine:</strong> Evaluates Scope 1, 2, and 3 emissions using Central Electricity Authority (CEA India: 0.716 kg CO₂/kWh),
+                thermodynamic combustion calculations (LPG cylinders & petrol/diesel), and dietary trophic layer indices.
               </li>
               <li>
                 <strong>Dynamic Reduction Planner:</strong> Simulates intervention roadmaps with interactive target goals (-25% to -80%),
@@ -111,7 +111,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
           {/* Section 3: Technologies Used */}
           <section className="space-y-2">
             <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] text-[#1D2B17] flex items-center justify-center text-xs font-bold font-sans">3</span>
+              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">3</span>
               Technologies & Standards Employed
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
@@ -122,7 +122,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
                 <strong className="text-[#1D2B17]">Cloud Integration:</strong> Google Drive REST API v3, Firebase Client SDK (OAuth 2.0 with drive.readonly scope).
               </div>
               <div className="p-4 bg-[#F7F9F6] border border-[#E0E7DE] rounded-2xl">
-                <strong className="text-[#1D2B17]">Emission Protocols:</strong> Greenhouse Gas Protocol (GHG Protocol Corporate Standard), US EPA GHG Hub.
+                <strong className="text-[#1D2B17]">Emission Protocols:</strong> Greenhouse Gas Protocol (Corporate & Scope 3 Standards), Central Electricity Authority (CEA India) CO₂ Baseline, BEE India.
               </div>
               <div className="p-4 bg-[#F7F9F6] border border-[#E0E7DE] rounded-2xl">
                 <strong className="text-[#1D2B17]">Hosting & Deployment:</strong> Cloud Run Container ingress on port 3000, Vite static asset optimization.
@@ -133,7 +133,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
           {/* Section 4: Expected Sustainability Impact */}
           <section className="space-y-2">
             <h2 className="text-sm sm:text-base font-bold text-[#1D2B17] font-serif border-b border-[#E0E7DE] pb-1.5 flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] text-[#1D2B17] flex items-center justify-center text-xs font-bold font-sans">4</span>
+              <span className="w-5 h-5 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] flex items-center justify-center text-xs font-bold font-sans">4</span>
               Expected Sustainability Impact
             </h2>
             <p className="text-[#2D332B]">
@@ -150,7 +150,7 @@ export const DesignDocModal: React.FC<DesignDocModalProps> = ({ isOpen, onClose 
             <ol className="list-decimal pl-5 space-y-1 text-[#5C6658]">
               <li>IPCC (2023). Climate Change 2023: Synthesis Report. Contribution of Working Groups I, II and III. Geneva, Switzerland.</li>
               <li>WRI & WBCSD (2015). The Greenhouse Gas Protocol: A Corporate Accounting and Reporting Standard.</li>
-              <li>US Environmental Protection Agency (2024). Emissions & Generation Resource Integrated Database (eGRID).</li>
+              <li>Central Electricity Authority (CEA, 2024). CO₂ Baseline Database for the Indian Power Sector, Ministry of Power, New Delhi.</li>
               <li>Poore, J., & Nemecek, T. (2018). Reducing food’s environmental impacts through producers and consumers. <em>Science</em>, 360(6392).</li>
               <li>International Energy Agency (2023). Net Zero Roadmap: A Global Pathway to Keep the 1.5 °C Goal in Reach. Paris.</li>
             </ol>

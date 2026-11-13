@@ -171,8 +171,8 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
               Technical Interventions & Blueprints
             </span>
-            <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#D9E4D1] text-[#1D2B17] border border-[#CCD9C3] flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#4A6741]" />
+            <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] border border-[#CCD9C3] dark:border-[#2F4D33] flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#4A6741] dark:text-[#52e35b]" />
               12 Quantified Climate Solutions
             </span>
             <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F1EFEC] text-[#5C6658] border border-[#E8E4DF]">
@@ -226,18 +226,19 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
       </div>
 
       {/* Dynamic Scale & Context Selector */}
-      <div className="bg-[#F7F9F6] border border-[#E0E7DE] rounded-[32px] p-6 sm:p-7 space-y-4">
+      <div className="bg-[#F7F9F6] dark:bg-[#0E1710] border border-[#E0E7DE] dark:border-[#1E3021] rounded-[32px] p-6 sm:p-7 space-y-4 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851] dark:text-[#CBB58B]">
               Scale Multiplier & Deployment Context
             </span>
-            <h2 className="text-lg font-serif font-bold text-[#1D2B17] mt-0.5">
+            <h2 className="text-lg font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED] mt-0.5">
               Simulate Solutions for Different Operational Scales
             </h2>
           </div>
-          <div className="text-xs text-[#5C6658] sm:text-right">
-            Selected: <strong className="text-[#1D2B17]">{activeScalePreset.label}</strong> ({activeScalePreset.multiplier}x base)
+          <div className="text-xs text-[#5C6658] dark:text-[#A0B89C] sm:text-right">
+            Selected: <strong className="text-[#1D2B17] dark:text-[#52e35b]">{activeScalePreset.label}</strong>{' '}
+            <span className="text-[#737C70] dark:text-[#8E9F8B]">({activeScalePreset.multiplier}x base)</span>
           </div>
         </div>
 
@@ -249,45 +250,47 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                 key={preset.id}
                 id={`scale-preset-${preset.id}-btn`}
                 onClick={() => setActiveScalePreset(preset)}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white border-[#4A6741] shadow-xs ring-2 ring-[#4A6741]/20'
-                    : 'bg-white/70 border-[#E0E7DE] hover:bg-white text-[#5C6658]'
+                    ? 'bg-white dark:bg-[#1A3320] border-[#4A6741] dark:border-[#52e35b] shadow-xs ring-2 ring-[#4A6741]/20 dark:ring-[#52e35b]/30'
+                    : 'bg-white dark:bg-[#132216] border-[#E0E7DE] dark:border-[#223825] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D] text-[#5C6658] dark:text-[#A0B89C]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs font-bold ${isSelected ? 'text-[#1D2B17]' : 'text-[#2D332B]'}`}>
+                  <span className={`text-xs font-bold ${isSelected ? 'text-[#1D2B17] dark:text-[#52e35b]' : 'text-[#2D332B] dark:text-[#EEF5ED]'}`}>
                     {preset.label}
                   </span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-[#4A6741]" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-[#4A6741] dark:text-[#52e35b]" />}
                 </div>
-                <p className="text-[11px] text-[#737C70] leading-snug">{preset.desc}</p>
+                <p className={`text-[11px] leading-snug ${isSelected ? 'text-[#3E5637] dark:text-[#9DD39F]' : 'text-[#737C70] dark:text-[#8E9F8B]'}`}>
+                  {preset.desc}
+                </p>
               </button>
             );
           })}
         </div>
 
         {/* Live Aggregated Impact at Selected Scale */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#E0E7DE] text-xs">
-          <div className="bg-white p-4 rounded-xl border border-[#E0E7DE]">
-            <span className="text-[#737C70] text-[11px] uppercase tracking-wider block">Solutions Matching</span>
-            <span className="text-xl font-bold font-serif text-[#1D2B17]">{aggregateStats.count} Solutions</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#E0E7DE] dark:border-[#1E3021] text-xs">
+          <div className="bg-white dark:bg-[#132216] p-4 rounded-xl border border-[#E0E7DE] dark:border-[#223825]">
+            <span className="text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider block">Solutions Matching</span>
+            <span className="text-xl font-bold font-serif text-[#1D2B17] dark:text-[#EEF5ED]">{aggregateStats.count} Solutions</span>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-[#E0E7DE]">
-            <span className="text-[#737C70] text-[11px] uppercase tracking-wider block">Combined Abatement</span>
-            <span className="text-xl font-bold font-serif text-[#4A6741]">
+          <div className="bg-white dark:bg-[#132216] p-4 rounded-xl border border-[#E0E7DE] dark:border-[#223825]">
+            <span className="text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider block">Combined Abatement</span>
+            <span className="text-xl font-bold font-serif text-[#4A6741] dark:text-[#52e35b]">
               {aggregateStats.totalAbatementTonnes.toLocaleString()} tCO₂e/yr
             </span>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-[#E0E7DE]">
-            <span className="text-[#737C70] text-[11px] uppercase tracking-wider block">Estimated Initial CapEx</span>
-            <span className="text-xl font-bold font-serif text-[#1D2B17]">
+          <div className="bg-white dark:bg-[#132216] p-4 rounded-xl border border-[#E0E7DE] dark:border-[#223825]">
+            <span className="text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider block">Estimated Initial CapEx</span>
+            <span className="text-xl font-bold font-serif text-[#1D2B17] dark:text-[#EEF5ED]">
               {formatINR(aggregateStats.totalCapEx)}
             </span>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-[#E0E7DE]">
-            <span className="text-[#737C70] text-[11px] uppercase tracking-wider block">Annual Utility Savings</span>
-            <span className="text-xl font-bold font-serif text-[#8C7851]">
+          <div className="bg-white dark:bg-[#132216] p-4 rounded-xl border border-[#E0E7DE] dark:border-[#223825]">
+            <span className="text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider block">Annual Utility Savings</span>
+            <span className="text-xl font-bold font-serif text-[#8C7851] dark:text-[#E2C792]">
               {formatINR(aggregateStats.totalAnnualSavings)}/yr
             </span>
           </div>
@@ -299,19 +302,19 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Keyword Search */}
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-[#737C70] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#737C70] dark:text-[#8E9F8B] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               id="solutions-search-input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search solutions (e.g., heat pump, solar, methane, EV, transit, compost)..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E0E7DE] rounded-full text-xs text-[#1D2B17] placeholder-[#A3ADA0] focus:outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741]"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] rounded-full text-xs text-[#1D2B17] dark:text-[#EEF5ED] placeholder-[#A3ADA0] dark:placeholder-[#647861] focus:outline-none focus:ring-2 focus:ring-[#4A6741]/20 dark:focus:ring-[#52e35b]/20 focus:border-[#4A6741] dark:focus:border-[#52e35b]"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#737C70] hover:text-[#1D2B17]"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#737C70] dark:text-[#8E9F8B] hover:text-[#1D2B17] dark:hover:text-white cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -320,15 +323,15 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
 
           {/* Scope Filter Buttons */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 text-xs">
-            <span className="text-[11px] font-bold text-[#8C7851] uppercase tracking-wider mr-1">Scope:</span>
+            <span className="text-[11px] font-bold text-[#8C7851] dark:text-[#CBB58B] uppercase tracking-wider mr-1">Scope:</span>
             {(['All', 'Scope 1', 'Scope 2', 'Scope 3', 'Removal'] as ScopeFilter[]).map((scope) => (
               <button
                 key={scope}
                 onClick={() => setSelectedScope(scope)}
-                className={`px-3 py-1.5 rounded-full font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer ${
                   selectedScope === scope
-                    ? 'bg-[#1D2B17] text-white font-bold'
-                    : 'bg-white border border-[#E0E7DE] text-[#5C6658] hover:bg-[#F1EFEC]'
+                    ? 'bg-[#1D2B17] dark:bg-[#25452B] text-white dark:text-[#52e35b] font-bold border border-[#1D2B17] dark:border-[#38663E]'
+                    : 'bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[#5C6658] dark:text-[#A0B89C] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
                 }`}
               >
                 {scope}
@@ -345,10 +348,10 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
                   isSelected
-                    ? 'bg-[#4A6741] text-white font-bold shadow-xs'
-                    : 'bg-white border border-[#E0E7DE] text-[#5C6658] hover:bg-[#F1EFEC]'
+                    ? 'bg-[#4A6741] dark:bg-[#27532E] text-white dark:text-[#52e35b] font-bold shadow-xs border border-[#4A6741] dark:border-[#3D7846]'
+                    : 'bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[#5C6658] dark:text-[#A0B89C] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
                 }`}
               >
                 {cat !== 'All' && getCategoryIcon(cat as CarbonSolution['category'])}
@@ -403,7 +406,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                           {getCategoryIcon(sol.category)}
                           <span>{sol.category}</span>
                         </span>
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#D9E4D1] text-[#1D2B17] border border-[#CCD9C3]">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] border border-[#CCD9C3] dark:border-[#2F4D33]">
                           {sol.targetScope}
                         </span>
                         <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F7F9F6] text-[#5C6658] border border-[#E0E7DE]">
@@ -411,17 +414,17 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                         </span>
                       </div>
 
-                      <h2 className="text-2xl font-serif font-bold text-[#1D2B17] tracking-tight">
+                      <h2 className="text-2xl font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED] tracking-tight">
                         {sol.title}
                       </h2>
 
                       {/* Problem Statement Box */}
-                      <div className="bg-[#FDF2F0] border border-[#E8C5BE] rounded-xl p-3.5 text-xs text-[#8C3A27] leading-relaxed">
-                        <strong className="font-bold">Problem Addressed: </strong>
+                      <div className="bg-[#FDF2F0] dark:bg-[#2B1714] border border-[#E8C5BE] dark:border-[#4D2620] rounded-xl p-3.5 text-xs text-[#8C3A27] dark:text-[#F3ABA0] leading-relaxed">
+                        <strong className="font-bold text-[#8C3A27] dark:text-[#F3ABA0]">Problem Addressed: </strong>
                         {sol.problemAddressed}
                       </div>
 
-                      <p className="text-xs sm:text-sm text-[#5C6658] leading-relaxed">
+                      <p className="text-xs sm:text-sm text-[#5C6658] dark:text-[#A0B89C] leading-relaxed">
                         {sol.description}
                       </p>
                     </div>
@@ -431,10 +434,10 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                       <button
                         id={`btn-compare-${sol.id}`}
                         onClick={() => toggleCompare(sol.id)}
-                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition-colors border ${
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition-colors border cursor-pointer ${
                           isCompared
-                            ? 'bg-[#1D2B17] text-white border-[#1D2B17]'
-                            : 'bg-white text-[#5C6658] border-[#E0E7DE] hover:bg-[#F1EFEC]'
+                            ? 'bg-[#1D2B17] dark:bg-[#223E27] text-white dark:text-[#52e35b] border-[#1D2B17] dark:border-[#39623F]'
+                            : 'bg-white dark:bg-[#132216] text-[#5C6658] dark:text-[#A0B89C] border-[#E0E7DE] dark:border-[#223825] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
                         }`}
                       >
                         <Scale className="w-3.5 h-3.5" />
@@ -444,7 +447,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                       <button
                         id={`btn-expand-${sol.id}`}
                         onClick={() => setExpandedSolutionId(isExpanded ? null : sol.id)}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#F1EFEC] hover:bg-[#E8E4DF] text-[#1D2B17] rounded-full text-xs font-bold transition-colors border border-[#E8E4DF]"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-[#F1EFEC] dark:bg-[#162719] hover:bg-[#E8E4DF] dark:hover:bg-[#1E3622] text-[#1D2B17] dark:text-[#EEF5ED] rounded-full text-xs font-bold transition-colors border border-[#E8E4DF] dark:border-[#243A27] cursor-pointer"
                       >
                         <span>{isExpanded ? 'Hide Blueprint' : 'View Blueprint'}</span>
                         {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -454,51 +457,51 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
 
                   {/* Quantified Metrics Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
-                    <div className="bg-[#F7F9F6] p-4 rounded-2xl border border-[#E0E7DE] space-y-1">
-                      <div className="flex items-center gap-1 text-[#737C70] text-[11px] uppercase tracking-wider">
-                        <TrendingDown className="w-3.5 h-3.5 text-[#4A6741]" />
+                    <div className="bg-[#F7F9F6] dark:bg-[#111C13] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#1E3021] space-y-1">
+                      <div className="flex items-center gap-1 text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider">
+                        <TrendingDown className="w-3.5 h-3.5 text-[#4A6741] dark:text-[#52e35b]" />
                         <span>Abatement</span>
                       </div>
-                      <p className="text-lg font-serif font-bold text-[#4A6741]">
+                      <p className="text-lg font-serif font-bold text-[#4A6741] dark:text-[#52e35b]">
                         {Number(scaledAbatementTonnes) < 1
                           ? `${scaledAbatementKg.toLocaleString()} kg`
                           : `${scaledAbatementTonnes} tonnes`}{' '}
-                        <span className="text-[11px] font-sans font-normal text-[#737C70]">CO₂e/yr</span>
+                        <span className="text-[11px] font-sans font-normal text-[#737C70] dark:text-[#8E9F8B]">CO₂e/yr</span>
                       </p>
                     </div>
 
-                    <div className="bg-[#F7F9F6] p-4 rounded-2xl border border-[#E0E7DE] space-y-1">
-                      <div className="flex items-center gap-1 text-[#737C70] text-[11px] uppercase tracking-wider">
-                        <span className="font-bold text-[#8C7851] text-xs">₹</span>
+                    <div className="bg-[#F7F9F6] dark:bg-[#111C13] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#1E3021] space-y-1">
+                      <div className="flex items-center gap-1 text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider">
+                        <span className="font-bold text-[#8C7851] dark:text-[#CBB58B] text-xs">₹</span>
                         <span>Investment</span>
                       </div>
-                      <p className="text-lg font-serif font-bold text-[#1D2B17]">
+                      <p className="text-lg font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED]">
                         {formatINR(scaledCapEx)}
-                        <span className="text-[11px] font-sans font-normal text-[#737C70] block">
+                        <span className="text-[11px] font-sans font-normal text-[#737C70] dark:text-[#8E9F8B] block">
                           Tier: {sol.costTier}
                         </span>
                       </p>
                     </div>
 
-                    <div className="bg-[#F7F9F6] p-4 rounded-2xl border border-[#E0E7DE] space-y-1">
-                      <div className="flex items-center gap-1 text-[#737C70] text-[11px] uppercase tracking-wider">
-                        <Sparkles className="w-3.5 h-3.5 text-[#8C7851]" />
+                    <div className="bg-[#F7F9F6] dark:bg-[#111C13] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#1E3021] space-y-1">
+                      <div className="flex items-center gap-1 text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider">
+                        <Sparkles className="w-3.5 h-3.5 text-[#8C7851] dark:text-[#CBB58B]" />
                         <span>Annual Savings</span>
                       </div>
-                      <p className="text-lg font-serif font-bold text-[#8C7851]">
+                      <p className="text-lg font-serif font-bold text-[#8C7851] dark:text-[#E2C792]">
                         {formatINR(scaledSavings)}{' '}
-                        <span className="text-[11px] font-sans font-normal text-[#737C70]">/ year</span>
+                        <span className="text-[11px] font-sans font-normal text-[#737C70] dark:text-[#8E9F8B]">/ year</span>
                       </p>
                     </div>
 
-                    <div className="bg-[#F7F9F6] p-4 rounded-2xl border border-[#E0E7DE] space-y-1">
-                      <div className="flex items-center gap-1 text-[#737C70] text-[11px] uppercase tracking-wider">
-                        <Clock className="w-3.5 h-3.5 text-[#4A6741]" />
+                    <div className="bg-[#F7F9F6] dark:bg-[#111C13] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#1E3021] space-y-1">
+                      <div className="flex items-center gap-1 text-[#737C70] dark:text-[#8E9F8B] text-[11px] uppercase tracking-wider">
+                        <Clock className="w-3.5 h-3.5 text-[#4A6741] dark:text-[#52e35b]" />
                         <span>Payback Period</span>
                       </div>
-                      <p className="text-lg font-serif font-bold text-[#1D2B17]">
+                      <p className="text-lg font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED]">
                         {sol.paybackYears}
-                        <span className="text-[11px] font-sans font-normal text-[#737C70] block">
+                        <span className="text-[11px] font-sans font-normal text-[#737C70] dark:text-[#8E9F8B] block">
                           Ease: {sol.implementationEase}
                         </span>
                       </p>
@@ -508,36 +511,36 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
 
                 {/* Expandable Technical Blueprint & Action Steps */}
                 {isExpanded && (
-                  <div className="border-t border-[#E0E7DE] bg-[#F7F9F6] p-6 sm:p-8 space-y-6">
+                  <div className="border-t border-[#E0E7DE] dark:border-[#1E3021] bg-[#F7F9F6] dark:bg-[#0D180F] p-6 sm:p-8 space-y-6">
                     {/* Mechanism & Science */}
                     <div className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851] dark:text-[#CBB58B]">
                         Engineering & Thermodynamic Principle
                       </span>
-                      <p className="text-xs sm:text-sm text-[#2D332B] leading-relaxed bg-white p-4 rounded-2xl border border-[#E0E7DE]">
+                      <p className="text-xs sm:text-sm text-[#2D332B] dark:text-[#D1E2CF] leading-relaxed bg-white dark:bg-[#132216] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#223825]">
                         {sol.mechanism}
                       </p>
                     </div>
 
                     {/* Step-by-Step 3-Phase Implementation Guide */}
                     <div className="space-y-3">
-                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851]">
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#8C7851] dark:text-[#CBB58B]">
                         3-Phase Engineering Implementation Blueprint
                       </span>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {sol.implementationSteps.map((step, idx) => (
                           <div
                             key={idx}
-                            className="bg-white p-5 rounded-2xl border border-[#E0E7DE] space-y-2 relative"
+                            className="bg-white dark:bg-[#132216] p-5 rounded-2xl border border-[#E0E7DE] dark:border-[#223825] space-y-2 relative"
                           >
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#D9E4D1] text-[#1D2B17] font-bold text-xs">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] font-bold text-xs">
                               {idx + 1}
                             </span>
-                            <h3 className="text-xs font-bold text-[#1D2B17] leading-snug">
+                            <h3 className="text-xs font-bold text-[#1D2B17] dark:text-[#EEF5ED] leading-snug">
                               {step.phase}
                             </h3>
-                            <p className="text-[11px] font-semibold text-[#4A6741]">{step.step}</p>
-                            <p className="text-xs text-[#5C6658] leading-relaxed">{step.details}</p>
+                            <p className="text-[11px] font-semibold text-[#4A6741] dark:text-[#52e35b]">{step.step}</p>
+                            <p className="text-xs text-[#5C6658] dark:text-[#A0B89C] leading-relaxed">{step.details}</p>
                           </div>
                         ))}
                       </div>
@@ -546,39 +549,39 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                     {/* 4-Pillar Pros Matrix for this Solution */}
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-[#4A6741]" />
-                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#1D2B17]">
+                        <ShieldCheck className="w-4 h-4 text-[#4A6741] dark:text-[#52e35b]" />
+                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#1D2B17] dark:text-[#EEF5ED]">
                           Multi-Dimensional Pros (Presentation Slide Deck Alignment)
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                        <div className="bg-white p-4 rounded-2xl border border-[#E0E7DE] space-y-1.5">
-                          <p className="font-bold text-[#1D2B17]">1. Environmental</p>
-                          <p className="text-[#5C6658] text-[11px] leading-relaxed">{sol.pros.environmental}</p>
+                        <div className="bg-white dark:bg-[#132216] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#223825] space-y-1.5">
+                          <p className="font-bold text-[#1D2B17] dark:text-[#EEF5ED]">1. Environmental</p>
+                          <p className="text-[#5C6658] dark:text-[#A0B89C] text-[11px] leading-relaxed">{sol.pros.environmental}</p>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-[#E0E7DE] space-y-1.5">
-                          <p className="font-bold text-[#1D2B17]">2. Economic & ROI</p>
-                          <p className="text-[#5C6658] text-[11px] leading-relaxed">{sol.pros.economic}</p>
+                        <div className="bg-white dark:bg-[#132216] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#223825] space-y-1.5">
+                          <p className="font-bold text-[#1D2B17] dark:text-[#EEF5ED]">2. Economic & ROI</p>
+                          <p className="text-[#5C6658] dark:text-[#A0B89C] text-[11px] leading-relaxed">{sol.pros.economic}</p>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-[#E0E7DE] space-y-1.5">
-                          <p className="font-bold text-[#1D2B17]">3. Public Health</p>
-                          <p className="text-[#5C6658] text-[11px] leading-relaxed">{sol.pros.healthOrSocial}</p>
+                        <div className="bg-white dark:bg-[#132216] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#223825] space-y-1.5">
+                          <p className="font-bold text-[#1D2B17] dark:text-[#EEF5ED]">3. Public Health</p>
+                          <p className="text-[#5C6658] dark:text-[#A0B89C] text-[11px] leading-relaxed">{sol.pros.healthOrSocial}</p>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-[#E0E7DE] space-y-1.5">
-                          <p className="font-bold text-[#1D2B17]">4. Thermodynamic Efficiency</p>
-                          <p className="text-[#5C6658] text-[11px] leading-relaxed">{sol.pros.efficiency}</p>
+                        <div className="bg-white dark:bg-[#132216] p-4 rounded-2xl border border-[#E0E7DE] dark:border-[#223825] space-y-1.5">
+                          <p className="font-bold text-[#1D2B17] dark:text-[#EEF5ED]">4. Thermodynamic Efficiency</p>
+                          <p className="text-[#5C6658] dark:text-[#A0B89C] text-[11px] leading-relaxed">{sol.pros.efficiency}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Co-Benefits & Adoption CTA */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-[#E0E7DE]">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#5C6658]">
-                        <span className="font-bold text-[#1D2B17]">Key Co-Benefits:</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-[#E0E7DE] dark:border-[#1E3021]">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#5C6658] dark:text-[#A0B89C]">
+                        <span className="font-bold text-[#1D2B17] dark:text-[#EEF5ED]">Key Co-Benefits:</span>
                         {sol.coBenefits.map((cb, cbIdx) => (
                           <span
                             key={cbIdx}
-                            className="px-2.5 py-0.5 rounded-full bg-white border border-[#E0E7DE] text-[11px]"
+                            className="px-2.5 py-0.5 rounded-full bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[11px] text-[#2D332B] dark:text-[#D1E2CF]"
                           >
                             ✓ {cb}
                           </span>
@@ -588,7 +591,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                       <button
                         id={`btn-plan-solution-${sol.id}`}
                         onClick={() => onNavigate('planner')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A6741] hover:bg-[#3E5637] text-white rounded-full text-xs font-bold transition-colors shadow-xs shrink-0"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A6741] hover:bg-[#3E5637] dark:bg-[#2F5E36] dark:hover:bg-[#3B7243] text-white rounded-full text-xs font-bold transition-colors shadow-xs shrink-0 cursor-pointer"
                       >
                         <span>Select in Reduction Planner</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -604,25 +607,25 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
 
       {/* Floating Comparison Dock (if solutions selected) */}
       {compareIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 bg-[#1D2B17] text-white px-5 py-3.5 rounded-full shadow-2xl border border-[#3E5637] flex items-center gap-4">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 bg-[#1D2B17] dark:bg-[#132216] text-white px-5 py-3.5 rounded-full shadow-2xl border border-[#3E5637] dark:border-[#2A4D2E] flex items-center gap-4">
           <div className="flex items-center gap-2 text-xs">
-            <Scale className="w-4 h-4 text-[#D9E4D1]" />
+            <Scale className="w-4 h-4 text-[#D9E4D1] dark:text-[#52e35b]" />
             <span>
-              <strong className="font-bold text-[#D9E4D1]">{compareIds.length}</strong> solutions selected to compare
+              <strong className="font-bold text-[#D9E4D1] dark:text-[#52e35b]">{compareIds.length}</strong> solutions selected to compare
             </span>
           </div>
 
           <button
             id="btn-open-comparison-modal"
             onClick={() => setIsCompareModalOpen(true)}
-            className="px-4 py-1.5 bg-[#4A6741] hover:bg-[#3E5637] text-white font-bold text-xs rounded-full transition-colors shadow-xs"
+            className="px-4 py-1.5 bg-[#4A6741] hover:bg-[#3E5637] dark:bg-[#2F5E36] dark:hover:bg-[#3B7243] text-white font-bold text-xs rounded-full transition-colors shadow-xs cursor-pointer"
           >
             Compare Side-by-Side
           </button>
 
           <button
             onClick={() => setCompareIds([])}
-            className="text-white/60 hover:text-white text-xs underline"
+            className="text-white/60 hover:text-white text-xs underline cursor-pointer"
           >
             Clear
           </button>
@@ -631,18 +634,18 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
 
       {/* Side-by-Side Comparison Modal */}
       {isCompareModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#2D332B]/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6">
-          <div className="bg-white rounded-[32px] max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-[#E0E7DE] overflow-hidden">
-            <div className="p-6 border-b border-[#E0E7DE] flex items-center justify-between bg-[#F7F9F6]">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#000000]/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-white dark:bg-[#111C13] rounded-[32px] max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-[#E0E7DE] dark:border-[#1E3021] overflow-hidden">
+            <div className="p-6 border-b border-[#E0E7DE] dark:border-[#1E3021] flex items-center justify-between bg-[#F7F9F6] dark:bg-[#142316]">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#4A6741] text-white flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#4A6741] dark:bg-[#2F5E36] text-white flex items-center justify-center">
                   <Scale className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-serif font-bold text-[#1D2B17]">
+                  <h2 className="text-lg font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED]">
                     Side-by-Side Solution Comparison Matrix
                   </h2>
-                  <p className="text-xs text-[#5C6658]">
+                  <p className="text-xs text-[#5C6658] dark:text-[#A0B89C]">
                     Evaluated at scale: {activeScalePreset.label}
                   </p>
                 </div>
@@ -650,13 +653,13 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
 
               <button
                 onClick={() => setIsCompareModalOpen(false)}
-                className="p-2 text-[#737C70] hover:text-[#1D2B17] hover:bg-[#E8E4DF] rounded-full transition-colors"
+                className="p-2 text-[#737C70] dark:text-[#8E9F8B] hover:text-[#1D2B17] dark:hover:text-white hover:bg-[#E8E4DF] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs text-[#2D332B]">
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs text-[#2D332B] dark:text-[#D1E2CF]">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {comparedSolutions.map((sol) => {
                   const scaledAbatement = (sol.abatementKgPerYear * activeScalePreset.multiplier) / 1000;
@@ -666,52 +669,52 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                   return (
                     <div
                       key={sol.id}
-                      className="bg-[#F7F9F6] p-6 rounded-2xl border border-[#E0E7DE] space-y-4"
+                      className="bg-[#F7F9F6] dark:bg-[#142316] p-6 rounded-2xl border border-[#E0E7DE] dark:border-[#223825] space-y-4"
                     >
                       <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C7851]">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C7851] dark:text-[#CBB58B]">
                           {sol.category} • {sol.targetScope}
                         </span>
-                        <h3 className="text-base font-serif font-bold text-[#1D2B17] leading-snug">
+                        <h3 className="text-base font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED] leading-snug">
                           {sol.title}
                         </h3>
                       </div>
 
-                      <div className="space-y-2 pt-2 border-t border-[#E0E7DE]">
+                      <div className="space-y-2 pt-2 border-t border-[#E0E7DE] dark:border-[#1E3021]">
                         <div className="flex justify-between">
-                          <span className="text-[#737C70]">Annual Abatement:</span>
-                          <strong className="text-[#4A6741]">{scaledAbatement.toFixed(1)} tCO₂e/yr</strong>
+                          <span className="text-[#737C70] dark:text-[#8E9F8B]">Annual Abatement:</span>
+                          <strong className="text-[#4A6741] dark:text-[#52e35b]">{scaledAbatement.toFixed(1)} tCO₂e/yr</strong>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[#737C70]">Initial CapEx:</span>
-                          <strong className="text-[#1D2B17]">{formatINR(scaledCapEx)}</strong>
+                          <span className="text-[#737C70] dark:text-[#8E9F8B]">Initial CapEx:</span>
+                          <strong className="text-[#1D2B17] dark:text-[#EEF5ED]">{formatINR(scaledCapEx)}</strong>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[#737C70]">Annual Savings:</span>
-                          <strong className="text-[#8C7851]">{formatINR(scaledSavings)}/yr</strong>
+                          <span className="text-[#737C70] dark:text-[#8E9F8B]">Annual Savings:</span>
+                          <strong className="text-[#8C7851] dark:text-[#E2C792]">{formatINR(scaledSavings)}/yr</strong>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[#737C70]">Payback Timeline:</span>
-                          <strong className="text-[#1D2B17]">{sol.paybackYears}</strong>
+                          <span className="text-[#737C70] dark:text-[#8E9F8B]">Payback Timeline:</span>
+                          <strong className="text-[#1D2B17] dark:text-[#EEF5ED]">{sol.paybackYears}</strong>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[#737C70]">Feasibility:</span>
-                          <strong className="text-[#1D2B17]">{sol.implementationEase}</strong>
+                          <span className="text-[#737C70] dark:text-[#8E9F8B]">Feasibility:</span>
+                          <strong className="text-[#1D2B17] dark:text-[#EEF5ED]">{sol.implementationEase}</strong>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[#737C70]">TRL Level:</span>
-                          <strong className="text-[#1D2B17]">TRL {sol.trlLevel}</strong>
+                          <span className="text-[#737C70] dark:text-[#8E9F8B]">TRL Level:</span>
+                          <strong className="text-[#1D2B17] dark:text-[#EEF5ED]">TRL {sol.trlLevel}</strong>
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-[#E0E7DE] space-y-1">
-                        <p className="font-bold text-[#1D2B17] text-[11px]">Primary Mechanism:</p>
-                        <p className="text-[11px] text-[#5C6658] leading-relaxed">{sol.mechanism}</p>
+                      <div className="pt-2 border-t border-[#E0E7DE] dark:border-[#1E3021] space-y-1">
+                        <p className="font-bold text-[#1D2B17] dark:text-[#EEF5ED] text-[11px]">Primary Mechanism:</p>
+                        <p className="text-[11px] text-[#5C6658] dark:text-[#A0B89C] leading-relaxed">{sol.mechanism}</p>
                       </div>
 
-                      <div className="pt-2 border-t border-[#E0E7DE] space-y-1">
-                        <p className="font-bold text-[#1D2B17] text-[11px]">Environmental Pro:</p>
-                        <p className="text-[11px] text-[#5C6658] leading-relaxed">{sol.pros.environmental}</p>
+                      <div className="pt-2 border-t border-[#E0E7DE] dark:border-[#1E3021] space-y-1">
+                        <p className="font-bold text-[#1D2B17] dark:text-[#EEF5ED] text-[11px]">Environmental Pro:</p>
+                        <p className="text-[11px] text-[#5C6658] dark:text-[#A0B89C] leading-relaxed">{sol.pros.environmental}</p>
                       </div>
 
                       <button
@@ -719,7 +722,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
                           setIsCompareModalOpen(false);
                           onNavigate('planner');
                         }}
-                        className="w-full py-2 bg-[#4A6741] hover:bg-[#3E5637] text-white rounded-full text-xs font-bold transition-colors"
+                        className="w-full py-2 bg-[#4A6741] hover:bg-[#3E5637] dark:bg-[#2F5E36] dark:hover:bg-[#3B7243] text-white rounded-full text-xs font-bold transition-colors cursor-pointer"
                       >
                         Select in Planner
                       </button>
@@ -729,10 +732,10 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-[#E0E7DE] bg-[#F7F9F6] flex justify-end">
+            <div className="p-4 border-t border-[#E0E7DE] dark:border-[#1E3021] bg-[#F7F9F6] dark:bg-[#142316] flex justify-end">
               <button
                 onClick={() => setIsCompareModalOpen(false)}
-                className="px-5 py-2 bg-[#1D2B17] text-white rounded-full text-xs font-semibold hover:bg-[#2D332B]"
+                className="px-5 py-2 bg-[#1D2B17] dark:bg-[#223E27] text-white dark:text-[#EEF5ED] rounded-full text-xs font-semibold hover:bg-[#2D332B] dark:hover:bg-[#2E5034] cursor-pointer"
               >
                 Close Comparison
               </button>

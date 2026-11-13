@@ -1,18 +1,64 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
 
 body {
   background-color: #F7F9F6;
   color: #2D332B;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body,
+body.dark {
+  background-color: #0D140C;
+  color: #E2ECE0;
+}
+
+.font-display {
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.025em;
 }
 
 .font-serif {
-  font-family: 'Newsreader', Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .font-mono {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* View Transitions API circular reveal optimization */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-new(root) {
+  z-index: 1;
 }
 
 /* Award-winning bespoke scrollbar */
@@ -32,4 +78,118 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4A6741;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #152214;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2D422B;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #78B169;
+}
+
+/* Cohesive Dark Mode Tokens for Clean, High-Contrast Theming */
+.dark .bg-white {
+  background-color: #141E13 !important;
+}
+
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background-color: rgba(20, 30, 19, 0.88) !important;
+}
+
+.dark .hover\:bg-white:hover {
+  background-color: #1A2E1D !important;
+}
+
+.dark .hover\:bg-white\/20:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .bg-\[\#F7F9F6\] {
+  background-color: #0E160D !important;
+}
+
+.dark .bg-\[\#FCFDFB\] {
+  background-color: #111A10 !important;
+}
+
+.dark .bg-\[\#F1EFEC\] {
+  background-color: #1A2619 !important;
+}
+
+.dark .bg-\[\#F1EFEC\]\/80 {
+  background-color: rgba(26, 38, 25, 0.85) !important;
+}
+
+.dark .bg-\[\#D9E4D1\] {
+  background-color: #1A301D !important;
+  color: #65e66d !important;
+}
+
+.dark .bg-\[\#E8EFE5\] {
+  background-color: #142817 !important;
+  color: #72ec7b !important;
+}
+
+.dark .border-\[\#E0E7DE\] {
+  border-color: #263824 !important;
+}
+
+.dark .border-\[\#CCD9C3\] {
+  border-color: #31472E !important;
+}
+
+.dark .border-\[\#E8E4DF\] {
+  border-color: #263824 !important;
+}
+
+.dark .text-\[\#1D2B17\] {
+  color: #EEF5ED !important;
+}
+
+.dark .text-\[\#2D332B\] {
+  color: #DDE7DB !important;
+}
+
+.dark .text-\[\#5C6658\] {
+  color: #9DB099 !important;
+}
+
+.dark .text-\[\#737C70\] {
+  color: #839580 !important;
+}
+
+/* Form Controls & Inputs in Dark Mode */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark select,
+.dark textarea {
+  background-color: #121C11 !important;
+  color: #EFF6EE !important;
+  border-color: #2A3E28 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #637560 !important;
+}
+
+/* Recharts Dark Adaptation */
+.dark .recharts-cartesian-grid line {
+  stroke: #223320 !important;
+}
+
+.dark .recharts-text {
+  fill: #8EA08A !important;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: #152214 !important;
+  border-color: #2D422B !important;
+  color: #EFF6EE !important;
 }

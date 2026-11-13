@@ -195,7 +195,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
     title: 'Multimodal Transit, Bus Rapid Transit & E-Micromobility',
     problemAddressed: 'Single-occupancy private vehicular congestion causing excessive idle emissions, gridlock fuel burn, and high embedded transportation infrastructure carbon.',
     description: 'Integrate electric micro-mobility (e-bikes, e-scooters) for first/last mile connectivity, paired with electrified commuter rail, bus rapid transit (BRT), and carpool pools.',
-    mechanism: 'Shared passenger occupancy corridors divide vehicle embodied energy and rolling friction across dozens to hundreds of passengers per transit-mile.',
+    mechanism: 'Shared passenger occupancy corridors divide vehicle embodied energy and rolling friction across dozens to hundreds of passengers per passenger-km.',
     targetScope: 'Scope 1',
     abatementKgPerYear: 980,
     scaleMultiplierUnit: 'Commuter / Individual',
@@ -211,7 +211,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
       environmental: 'Cuts per-passenger commuter carbon emissions by 75–92% compared to single-occupant passenger sedan travel.',
       economic: 'Saves between ₹45,000 and ₹95,000 annually across reduced fuel consumption, highway tolls, parking fees, and vehicle depreciation.',
       healthOrSocial: 'Active walking and cycling fulfills WHO recommended cardiovascular activity (150 min/wk), directly combating obesity and chronic heart disease.',
-      efficiency: 'E-bikes achieve the highest thermodynamic passenger efficiency of any powered transportation mode (~20 watt-hours per passenger mile).',
+      efficiency: 'E-bikes achieve the highest thermodynamic passenger efficiency of any powered transportation mode (~12 watt-hours per passenger km).',
     },
     implementationSteps: [
       {
@@ -278,7 +278,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
       },
     ],
     coBenefits: [
-      'Spares global water reserves (1 lb of beef requires ~1,800 gallons of water)',
+      'Spares global water reserves (1 kg of beef requires ~15,000 litres of water)',
       'Substantially mitigates eutrophication of freshwater lakes and ocean dead zones',
       'Directly combats antibiotic resistance driven by prophylactic livestock dosing',
     ],
@@ -499,7 +499,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
       {
         phase: 'Phase 1: Site Solar Shading & Soil Testing',
         step: 'Microclimate Mapping & Species Selection',
-        details: 'Select drought-tolerant, non-invasive native climax canopy trees suitable for USDA hardiness zone; avoid proximity to underground sewer lines.',
+        details: 'Select drought-tolerant, indigenous native climax canopy trees suitable for Indian agro-climatic zones (e.g. Neem, Peepal, Banyan, Jamun); avoid proximity to underground sewer lines.',
       },
       {
         phase: 'Phase 2: Soil Inoculation & Biochar Amendment',
@@ -513,7 +513,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
       },
     ],
     coBenefits: [
-      'Intercepts thousands of gallons of stormwater, mitigating municipal flash flooding',
+      'Intercepts thousands of litres of stormwater, mitigating urban monsoon waterlogging',
       'Dramatically improves mental health and psychological restoration in urban zones',
       'Provides high-value long-term timber and pollinator blossom nectar',
     ],
@@ -523,7 +523,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
     category: 'Sustainable Mobility',
     title: 'Intercity Rail Transit & High-Definition Remote Presence',
     problemAddressed: 'High-altitude short-haul aviation emissions that produce intense radiative forcing through contrail cirrus ice crystals, NOx ozone creation, and jet fuel burn.',
-    description: 'Substitute domestic regional flights (<500 miles) with electrified intercity rail or high-definition telepresence platforms for corporate and academic symposia.',
+    description: 'Substitute domestic regional flights (<800 km) with electrified intercity rail (Vande Bharat, Shatabdi) or high-definition telepresence platforms for corporate and academic symposia.',
     mechanism: 'Steel-wheel-on-steel-rail physical friction is 85% lower than aerodynamic drag of aircraft; electrified rail directly uses decarbonized grid electricity.',
     targetScope: 'Scope 3',
     abatementKgPerYear: 1500,
@@ -545,8 +545,8 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
     implementationSteps: [
       {
         phase: 'Phase 1: Travel Policy & Corridor Identification',
-        step: 'Sub-500 Mile Route Triage',
-        details: 'Audit organizational and personal travel; identify domestic routes where high-speed rail travel time is within 3 hours of total airport flight time.',
+        step: 'Regional Corridor Triage (<800 km)',
+        details: 'Audit organizational and personal travel; identify domestic routes where electrified intercity rail (e.g. Vande Bharat, Shatabdi) travel time is competitive with total airport transit time.',
       },
       {
         phase: 'Phase 2: Telepresence Infrastructure Upgrade',
@@ -556,7 +556,7 @@ export const COMPREHENSIVE_SOLUTIONS: CarbonSolution[] = [
       {
         phase: 'Phase 3: Train-First Institutional Protocol',
         step: 'Green Procurement Travel Mandate',
-        details: 'Adopt institutional travel policy prioritizing train travel for all journeys under 400 miles, tracking averted aviation GHG emissions.',
+        details: 'Adopt institutional travel policy prioritizing train travel for all journeys under 650 km (e.g. Vande Bharat / Shatabdi rail corridors), tracking averted aviation GHG emissions.',
       },
     ],
     coBenefits: [

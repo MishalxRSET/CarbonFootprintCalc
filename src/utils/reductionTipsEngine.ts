@@ -45,7 +45,7 @@ export function generatePrioritizedTips(calculation: CalculationResult): SmartRe
       estimatedReductionKg: Math.round(breakdown.transport * 0.42),
       estimatedSavingsINR: Math.round(breakdown.transport * 0.42 * 22),
       roiMonths: 'Immediate',
-      tacticalAction: 'Replacing solo ICE commutes with electric 2-wheelers or rapid rail transit removes ~8.89 kg CO₂ per gallon saved.',
+      tacticalAction: 'Replacing solo ICE car commutes with electric 2-wheelers, Metro, or suburban rail removes ~2.31 kg CO₂ per litre of petrol saved.',
       scientificReasoning: 'ICE automobiles suffer 75-80% thermal energy losses in urban traffic. Electrified or shared transit reduces per-passenger emissions by up to 78%.',
     });
   }
@@ -62,7 +62,7 @@ export function generatePrioritizedTips(calculation: CalculationResult): SmartRe
       estimatedReductionKg: Math.round(breakdown.energy * 0.65),
       estimatedSavingsINR: Math.round(breakdown.energy * 0.65 * 12),
       roiMonths: '3.5–4 years',
-      tacticalAction: 'Install grid-tied rooftop solar (3–5 kWp). Net-metering offsets the 0.82 kg/kWh thermal grid factor.',
+      tacticalAction: 'Install grid-tied rooftop solar (2–4 kWp). Net-metering offsets the 0.716 kg/kWh CEA Indian thermal grid factor.',
       scientificReasoning: 'Central coal/gas generation loses substantial power over long transmission. Local rooftop solar generates zero-marginal-cost renewable power during peak daytime hours.',
     });
 

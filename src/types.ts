@@ -1,4 +1,4 @@
-export type PageTab = 'overview' | 'solutions' | 'calculator' | 'planner' | 'drive_findings' | 'designdoc';
+export type PageTab = 'overview' | 'solutions' | 'calculator' | 'planner' | 'drive_save' | 'designdoc';
 
 export interface ScopeEmissions {
   scope1: number; // Direct emissions (fuel, vehicle)
@@ -7,17 +7,17 @@ export interface ScopeEmissions {
 }
 
 export interface EmissionInputs {
-  // Energy (Scope 2 & 1)
+  // Energy (Scope 2 & 1) - Calibrated for Indian Households
   electricityKwhPerMonth: number;
-  naturalGasThermPerMonth: number;
+  naturalGasThermPerMonth: number; // In India: Monthly domestic cooking gas (LPG 14.2kg cylinders / PNG SCM)
   cleanEnergyPercentage: number;
   
-  // Transport (Scope 1 & 3)
-  gasolineCarMilesPerWeek: number;
-  carFuelEfficiencyMpg: number;
-  publicTransitMilesPerWeek: number;
-  shortHaulFlightsPerYear: number;
-  longHaulFlightsPerYear: number;
+  // Transport (Scope 1 & 3) - Metric (km & km/L)
+  gasolineCarMilesPerWeek: number; // In India: Weekly commute distance in km
+  carFuelEfficiencyMpg: number; // In India: Fuel economy in km/L (kilometres per litre / mileage)
+  publicTransitMilesPerWeek: number; // In India: Weekly Metro/Rail/Bus transit in km
+  shortHaulFlightsPerYear: number; // Domestic flights within India (< 2.5 hrs)
+  longHaulFlightsPerYear: number; // International flights (> 3 hrs)
   
   // Lifestyle & Consumption (Scope 3)
   dietType: 'heavy_meat' | 'medium_meat' | 'pescatarian' | 'vegetarian' | 'vegan';
@@ -42,6 +42,7 @@ export interface CalculationResult {
   scopes: ScopeEmissions;
   treesEquivalentToOffset: number;
   carMilesEquivalent: number;
+  carKmEquivalent?: number;
   nationalAverageBenchmarkTonnes: number;
   globalTargetTonnes: number;
   percentileRank: number;
@@ -54,6 +55,7 @@ export interface ReductionStrategy {
   description: string;
   potentialReductionKgCO2e: number;
   costEstimate: 'Free' | 'Low (₹)' | 'Moderate (₹₹)' | 'High (₹₹₹)';
+  targetScope?: string;
   paybackPeriod: string;
   implementationEase: 'Easy' | 'Medium' | 'Complex';
   pros: {
