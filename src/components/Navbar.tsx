@@ -60,36 +60,38 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#09140C]/90 backdrop-blur-xl border-b border-[#E3EAE0] dark:border-[#1A2C1D] shadow-xs transition-colors">
       {/* Top Atmospheric Telemetry Ribbon */}
-      <div className="bg-[#08150B] dark:bg-[#040C07] text-[#9CB395] py-1.5 px-4 text-[11px] font-mono border-b border-[#1A2C1D] overflow-x-auto select-none">
-        <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-6">
-          <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-            <span className="flex items-center gap-1.5 text-[#B6CCB0]">
+      <div className="bg-[#08150B] dark:bg-[#040C07] text-[#9CB395] py-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-mono border-b border-[#1A2C1D] select-none no-scrollbar overflow-x-auto">
+        <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-2 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0 truncate">
+            <span className="flex items-center gap-1.5 text-[#B6CCB0] shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-[#52e35b] animate-pulse" />
-              <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">Mauna Loa CO₂</span>
+              <span className="hidden sm:inline text-[10px] text-[#7A9374] uppercase tracking-wider">Mauna Loa </span>
+              <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">CO₂</span>
               <strong className="text-white font-semibold">426.8 ppm</strong>
-              <span className="text-[#8C7851] text-[10px] hidden sm:inline">(+2.4/yr)</span>
+              <span className="text-[#8C7851] text-[10px] hidden md:inline">(+2.4/yr)</span>
             </span>
 
             <span className="text-[#203422]">|</span>
 
-            <span className="flex items-center gap-1.5 text-[#B6CCB0]">
-              <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">Temp Anomaly</span>
+            <span className="flex items-center gap-1.5 text-[#B6CCB0] shrink-0">
+              <span className="hidden sm:inline text-[10px] text-[#7A9374] uppercase tracking-wider">Temp Anomaly</span>
+              <span className="sm:hidden text-[10px] text-[#7A9374] uppercase tracking-wider">Anomaly</span>
               <strong className="text-[#FFAAA0] font-semibold">+1.48°C</strong>
             </span>
 
             <span className="hidden md:inline text-[#203422]">|</span>
 
-            <span className="hidden md:flex items-center gap-1.5 text-[#B6CCB0]">
+            <span className="hidden md:flex items-center gap-1.5 text-[#B6CCB0] shrink-0">
               <span className="text-[10px] text-[#7A9374] uppercase tracking-wider">1.5°C Budget</span>
               <strong className="text-white font-semibold">215 GtCO₂e</strong>
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Ambient Soundscape Button */}
             <button
               onClick={toggleSound}
-              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#D4E3D1] transition-all cursor-pointer"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full bg-[#132014] hover:bg-[#1E301F] border border-[#243825] text-[#D4E3D1] transition-all cursor-pointer"
               title={isPlayingSound ? 'Mute biospheric soundscape' : 'Listen to generative ambient soundscape'}
             >
               {isPlayingSound ? (
@@ -99,12 +101,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span className="w-0.5 h-3 bg-[#52e35b] animate-bounce" style={{ animationDelay: '150ms' }} />
                     <span className="w-0.5 h-1.5 bg-[#52e35b] animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-[10px] font-semibold text-[#52e35b] tracking-wider">SOUND ON</span>
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-[#52e35b] tracking-wider">ON</span>
                 </>
               ) : (
                 <>
                   <VolumeX className="w-3 h-3 text-[#6A7F66]" />
-                  <span className="text-[10px] text-[#8EA689] tracking-wider">SOUND</span>
+                  <span className="text-[9px] sm:text-[10px] text-[#8EA689] tracking-wider">SOUND</span>
                 </>
               )}
             </button>
@@ -222,15 +224,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          {/* Right Actions: Compact, Spacious, No Text-Wrapping */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right Actions: Compact, Responsive, No Text-Wrapping or Viewport Cutoff */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Quick Tour Button */}
             {onOpenGuidedTour && (
               <button
                 id="btn-nav-guided-tour"
                 type="button"
                 onClick={onOpenGuidedTour}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-700/50 transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-700/50 transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
                 title="Open Interactive Guided Tour"
               >
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-[#52e35b] animate-pulse" />
@@ -246,9 +248,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="btn-search-hud"
               onClick={onOpenCommandPalette}
               title="Search and Jump (Cmd+K)"
-              className="p-2 text-[#556252] dark:text-[#96A893] hover:text-[#142314] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3320] rounded-full transition-colors border border-[#DFE6DC] dark:border-[#223926] bg-white dark:bg-[#132216] shadow-2xs cursor-pointer"
+              className="p-1.5 sm:p-2 text-[#556252] dark:text-[#96A893] hover:text-[#142314] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3320] rounded-full transition-colors border border-[#DFE6DC] dark:border-[#223926] bg-white dark:bg-[#132216] shadow-2xs cursor-pointer"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {/* Design Document Pill Button */}
@@ -264,17 +266,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Google Drive Status / Connect Button */}
             {user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-[#DFE6DC] dark:border-[#223926]">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 border-l border-[#DFE6DC] dark:border-[#223926]">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   {user.photoURL ? (
                     <img
                       src={user.photoURL}
                       alt={user.displayName || 'User'}
                       referrerPolicy="no-referrer"
-                      className="w-7 h-7 rounded-full border border-emerald-500/30"
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-emerald-500/30"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/30">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[11px] sm:text-xs flex items-center justify-center border border-emerald-500/30">
                       {user.displayName?.charAt(0) || 'U'}
                     </div>
                   )}
@@ -287,9 +289,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   id="btn-user-logout"
                   onClick={onLogout}
                   title="Sign out of Google"
-                  className="p-1.5 text-[#6B7868] dark:text-[#96A893] hover:text-[#142314] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
+                  className="p-1 sm:p-1.5 text-[#6B7868] dark:text-[#96A893] hover:text-[#142314] dark:hover:text-white hover:bg-[#F1EFEC] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
               </div>
             ) : (
@@ -297,7 +299,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 id="btn-google-signin"
                 onClick={onLogin}
                 disabled={isLoggingIn}
-                className="flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-[#132216] border border-[#DFE6DC] dark:border-[#263D2B] hover:border-emerald-500/40 text-[#142314] dark:text-white hover:bg-[#F4F6F2] dark:hover:bg-[#1A2E1C] rounded-full text-xs font-semibold shadow-2xs transition-colors whitespace-nowrap cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 bg-white dark:bg-[#132216] border border-[#DFE6DC] dark:border-[#263D2B] hover:border-emerald-500/40 text-[#142314] dark:text-white hover:bg-[#F4F6F2] dark:hover:bg-[#1A2E1C] rounded-full text-xs font-semibold shadow-2xs transition-colors whitespace-nowrap cursor-pointer shrink-0"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -317,64 +319,67 @@ export const Navbar: React.FC<NavbarProps> = ({
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>{isLoggingIn ? 'Connecting...' : 'Connect Drive'}</span>
+                <span className="hidden sm:inline">{isLoggingIn ? 'Connecting...' : 'Connect Drive'}</span>
+                <span className="sm:hidden text-[11px] font-medium">{isLoggingIn ? '...' : 'Drive'}</span>
               </button>
             )}
           </div>
         </div>
 
         {/* Mobile Navigation Row (under lg screens) */}
-        <div className="flex lg:hidden items-center justify-around py-2.5 border-t border-[#DFE6DC] dark:border-[#1E3021] overflow-x-auto gap-1 text-[11px] select-none">
+        <div className="grid lg:hidden grid-cols-5 items-center py-2 landscape:py-1 px-0.5 sm:px-1 border-t border-[#DFE6DC] dark:border-[#1E3021] gap-1 sm:gap-1.5 text-[10.5px] sm:text-xs select-none w-full">
           <button
             onClick={() => setCurrentTab('overview')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+            className={`w-full py-1.5 landscape:py-1 px-1 rounded-lg sm:rounded-full font-medium whitespace-nowrap text-center transition-colors cursor-pointer truncate ${
               currentTab === 'overview'
                 ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
-                : 'text-[#475544] dark:text-[#CBD8C9]'
+                : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#1D2B17] dark:hover:text-white'
             }`}
           >
             Overview
           </button>
           <button
             onClick={() => setCurrentTab('solutions')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+            className={`w-full py-1.5 landscape:py-1 px-1 rounded-lg sm:rounded-full font-medium whitespace-nowrap text-center transition-colors cursor-pointer truncate ${
               currentTab === 'solutions'
                 ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
-                : 'text-[#475544] dark:text-[#CBD8C9]'
+                : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#1D2B17] dark:hover:text-white'
             }`}
           >
-            Solutions (16)
+            Solutions
           </button>
           <button
             onClick={() => setCurrentTab('calculator')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+            className={`w-full py-1.5 landscape:py-1 px-1 rounded-lg sm:rounded-full font-medium whitespace-nowrap text-center transition-colors cursor-pointer truncate ${
               currentTab === 'calculator'
                 ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
-                : 'text-[#475544] dark:text-[#CBD8C9]'
+                : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#1D2B17] dark:hover:text-white'
             }`}
           >
-            Calculator
+            <span className="hidden sm:inline">Calculator</span>
+            <span className="sm:hidden">Calc</span>
           </button>
           <button
             onClick={() => setCurrentTab('planner')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-colors cursor-pointer ${
+            className={`w-full py-1.5 landscape:py-1 px-1 rounded-lg sm:rounded-full font-medium whitespace-nowrap text-center transition-colors cursor-pointer truncate ${
               currentTab === 'planner'
                 ? 'bg-emerald-600 dark:bg-[#1C3320] text-white dark:text-[#52e35b] font-bold border border-transparent dark:border-[#38663E]'
-                : 'text-[#475544] dark:text-[#CBD8C9]'
+                : 'text-[#475544] dark:text-[#CBD8C9] hover:text-[#1D2B17] dark:hover:text-white'
             }`}
           >
             Planner
           </button>
           <button
             onClick={() => setCurrentTab('drive_save')}
-            className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap flex items-center gap-1 transition-colors cursor-pointer ${
+            className={`w-full py-1.5 landscape:py-1 px-1 rounded-lg sm:rounded-full font-medium whitespace-nowrap flex items-center justify-center gap-1 transition-colors cursor-pointer truncate ${
               currentTab === 'drive_save'
-                ? 'bg-[#142314] dark:bg-[#52e35b] text-white dark:text-[#061408] font-bold'
-                : 'text-emerald-700 dark:text-emerald-400 font-semibold'
+                ? 'bg-[#142314] dark:bg-[#52e35b] text-white dark:text-[#061408] font-bold shadow-xs'
+                : 'text-emerald-700 dark:text-emerald-400 font-semibold hover:text-emerald-800 dark:hover:text-emerald-300'
             }`}
           >
-            <Cloud className="w-3 h-3" />
-            Drive Sync
+            <Cloud className="w-3 h-3 shrink-0" />
+            <span className="hidden sm:inline">Drive Sync</span>
+            <span className="sm:hidden">Drive</span>
           </button>
         </div>
       </div>

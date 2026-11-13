@@ -207,11 +207,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0E170C]/60 backdrop-blur-md flex items-start justify-center pt-20 p-4">
-      <div className="bg-white rounded-[28px] max-w-2xl w-full shadow-2xl border border-[#E0E7DE] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 dark:bg-black/80 backdrop-blur-md flex items-start justify-center pt-6 sm:pt-16 landscape:pt-3 p-2 sm:p-4 landscape-compact-py">
+      <div className="bg-white dark:bg-[#0C170E] rounded-2xl sm:rounded-[28px] max-w-2xl w-full shadow-2xl border border-[#E0E7DE] dark:border-[#1E3021] overflow-hidden animate-in fade-in zoom-in-95 duration-150 modal-landscape-viewport">
         {/* Search Input Bar */}
-        <div className="p-4 sm:p-5 border-b border-[#E0E7DE] flex items-center gap-3 bg-[#F7F9F6]">
-          <Search className="w-5 h-5 text-[#737C70] shrink-0" />
+        <div className="p-3.5 sm:p-5 border-b border-[#E0E7DE] dark:border-[#1E3021] flex items-center gap-2.5 sm:gap-3 bg-[#F7F9F6] dark:bg-[#111F13]">
+          <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#737C70] dark:text-[#8EA689] shrink-0" />
           <input
             autoFocus
             type="text"
@@ -221,20 +221,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               setSelectedIndex(0);
             }}
             placeholder="Type a command, solution (e.g. heat pump, solar), or page..."
-            className="w-full bg-transparent text-sm text-[#1D2B17] placeholder-[#A3ADA0] focus:outline-none font-medium"
+            className="w-full bg-transparent text-xs sm:text-sm text-[#1D2B17] dark:text-white placeholder-[#A3ADA0] dark:placeholder-[#5C725A] focus:outline-none font-medium"
           />
           <button
             onClick={onClose}
-            className="p-1 text-[#737C70] hover:text-[#1D2B17] hover:bg-[#E8E4DF] rounded-full transition-colors"
+            className="p-1 text-[#737C70] dark:text-[#8EA689] hover:text-[#1D2B17] dark:hover:text-white hover:bg-[#E8E4DF] dark:hover:bg-[#1E3320] rounded-full transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Results List */}
-        <div className="max-h-[380px] overflow-y-auto p-3 space-y-1">
+        <div className="max-h-[380px] landscape:max-h-[220px] overflow-y-auto p-2 sm:p-3 space-y-1">
           {filteredCommands.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#737C70]">
+            <div className="py-8 text-center text-xs text-[#737C70] dark:text-[#8EA689]">
               No commands or solutions matching &ldquo;{query}&rdquo;
             </div>
           ) : (
@@ -243,29 +243,29 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 key={cmd.id}
                 onClick={cmd.action}
                 onMouseEnter={() => setSelectedIndex(idx)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all ${
+                className={`w-full flex items-center justify-between p-2.5 sm:p-3 rounded-xl text-left transition-all cursor-pointer ${
                   selectedIndex === idx
-                    ? 'bg-[#F1EFEC] text-[#1D2B17]'
-                    : 'text-[#5C6658] hover:bg-[#F7F9F6]'
+                    ? 'bg-[#F1EFEC] dark:bg-[#1B2F1F] text-[#1D2B17] dark:text-white'
+                    : 'text-[#5C6658] dark:text-[#CBD8C9] hover:bg-[#F7F9F6] dark:hover:bg-[#142317]'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-[#E0E7DE] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white dark:bg-[#111F13] border border-[#E0E7DE] dark:border-[#223926] flex items-center justify-center shrink-0 shadow-2xs">
                     {cmd.icon}
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-[#1D2B17] leading-snug">{cmd.title}</p>
+                  <div className="min-w-0 truncate">
+                    <p className="text-xs font-bold text-[#1D2B17] dark:text-white leading-snug truncate">{cmd.title}</p>
                     {cmd.subtitle && (
-                      <p className="text-[11px] text-[#737C70] truncate max-w-md">{cmd.subtitle}</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#737C70] dark:text-[#8EA689] truncate max-w-md">{cmd.subtitle}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#8C7851] bg-white px-2 py-0.5 rounded border border-[#E0E7DE]">
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[#8C7851] dark:text-[#D1B880] bg-white dark:bg-[#111F13] px-1.5 sm:px-2 py-0.5 rounded border border-[#E0E7DE] dark:border-[#223926]">
                     {cmd.category}
                   </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#A3ADA0]" />
+                  <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#A3ADA0] dark:text-[#5C725A]" />
                 </div>
               </button>
             ))
@@ -273,13 +273,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         {/* Footer info */}
-        <div className="p-3 border-t border-[#E0E7DE] bg-[#F7F9F6] flex items-center justify-between text-[11px] font-mono text-[#737C70]">
-          <div className="flex items-center gap-3">
-            <span><kbd className="px-1.5 py-0.5 bg-white border border-[#E0E7DE] rounded shadow-2xs">↑↓</kbd> navigate</span>
-            <span><kbd className="px-1.5 py-0.5 bg-white border border-[#E0E7DE] rounded shadow-2xs">↵</kbd> select</span>
-            <span><kbd className="px-1.5 py-0.5 bg-white border border-[#E0E7DE] rounded shadow-2xs">esc</kbd> close</span>
+        <div className="p-2.5 sm:p-3 border-t border-[#E0E7DE] dark:border-[#1E3021] bg-[#F7F9F6] dark:bg-[#111F13] flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-[#737C70] dark:text-[#8EA689]">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span><kbd className="px-1.5 py-0.5 bg-white dark:bg-[#192B1C] border border-[#E0E7DE] dark:border-[#263D2B] rounded shadow-2xs">↑↓</kbd> navigate</span>
+            <span><kbd className="px-1.5 py-0.5 bg-white dark:bg-[#192B1C] border border-[#E0E7DE] dark:border-[#263D2B] rounded shadow-2xs">↵</kbd> select</span>
+            <span><kbd className="px-1.5 py-0.5 bg-white dark:bg-[#192B1C] border border-[#E0E7DE] dark:border-[#263D2B] rounded shadow-2xs">esc</kbd> close</span>
           </div>
-          <span className="text-[#4A6741]">CarbonZero HUD v2.4</span>
+          <span className="text-[#4A6741] dark:text-[#52e35b] hidden sm:inline">CarbonZero HUD v2.4</span>
         </div>
       </div>
     </div>

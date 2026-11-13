@@ -37,7 +37,7 @@ interface SolutionsViewProps {
   onNavigate: (tab: PageTab) => void;
 }
 
-type CategoryFilter = 'All' | 'Energy & Electrification' | 'Sustainable Mobility' | 'Diet & Agro-Ecology' | 'Circularity & Waste' | 'Built Environment' | 'Carbon Removal';
+type CategoryFilter = 'All' | 'Energy & Electrification' | 'Built Environment' | 'Sustainable Mobility' | 'Diet & Agro-Ecology' | 'Carbon Removal';
 type ScopeFilter = 'All' | 'Scope 1' | 'Scope 2' | 'Scope 3' | 'Removal';
 
 const SCALE_PRESETS = [
@@ -62,10 +62,9 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
   const categories: CategoryFilter[] = [
     'All',
     'Energy & Electrification',
-    'Sustainable Mobility',
     'Built Environment',
+    'Sustainable Mobility',
     'Diet & Agro-Ecology',
-    'Circularity & Waste',
     'Carbon Removal',
   ];
 
@@ -173,7 +172,7 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
             </span>
             <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-[#D9E4D1] dark:bg-[#1C3320] text-[#1D2B17] dark:text-[#52e35b] border border-[#CCD9C3] dark:border-[#2F4D33] flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#4A6741] dark:text-[#52e35b]" />
-              12 Quantified Climate Solutions
+              5 Flagship Climate Solutions
             </span>
             <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F1EFEC] text-[#5C6658] border border-[#E8E4DF]">
               IPCC AR6 & GHG Protocol Aligned
@@ -322,13 +321,13 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
           </div>
 
           {/* Scope Filter Buttons */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 text-xs">
-            <span className="text-[11px] font-bold text-[#8C7851] dark:text-[#CBB58B] uppercase tracking-wider mr-1">Scope:</span>
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pr-4 pb-1 md:pb-0 text-xs">
+            <span className="text-[11px] font-bold text-[#8C7851] dark:text-[#CBB58B] uppercase tracking-wider mr-1 shrink-0">Scope:</span>
             {(['All', 'Scope 1', 'Scope 2', 'Scope 3', 'Removal'] as ScopeFilter[]).map((scope) => (
               <button
                 key={scope}
                 onClick={() => setSelectedScope(scope)}
-                className={`px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                   selectedScope === scope
                     ? 'bg-[#1D2B17] dark:bg-[#25452B] text-white dark:text-[#52e35b] font-bold border border-[#1D2B17] dark:border-[#38663E]'
                     : 'bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[#5C6658] dark:text-[#A0B89C] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
@@ -341,14 +340,14 @@ export const SolutionsView: React.FC<SolutionsViewProps> = ({ onNavigate }) => {
         </div>
 
         {/* Category Pill Filters */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pr-4 pb-2 text-xs">
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat;
             return (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                   isSelected
                     ? 'bg-[#4A6741] dark:bg-[#27532E] text-white dark:text-[#52e35b] font-bold shadow-xs border border-[#4A6741] dark:border-[#3D7846]'
                     : 'bg-white dark:bg-[#132216] border border-[#E0E7DE] dark:border-[#223825] text-[#5C6658] dark:text-[#A0B89C] hover:bg-[#F1EFEC] dark:hover:bg-[#1A2E1D]'
