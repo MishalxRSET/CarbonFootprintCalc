@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { DecryptedText, ShinyText } from './reactbits';
+import { DecryptedText, ShinyText, StrokeText } from './reactbits';
 import { Leaf } from 'lucide-react';
 
 interface IntroLoaderProps {
@@ -9,10 +9,10 @@ interface IntroLoaderProps {
 
 export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete }) => {
   useEffect(() => {
-    // 3.5 seconds total intro time
+    // 4.5 seconds total intro time
     const timer = setTimeout(() => {
       onComplete();
-    }, 3500);
+    }, 4500);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -34,14 +34,29 @@ export const IntroLoader: React.FC<IntroLoaderProps> = ({ onComplete }) => {
         initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 1, ease: 'easeOut' }}
-        className="flex items-center gap-3 sm:gap-4 z-10"
+        className="flex flex-col items-center gap-6 z-10"
       >
-        <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[#65e66d] flex items-center justify-center font-bold shadow-[0_0_40px_rgba(101,230,109,0.4)]">
-          <Leaf className="w-5 h-5 sm:w-7 sm:h-7 text-[#081E11]" />
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#65e66d] flex items-center justify-center font-bold shadow-[0_0_60px_rgba(101,230,109,0.5)]">
+          <Leaf className="w-8 h-8 sm:w-10 sm:h-10 text-[#081E11]" />
         </div>
-        <h1 className="text-4xl sm:text-6xl font-serif font-bold tracking-tight text-white flex items-center">
-          Carbon<span className="text-[#65e66d]">Zero</span>
-        </h1>
+        
+        <div className="relative w-[300px] sm:w-[450px] flex justify-center">
+          <StrokeText
+            text="CarbonZero"
+            strokeColor="#4A6741"
+            fillColor="#ffffff"
+            strokeWidth={1.2}
+            drawDuration={1.8}
+            fillDelay={0.4}
+            stagger={0.08}
+            ease="power3.inOut"
+            trigger="mount"
+            fillMode="fade"
+            fontSize={64}
+            fontWeight={800}
+            letterSpacing={-2}
+          />
+        </div>
       </motion.div>
 
       {/* High-Tech Telemetry Decrypting Text */}

@@ -10,3 +10,4 @@ export { Iridescence } from './Iridescence';
 export { FluidGlass } from './FluidGlassScene';
 export { BorderGlow } from './BorderGlow';
 export { ChromaGrid } from './ChromaGrid';
+export { default as StrokeText } from './StrokeText';

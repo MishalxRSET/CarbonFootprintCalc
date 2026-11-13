@@ -63,7 +63,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
       {/* Animated Icon Container */}
       <div className="relative w-4 h-4 flex items-center justify-center">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false}>
           {isDark ? (
             <motion.div
               key="dark-moon"
@@ -72,8 +72,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               exit={{ rotate: 90, scale: 0, opacity: 0 }}
               transition={{
                 type: 'spring',
-                stiffness: 350,
-                damping: 22,
+                stiffness: 450,
+                damping: 26,
               }}
               className="absolute inset-0 flex items-center justify-center text-[#78B169]"
             >
@@ -102,8 +102,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               exit={{ rotate: -90, scale: 0, opacity: 0 }}
               transition={{
                 type: 'spring',
-                stiffness: 350,
-                damping: 22,
+                stiffness: 450,
+                damping: 26,
               }}
               className="absolute inset-0 flex items-center justify-center text-amber-600 dark:text-amber-400"
             >
@@ -173,34 +173,33 @@ export const ThemeRippleOverlay: React.FC = () => {
     Math.max(transitionOrigin.x, window.innerWidth - transitionOrigin.x),
     Math.max(transitionOrigin.y, window.innerHeight - transitionOrigin.y)
   );
+  const diameter = Math.ceil(maxRadius * 2.2);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
       <motion.div
         initial={{
-          width: 0,
-          height: 0,
-          opacity: 0.45,
-          x: transitionOrigin.x,
-          y: transitionOrigin.y,
+          scale: 0,
+          opacity: 0.65,
         }}
         animate={{
-          width: maxRadius * 2.2,
-          height: maxRadius * 2.2,
+          scale: 1,
           opacity: 0,
-          x: transitionOrigin.x - maxRadius * 1.1,
-          y: transitionOrigin.y - maxRadius * 1.1,
         }}
         transition={{
-          duration: 0.48,
-          ease: [0.22, 1, 0.36, 1],
+          duration: 0.36,
+          ease: [0.16, 1, 0.3, 1],
         }}
         style={{
+          position: 'absolute',
+          left: transitionOrigin.x - diameter / 2,
+          top: transitionOrigin.y - diameter / 2,
+          width: diameter,
+          height: diameter,
           borderRadius: '50%',
           backgroundColor: isDark ? '#0D140C' : '#F7F9F6',
-          boxShadow: isDark
-            ? '0 0 100px rgba(120, 177, 105, 0.25)'
-            : '0 0 100px rgba(230, 154, 11, 0.25)',
+          transformOrigin: 'center center',
+          willChange: 'transform, opacity',
         }}
       />
     </div>

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { flushSync } from 'react-dom';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -61,11 +62,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const clickX = event?.clientX ?? window.innerWidth / 2;
       const clickY = event?.clientY ?? window.innerHeight / 2;
       setTransitionOrigin({ x: clickX, y: clickY });
-      setIsTransitioning(true);
 
       if (transitionTimeoutRef.current) {
         window.clearTimeout(transitionTimeoutRef.current);
       }
+
+      // Respect prefers-reduced-motion
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       // Check for native View Transitions API support
       const doc = document as unknown as {
@@ -75,13 +81,50 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
       };
 
-      if (typeof doc.startViewTransition === 'function') {
+      if (!prefersReducedMotion && typeof doc.startViewTransition === 'function') {
         const endRadius = Math.hypot(
           Math.max(clickX, window.innerWidth - clickX),
           Math.max(clickY, window.innerHeight - clickY)
         );
 
-        const transition = doc.startViewTransition(() => {
+        try {
+          const transition = doc.startViewTransition(() => {
+            flushSync(() => {
+              setThemeState(targetTheme);
+            });
+            applyThemeToDOM(targetTheme);
+            try {
+              localStorage.setItem(STORAGE_KEY, targetTheme);
+            } catch {
+              // ignore
+            }
+          });
+
+          transition.ready
+            .then(() => {
+              document.documentElement.animate(
+                {
+                  clipPath: [
+                    `circle(0px at ${clickX}px ${clickY}px)`,
+                    `circle(${endRadius}px at ${clickX}px ${clickY}px)`,
+                  ],
+                },
+                {
+                  duration: 360,
+                  easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                  pseudoElement: '::view-transition-new(root)',
+                }
+              );
+            })
+            .catch(() => {
+              // Ignore transition cancellation on rapid triggers
+            });
+
+          transition.finished.finally(() => {
+            setTransitionOrigin(null);
+          });
+        } catch {
+          // Fallback if startViewTransition throws unexpectedly
           setThemeState(targetTheme);
           applyThemeToDOM(targetTheme);
           try {
@@ -89,35 +132,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           } catch {
             // ignore
           }
-        });
-
-        transition.ready
-          .then(() => {
-            document.documentElement.animate(
-              {
-                clipPath: [
-                  `circle(0px at ${clickX}px ${clickY}px)`,
-                  `circle(${endRadius}px at ${clickX}px ${clickY}px)`,
-                ],
-              },
-              {
-                duration: 520,
-                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                pseudoElement: '::view-transition-new(root)',
-              }
-            );
-          })
-          .catch(() => {
-            // fallback
-          });
-
-        transition.finished.finally(() => {
-          setIsTransitioning(false);
-          setTransitionOrigin(null);
-        });
+        }
       } else {
-        // Fallback with React state & ripple
-        setThemeState(targetTheme);
+        // Fallback for browsers without View Transitions API or with reduced motion
+        setIsTransitioning(true);
+        flushSync(() => {
+          setThemeState(targetTheme);
+        });
         applyThemeToDOM(targetTheme);
         try {
           localStorage.setItem(STORAGE_KEY, targetTheme);
@@ -128,7 +149,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         transitionTimeoutRef.current = window.setTimeout(() => {
           setIsTransitioning(false);
           setTransitionOrigin(null);
-        }, 550);
+        }, 360);
       }
     },
     [theme, applyThemeToDOM]
