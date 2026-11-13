@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, MotionConfig } from 'motion/react';
 import { PageTab, CalculationResult } from './types';
 import { calculateEmissions, DEFAULT_EMISSION_INPUTS } from './data/carbonData';
 import { initAuth, googleSignIn, logoutUser, getAccessToken, requestDriveAccess, AuthUserProfile } from './lib/firebase';
@@ -20,9 +20,13 @@ import { GuidedTourModal } from './components/GuidedTourModal';
 import { Chatbot } from './components/Chatbot';
 import { ThemeRippleOverlay, FluidGlassButton, Iridescence } from './components/reactbits';
 import { ThemeProvider } from './context/ThemeContext';
-import { FileCode, Cloud, Leaf, Sparkles, HelpCircle, Instagram, AlertTriangle, ExternalLink, X } from 'lucide-react';
+import { Sparkles, AlertTriangle, ExternalLink, X } from 'lucide-react';
 
 import { IntroLoader } from './components/IntroLoader';
+import { SiteFooter } from './components/SiteFooter';
+import { SmoothScroll, getLenis, prefersReducedMotion } from './components/fx/SmoothScroll';
+import { CustomCursor } from './components/fx/CustomCursor';
+import { PageCurtain, CurtainRequest } from './components/fx/PageCurtain';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<PageTab>('overview');
@@ -34,11 +38,13 @@ export function AppContent() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGuidedTourOpen, setIsGuidedTourOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [curtain, setCurtain] = useState<CurtainRequest | null>(null);
 
   const mainRef = useRef<HTMLElement>(null);
 
   // Helper to reliably scroll to top across window, documentElement, body, and main container
   const scrollToTop = useCallback(() => {
+    getLenis()?.scrollTo(0, { immediate: true, force: true });
     try {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     } catch {
@@ -55,10 +61,29 @@ export function AppContent() {
     }
   }, []);
 
+  // Tab changes run behind a full-screen curtain; the page swaps once it covers the viewport
   const handleTabChange = useCallback((tab: PageTab) => {
+    if (tab === currentTab || prefersReducedMotion()) {
+      setCurrentTab(tab);
+      scrollToTop();
+      return;
+    }
+    setCurtain({ tab, key: Date.now() });
+  }, [currentTab, scrollToTop]);
+
+  const handleCurtainCovered = useCallback((tab: PageTab) => {
     setCurrentTab(tab);
     scrollToTop();
+    window.setTimeout(() => setCurtain(null), 180);
   }, [scrollToTop]);
+
+  const handleBackToTop = useCallback(() => {
+    const lenis = getLenis();
+    if (lenis) lenis.scrollTo(0, { duration: 1.6 });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleIntroComplete = useCallback(() => setShowIntro(false), []);
 
   // Automatically scroll to the top whenever switching tabs
   useEffect(() => {
@@ -172,13 +197,19 @@ export function AppContent() {
   return (
     <div className={`min-h-screen bg-[#F7F9F6] dark:bg-[#0D140C] text-[#2D332B] dark:text-[#E2ECE0] flex flex-col font-sans selection:bg-[#D9E4D1] dark:selection:bg-[#284024] selection:text-[#1D2B17] dark:selection:text-[#D9E4D1] ${showIntro ? 'h-screen overflow-hidden' : ''}`}>
       {/* Global Iridescence Background */}
-      <div className="fixed inset-0 z-0 opacity-20 dark:opacity-40 pointer-events-none">
+      <div className="fixed inset-0 z-0 opacity-[0.12] dark:opacity-[0.16] pointer-events-none">
         <Iridescence color={[0.1, 0.5, 0.3]} mouseReact={true} speed={0.8} amplitude={0.15} />
       </div>
 
+      <SmoothScroll paused={showIntro} />
+      <CustomCursor />
+      <div className="grain-overlay" aria-hidden="true" />
+
       <AnimatePresence>
-        {showIntro && <IntroLoader key="introLoader" onComplete={() => setShowIntro(false)} />}
+        {showIntro && <IntroLoader key="introLoader" onComplete={handleIntroComplete} />}
       </AnimatePresence>
+
+      <PageCurtain request={curtain} onCovered={handleCurtainCovered} />
 
       {/* React Bits Circular Theme Ripple Overlay */}
       <ThemeRippleOverlay />
@@ -198,17 +229,18 @@ export function AppContent() {
       />
 
       {/* Main View Container with Subtle Framer Motion Transitions */}
-      <main ref={mainRef} className="relative z-10 flex-1 overflow-hidden">
+      <main ref={mainRef} className="relative z-10 flex-1 overflow-x-clip">
         <AnimatePresence mode="wait" onExitComplete={scrollToTop}>
           {currentTab === 'overview' && (
             <motion.div
               key="overview"
-              initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
               <OverviewView
+                ready={!showIntro}
                 onNavigate={handleTabChange}
                 onOpenDesignDoc={() => setIsDesignDocOpen(true)}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
@@ -220,10 +252,10 @@ export function AppContent() {
           {currentTab === 'solutions' && (
             <motion.div
               key="solutions"
-              initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
               <SolutionsView
                 onNavigate={handleTabChange}
@@ -234,10 +266,10 @@ export function AppContent() {
           {currentTab === 'calculator' && (
             <motion.div
               key="calculator"
-              initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
               <CalculatorView
                 onNavigate={handleTabChange}
@@ -249,10 +281,10 @@ export function AppContent() {
           {currentTab === 'planner' && (
             <motion.div
               key="planner"
-              initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
               <PlannerView
                 currentCalculation={currentCalculation}
@@ -264,10 +296,10 @@ export function AppContent() {
           {currentTab === 'drive_save' && (
             <motion.div
               key="drive_save"
-              initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
               <SavePlanToDriveView
                 currentCalculation={currentCalculation}
@@ -320,100 +352,12 @@ export function AppContent() {
       </div>
 
       {/* Global Project Footer */}
-      <footer className="relative z-10 bg-[#081E11] dark:bg-[#06120A] text-[#c7d8ca] border-t border-[#193822] dark:border-[#14281A] mt-20 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#65e66d] text-[#081E11] flex items-center justify-center font-bold shadow-xs">
-              <Leaf className="w-4 h-4 text-[#081E11]" />
-            </div>
-            <h2 className="text-2xl font-serif font-bold text-white tracking-tight">
-              Carbon<span className="text-[#65e66d]">Zero</span>
-            </h2>
-          </div>
-
-          <p className="text-sm sm:text-base text-[#c7d8ca] font-medium tracking-wide">
-            Reduce today. Restore tomorrow. Sustain forever.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs">
-            <button
-              onClick={() => handleTabChange('overview')}
-              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => handleTabChange('calculator')}
-              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
-            >
-              Carbon Calculator
-            </button>
-            <button
-              onClick={() => handleTabChange('solutions')}
-              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#65e66d]" />
-              <span>Solutions Hub</span>
-            </button>
-            <button
-              onClick={() => handleTabChange('planner')}
-              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold transition-colors cursor-pointer"
-            >
-              Reduction Planner
-            </button>
-            <button
-              onClick={() => setIsDesignDocOpen(true)}
-              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <FileCode className="w-3.5 h-3.5 text-[#65e66d]" />
-              <span>Project Design Document</span>
-            </button>
-            <button
-              onClick={() => handleTabChange('drive_save')}
-              className="text-[#e2ece0] hover:text-[#65e66d] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <Cloud className="w-3.5 h-3.5 text-[#65e66d]" />
-              <span>Save Plan to Google Drive</span>
-            </button>
-          </div>
-
-          <div className="pt-8 border-t border-white/10 text-xs text-[#8ca890] flex flex-col md:flex-row items-center justify-between gap-6 max-w-5xl mx-auto">
-            <span className="hidden md:inline-block">© 2026 CarbonZero | For a sustainable future</span>
-            
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-[#0A2414] dark:bg-[#07160B] border border-[#193822] dark:border-[#1A2C1D] px-4 py-2 rounded-full shadow-inner">
-                <span>Built with <span className="text-emerald-400">♥</span> by</span>
-                <span className="text-white font-semibold tracking-wide">Team Nigeshhh</span>
-                <span className="font-mono text-[10px] text-[#4A6741]">[GROUP 8]</span>
-              </div>
-              
-              <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 max-w-[320px] sm:max-w-none">
-                {[
-                  '@gearshift.overdrive',
-                  '@blurdragon2007',
-                  '@bossdk.himself',
-                  '@mukthabinu',
-                  '@ak_nike12',
-                  '@steve20072025'
-                ].map(handle => (
-                  <a key={handle} href={`https://instagram.com/${handle.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors cursor-pointer group">
-                    <Instagram className="w-3 h-3 group-hover:scale-110 transition-transform" />
-                    <span className="font-mono text-[10px]">{handle}</span>
-                  </a>
-                ))}
-              </div>
-              <span className="text-[11px] text-[#A6C3A9] italic font-medium mt-1">
-                For Mr. Sanjay Gireeshan with Love
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center md:items-end gap-2">
-              <span className="font-mono text-[11px] text-[#789d7d]">Aligned with GHG Protocol Scopes 1, 2 & 3</span>
-              <span className="md:hidden">© 2026 CarbonZero</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter
+        onNavigate={handleTabChange}
+        onOpenDesignDoc={() => setIsDesignDocOpen(true)}
+        onBackToTop={handleBackToTop}
+        className={currentTab === 'overview' ? '' : 'mt-24'}
+      />
 
       {/* Browser Popup Blocked Guidance Modal */}
       <AnimatePresence>
@@ -506,7 +450,9 @@ export function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <MotionConfig reducedMotion="user">
+        <AppContent />
+      </MotionConfig>
     </ThemeProvider>
   );
 }

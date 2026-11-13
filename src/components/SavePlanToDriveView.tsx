@@ -237,7 +237,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
               <Cloud className="w-3.5 h-3.5" />
               <span>Google Drive Cloud Integration</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#1D2B17] dark:text-[#EEF5ED] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-semibold text-[#1D2B17] dark:text-[#EEF5ED] tracking-[-0.045em] leading-[0.98]">
               Save Your Climate Action Plan to Google Drive
             </h1>
             <p className="text-sm text-[#5C6658] dark:text-[#9DB099] leading-relaxed">
