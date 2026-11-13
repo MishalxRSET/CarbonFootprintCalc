@@ -141,12 +141,13 @@ const LocalClock: React.FC = () => {
 
 interface HeroProps {
   ready: boolean;
+  onVisualReady?: () => void;
   onNavigate: (tab: PageTab) => void;
   onOpenDesignDoc: () => void;
   onOpenGuidedTour?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ ready, onNavigate, onOpenDesignDoc, onOpenGuidedTour }) => {
+const Hero: React.FC<HeroProps> = ({ ready, onVisualReady, onNavigate, onOpenDesignDoc, onOpenGuidedTour }) => {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const globeScale = useTransform(scrollYProgress, [0, 1], [1, 1.28]);
@@ -189,10 +190,10 @@ const Hero: React.FC<HeroProps> = ({ ready, onNavigate, onOpenDesignDoc, onOpenG
           style={{ scale: globeScale, y: globeY }}
           initial={{ opacity: 0 }}
           animate={ready ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 2, ease: EASE_OUT_EXPO }}
+          transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
         >
           <div className="absolute inset-[22%] rounded-full bg-[#2fae4b]/25 blur-[90px]" />
-          {ready && <PointGlobe scrollProgress={scrollYProgress} className="absolute inset-0" />}
+          <PointGlobe scrollProgress={scrollYProgress} play={ready} onReady={onVisualReady} className="absolute inset-0" />
         </motion.div>
       </div>
 
@@ -932,6 +933,8 @@ interface OverviewViewProps {
   onOpenGuidedTour?: () => void;
   /** False while the intro loader still covers the page; hero animations wait for it. */
   ready?: boolean;
+  /** Fired once the hero globe has finished its heavy first render. */
+  onHeroVisualReady?: () => void;
 }
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
@@ -940,9 +943,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   onOpenCommandPalette,
   onOpenGuidedTour,
   ready = true,
+  onHeroVisualReady,
 }) => (
   <div className="relative">
-    <Hero ready={ready} onNavigate={onNavigate} onOpenDesignDoc={onOpenDesignDoc} onOpenGuidedTour={onOpenGuidedTour} />
+    <Hero ready={ready} onVisualReady={onHeroVisualReady} onNavigate={onNavigate} onOpenDesignDoc={onOpenDesignDoc} onOpenGuidedTour={onOpenGuidedTour} />
     <MarqueeBand />
     <Manifesto />
     <ZoomReveal />
