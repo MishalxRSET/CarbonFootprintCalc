@@ -7,8 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PageTab, CalculationResult } from './types';
 import { calculateEmissions, DEFAULT_EMISSION_INPUTS } from './data/carbonData';
-import { initAuth, googleSignIn, logoutUser, getAccessToken } from './lib/firebase';
-import { User } from 'firebase/auth';
+import { initAuth, googleSignIn, logoutUser, getAccessToken, requestDriveAccess, AuthUserProfile } from './lib/firebase';
 import { Navbar } from './components/Navbar';
 import { OverviewView } from './components/OverviewView';
 import { SolutionsView } from './components/SolutionsView';
@@ -27,7 +26,7 @@ import { IntroLoader } from './components/IntroLoader';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<PageTab>('overview');
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUserProfile | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isDesignDocOpen, setIsDesignDocOpen] = useState(false);
@@ -84,6 +83,16 @@ export function AppContent() {
       console.error('Login flow failed:', err);
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  const handleRequestDriveAccess = async () => {
+    try {
+      const token = await requestDriveAccess();
+      setAccessToken(token);
+    } catch (err) {
+      console.error('Failed to grant Drive access:', err);
+      throw err;
     }
   };
 
@@ -205,6 +214,7 @@ export function AppContent() {
                 currentCalculation={currentCalculation}
                 accessToken={accessToken}
                 onLogin={handleLogin}
+                onRequestDriveAccess={handleRequestDriveAccess}
                 onLogout={handleLogout}
                 isLoggingIn={isLoggingIn}
                 onNavigate={(tab) => setCurrentTab(tab)}

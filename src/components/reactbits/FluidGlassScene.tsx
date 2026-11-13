@@ -221,12 +221,10 @@ function NavItems({ items, textColor }: any) {
           color={textColor}
           anchorX="center"
           anchorY="middle"
-          depthWrite={false}
           outlineWidth={0}
           outlineBlur="20%"
           outlineColor="#000"
           outlineOpacity={0.5}
-          depthTest={false}
           renderOrder={10}
           onClick={e => {
             e.stopPropagation();
@@ -258,10 +256,10 @@ function Images() {
 
   return (
     <group ref={group}>
-      <Image position={[-2, 0, 0]} scale={[3, height / 1.1, 1]} url={IMAGE_URLS[0]} />
+      <Image position={[-2, 0, 0]} scale={[3, height / 1.1]} url={IMAGE_URLS[0]} />
       <Image position={[2, 0, 3]} scale={3} url={IMAGE_URLS[1]} />
-      <Image position={[-2.05, -height, 6]} scale={[1, 3, 1]} url={IMAGE_URLS[2]} />
-      <Image position={[-0.6, -height, 9]} scale={[1, 2, 1]} url={IMAGE_URLS[3]} />
+      <Image position={[-2.05, -height, 6]} scale={[1, 3]} url={IMAGE_URLS[2]} />
+      <Image position={[-0.6, -height, 9]} scale={[1, 2]} url={IMAGE_URLS[3]} />
       <Image position={[0.75, -height, 10.5]} scale={1.5} url={IMAGE_URLS[4]} />
     </group>
   );

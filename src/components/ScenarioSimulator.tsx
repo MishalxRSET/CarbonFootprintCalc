@@ -56,7 +56,7 @@ const PRESETS: { label: string; desc: string; levers: LeverState }[] = [
 
 export const ScenarioSimulator: React.FC<ScenarioSimulatorProps> = ({ onNavigate }) => {
   const [levers, setLevers] = useState<LeverState>(DEFAULT_LEVERS);
-  const [targetYear, setTargetYear] = useState<2025 | 2030 | 2040 | 2050>(2035);
+  const [targetYear, setTargetYear] = useState<2025 | 2030 | 2035 | 2040 | 2050>(2035);
 
   const updateLever = (key: keyof LeverState, val: number) => {
     setLevers((prev) => ({ ...prev, [key]: val }));
