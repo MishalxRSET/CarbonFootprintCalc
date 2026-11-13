@@ -38,6 +38,7 @@ export function AppContent() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isGuidedTourOpen, setIsGuidedTourOpen] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [heroVisualReady, setHeroVisualReady] = useState(false);
   const [curtain, setCurtain] = useState<CurtainRequest | null>(null);
 
   const mainRef = useRef<HTMLElement>(null);
@@ -84,6 +85,7 @@ export function AppContent() {
   }, []);
 
   const handleIntroComplete = useCallback(() => setShowIntro(false), []);
+  const handleHeroVisualReady = useCallback(() => setHeroVisualReady(true), []);
 
   // Automatically scroll to the top whenever switching tabs
   useEffect(() => {
@@ -206,7 +208,7 @@ export function AppContent() {
       <div className="grain-overlay" aria-hidden="true" />
 
       <AnimatePresence>
-        {showIntro && <IntroLoader key="introLoader" onComplete={handleIntroComplete} />}
+        {showIntro && <IntroLoader key="introLoader" assetsReady={heroVisualReady} onComplete={handleIntroComplete} />}
       </AnimatePresence>
 
       <PageCurtain request={curtain} onCovered={handleCurtainCovered} />
@@ -241,6 +243,7 @@ export function AppContent() {
             >
               <OverviewView
                 ready={!showIntro}
+                onHeroVisualReady={handleHeroVisualReady}
                 onNavigate={handleTabChange}
                 onOpenDesignDoc={() => setIsDesignDocOpen(true)}
                 onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}

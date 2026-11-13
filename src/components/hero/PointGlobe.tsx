@@ -34,7 +34,7 @@ interface PointCloud {
 }
 
 function buildCloud(mask: Uint8ClampedArray | null, w: number, h: number): PointCloud {
-  const N = 110000;
+  const N = window.innerWidth < 768 ? 70000 : 110000;
   const golden = Math.PI * (3 - Math.sqrt(5));
   const pos: number[] = [];
   const rnd: number[] = [];
@@ -254,9 +254,11 @@ const dustFragment = /* glsl */ `
 interface GlobeProps {
   scrollProgress?: MotionValue<number>;
   pointer: React.MutableRefObject<{ x: number; y: number }>;
+  play: boolean;
+  onReady?: () => void;
 }
 
-const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer }) => {
+const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer, play, onReady }) => {
   const cloud = useLandCloud();
   const group = useRef<THREE.Group>(null);
   const dust = useRef<THREE.Points>(null);
@@ -431,6 +433,7 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer }) => {
   useEffect(() => () => pointGeometry?.dispose(), [pointGeometry]);
 
   const spin = useRef(0);
+  const readyFired = useRef(false);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -440,7 +443,14 @@ const Globe: React.FC<GlobeProps> = ({ scrollProgress, pointer }) => {
     pulseMaterial.uniforms.uTime.value = t;
     dustMaterial.uniforms.uTime.value = t;
 
-    if (pointGeometry) {
+    // Signal readiness after the first frame that includes the point cloud (shaders compiled)
+    if (pointGeometry && !readyFired.current) {
+      readyFired.current = true;
+      requestAnimationFrame(() => onReady?.());
+    }
+
+    // The reveal clock only starts once the page is on screen
+    if (pointGeometry && play) {
       if (introStart.current === null) introStart.current = t;
       pointMaterial.uniforms.uIntro.value = Math.min(1, (t - introStart.current) / 2.4);
     }
@@ -482,13 +492,17 @@ const hasWebGL = () => {
   }
 };
 
-class GlobeBoundary extends Component<{ fallback: React.ReactNode; children: React.ReactNode }, { failed: boolean }> {
+class GlobeBoundary extends Component<
+  { fallback: React.ReactNode; children: React.ReactNode; onError?: () => void },
+  { failed: boolean }
+> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
   componentDidCatch(err: unknown) {
     console.warn('Globe rendering disabled:', err);
+    this.props.onError?.();
   }
   render() {
     return this.state.failed ? this.props.fallback : this.props.children;
@@ -502,14 +516,25 @@ const Fallback = () => (
 interface PointGlobeProps {
   scrollProgress?: MotionValue<number>;
   className?: string;
+  /**
+   * False while something covers the hero (the intro). The globe still mounts,
+   * samples its land mask and compiles shaders, but stays hidden and idle.
+   */
+  play?: boolean;
+  /** Called once the globe has rendered (or immediately when WebGL is unavailable). */
+  onReady?: () => void;
 }
 
 /** Interactive point-cloud Earth used as the landing hero's signature visual. */
-export const PointGlobe: React.FC<PointGlobeProps> = ({ scrollProgress, className = '' }) => {
+export const PointGlobe: React.FC<PointGlobeProps> = ({ scrollProgress, className = '', play = true, onReady }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pointer = useRef({ x: 0, y: 0 });
   const [visible, setVisible] = useState(true);
   const [supported] = useState(hasWebGL);
+
+  useEffect(() => {
+    if (!supported) onReady?.();
+  }, [supported, onReady]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -530,15 +555,15 @@ export const PointGlobe: React.FC<PointGlobeProps> = ({ scrollProgress, classNam
   return (
     <div ref={wrapRef} className={className || 'relative'} aria-hidden="true">
       {supported ? (
-        <GlobeBoundary fallback={<Fallback />}>
+        <GlobeBoundary fallback={<Fallback />} onError={onReady}>
           <Canvas
-            frameloop={visible ? 'always' : 'never'}
+            frameloop={visible && play ? 'always' : 'demand'}
             dpr={[1, 1.75]}
             camera={{ position: [0, 0, 3.6], fov: 38 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             style={{ position: 'absolute', inset: 0 }}
           >
-            <Globe scrollProgress={scrollProgress} pointer={pointer} />
+            <Globe scrollProgress={scrollProgress} pointer={pointer} play={play} onReady={onReady} />
           </Canvas>
         </GlobeBoundary>
       ) : (
