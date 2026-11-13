@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { CalculationResult, PageTab, ReductionStrategy, DriveFileItem } from '../types';
 import { REDUCTION_STRATEGIES } from '../data/carbonData';
 import { formatINR } from '../utils/currency';
@@ -9,6 +9,7 @@ import {
   DrivePlanFormat,
   PlanExportPayload,
 } from '../lib/drive';
+import { hasFreshAccessToken } from '../lib/firebase';
 import { fireCelebrationConfetti } from '../utils/confetti';
 import {
   Cloud,
@@ -145,32 +146,38 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     );
   };
 
-  const [hasDriveAccess, setHasDriveAccess] = useState<boolean>(false);
+  // Google granted a token without the Drive scope (the Drive checkbox was left unticked)
+  const [scopeMissing, setScopeMissing] = useState<boolean>(false);
   const [isRequestingDrive, setIsRequestingDrive] = useState<boolean>(false);
+  // Only the newest list request may update the panel
+  const listRequestId = useRef(0);
 
   // Load existing plans from Drive if connected
   const fetchExistingPlans = async (token: string | null = accessToken) => {
     if (!token) return;
+    const requestId = ++listRequestId.current;
     setIsLoadingExisting(true);
     setExistingError(null);
     try {
       const files = await listSavedPlansFromDrive(token);
+      if (requestId !== listRequestId.current) return;
       setExistingPlans(files);
-      setHasDriveAccess(true);
+      setScopeMissing(false);
     } catch (err: any) {
+      if (requestId !== listRequestId.current) return;
       console.error('Failed to load drive files:', err);
       const errMsg = err?.message || '';
       if (errMsg === 'UNAUTHORIZED_EXPIRED_TOKEN') {
         // Token expired or was revoked: drop it so the panel offers a fresh sign-in
         onDriveTokenInvalid();
       } else if (errMsg === 'DRIVE_SCOPE_MISSING') {
-        setHasDriveAccess(false);
+        setScopeMissing(true);
       } else {
         const issue = saveIssueFromError(err);
         setExistingError(issue && 'message' in issue ? issue.message : 'Could not load existing plans');
       }
     } finally {
-      setIsLoadingExisting(false);
+      if (requestId === listRequestId.current) setIsLoadingExisting(false);
     }
   };
 
@@ -185,7 +192,8 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     setExistingError(null);
     try {
       const token = await onRequestDriveAccess(true);
-      fetchExistingPlans(token);
+      // A new token re-runs the list through the accessToken effect; only reload here if it is unchanged
+      if (token === accessToken) fetchExistingPlans(token);
     } catch (err) {
       const issue = saveIssueFromError(err);
       if (issue && issue.kind !== 'popup' && issue.kind !== 'domain') setExistingError(issue.message);
@@ -212,11 +220,13 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     setSaveError(null);
     setSaveSuccessFile(null);
 
-    // Reuses a fresh token, otherwise opens the Google popup (still inside this click)
+    // Reuses a fresh token, otherwise opens the Google popup (still inside this click).
+    // A token known to lack the Drive scope goes straight to a fresh consent instead of a doomed upload.
     let token: string;
-    if (!accessToken) setIsRequestingDrive(true);
+    const needsConsent = scopeMissing;
+    if (!accessToken || needsConsent || !hasFreshAccessToken()) setIsRequestingDrive(true);
     try {
-      token = await onRequestDriveAccess();
+      token = await onRequestDriveAccess(needsConsent);
     } catch (err) {
       setSaveError(saveIssueFromError(err));
       return;
@@ -239,7 +249,7 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
     try {
       const savedFile = await savePlanToGoogleDrive(token, payload, format);
       setSaveSuccessFile(savedFile);
-      setHasDriveAccess(true);
+      setScopeMissing(false);
       fireCelebrationConfetti();
       // Refresh list of plans
       fetchExistingPlans(token);
@@ -810,7 +820,12 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
                   Log In
                 </button>
               </div>
-            ) : !hasDriveAccess && !isLoadingExisting ? (
+            ) : isLoadingExisting ? (
+              <div className="py-6 flex items-center justify-center gap-2 text-xs text-[#737C70]">
+                <RefreshCw className="w-4 h-4 animate-spin text-[#4A6741]" />
+                <span>Loading your Drive documents...</span>
+              </div>
+            ) : scopeMissing ? (
               <div className="p-4 bg-[#F7F9F6] dark:bg-[#1A2619] border border-[#E0E7DE] dark:border-[#263824] rounded-2xl text-center space-y-2">
                 <Cloud className="w-6 h-6 text-[#737C70] mx-auto opacity-50" />
                 <p className="text-xs text-[#5C6658] dark:text-[#9DB099]">
@@ -823,10 +838,22 @@ export const SavePlanToDriveView: React.FC<SavePlanToDriveViewProps> = ({
                   Grant Drive Access
                 </button>
               </div>
-            ) : isLoadingExisting ? (
-              <div className="py-6 flex items-center justify-center gap-2 text-xs text-[#737C70]">
-                <RefreshCw className="w-4 h-4 animate-spin text-[#4A6741]" />
-                <span>Loading your Drive documents...</span>
+            ) : existingError ? (
+              <div
+                role="alert"
+                className="p-4 bg-[#FDF2F0] dark:bg-[#2B1714] border border-[#E8C5BE] dark:border-[#4D2620] rounded-2xl text-xs text-[#8C3A27] dark:text-[#E8998D] space-y-2"
+              >
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <p className="text-[11px]">{existingError}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fetchExistingPlans()}
+                  className="px-3 py-1 rounded-full text-[11px] font-bold bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 transition-colors"
+                >
+                  Retry
+                </button>
               </div>
             ) : existingPlans.length > 0 ? (
               <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">

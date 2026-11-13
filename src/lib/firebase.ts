@@ -38,15 +38,24 @@ const TOKEN_LIFETIME_MS = 55 * 60 * 1000;
 let isSigningIn = false;
 let cachedAccessToken: string | null = null;
 let tokenIssuedAt = 0;
+// The account the token was issued for: another tab can switch the signed-in user
+let tokenUid: string | null = null;
 let cachedUserProfile: AuthUserProfile | null = null;
 
-const cacheAccessToken = (token: string | null) => {
+const cacheAccessToken = (token: string | null, uid: string | null = null) => {
   cachedAccessToken = token;
+  tokenUid = token ? uid : null;
   tokenIssuedAt = token ? Date.now() : 0;
 };
 
-const freshAccessToken = (): string | null =>
-  cachedAccessToken && Date.now() - tokenIssuedAt < TOKEN_LIFETIME_MS ? cachedAccessToken : null;
+/** The cached token, only while it is fresh and belongs to `uid` (the signed-in user by default). */
+const freshAccessToken = (uid: string | null | undefined = auth.currentUser?.uid): string | null =>
+  cachedAccessToken && uid && tokenUid === uid && Date.now() - tokenIssuedAt < TOKEN_LIFETIME_MS
+    ? cachedAccessToken
+    : null;
+
+/** True when a Drive token can be reused without opening the Google popup. */
+export const hasFreshAccessToken = (): boolean => freshAccessToken() !== null;
 
 /**
  * Map Firebase auth failures onto the app's error codes:
@@ -82,7 +91,7 @@ export const initAuth = (
 
   // If already authenticated in session memory
   if (cachedUserProfile) {
-    if (onAuthSuccess) onAuthSuccess(cachedUserProfile, freshAccessToken());
+    if (onAuthSuccess) onAuthSuccess(cachedUserProfile, freshAccessToken(cachedUserProfile.uid));
   }
 
   // Also listen to Firebase Auth changes
@@ -95,7 +104,9 @@ export const initAuth = (
         uid: firebaseUser.uid,
       };
       cachedUserProfile = profile;
-      successListeners.forEach((cb) => cb(profile, freshAccessToken()));
+      // A different account signed in (e.g. from another tab): never hand it the previous account's token
+      if (tokenUid !== firebaseUser.uid) cacheAccessToken(null);
+      successListeners.forEach((cb) => cb(profile, freshAccessToken(profile.uid)));
     } else if (!isSigningIn) {
       cachedUserProfile = null;
       cacheAccessToken(null);
@@ -128,7 +139,7 @@ export const requestDriveAccess = async ({ forceRefresh = false }: { forceRefres
       throw new Error('Could not obtain Google Drive access token from Google sign-in.');
     }
     const token = credential.accessToken;
-    cacheAccessToken(token);
+    cacheAccessToken(token, result.user.uid);
 
     const profile: AuthUserProfile = {
       displayName: result.user.displayName,
@@ -161,7 +172,7 @@ export const googleSignIn = async (): Promise<{ user: AuthUserProfile; accessTok
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    cacheAccessToken(credential?.accessToken || null);
+    cacheAccessToken(credential?.accessToken || null, result.user.uid);
 
     const profile: AuthUserProfile = {
       displayName: result.user.displayName,
@@ -194,7 +205,7 @@ export const getAccessToken = async (): Promise<string | null> => {
  * Explicitly cache access token if updated
  */
 export const setCachedAccessToken = (token: string | null) => {
-  cacheAccessToken(token);
+  cacheAccessToken(token, auth.currentUser?.uid ?? null);
 };
 
 /**
